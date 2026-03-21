@@ -14,14 +14,53 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
 })
 
+const baseUrl = 'https://dampellamv.vercel.app'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: {
-    default: 'MR/ Dampella M.V - Government School',
+    default: 'MR/ Dampella M.V - Official School Website',
     template: '%s | MR/ Dampella M.V',
   },
-  description: 'Welcome to MR/ Dampella M.V, a prestigious government school in the Southern Province, Sri Lanka. Providing quality education with 60+ students and 25 dedicated teachers.',
-  keywords: ['school', 'education', 'government school', 'Southern Province', 'Sri Lanka', 'Dampella'],
+  description: 'Official website of MR/ Dampella M.V, a prestigious government school in the Southern Province, Sri Lanka. Excellence in education with dedicated faculty and modern facilities.',
+  keywords: [
+    'MR/ Dampella M.V', 
+    'Dampella M.V', 
+    'Dampella Maha Vidyalaya', 
+    'Dampella School', 
+    'Government School Sri Lanka', 
+    'Southern Province Schools', 
+    'Matara District Schools', 
+    'Quality Education Sri Lanka'
+  ],
   authors: [{ name: 'MR/ Dampella M.V' }],
+  creator: 'Dilshan Methsara',
+  publisher: 'MR/ Dampella M.V',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: baseUrl,
+    title: 'MR/ Dampella M.V - Official School Website',
+    description: 'Official website of MR/ Dampella M.V. Empowering students through quality education since decades.',
+    siteName: 'MR/ Dampella M.V',
+    images: [
+      {
+        url: '/dmvlogo.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'MR/ Dampella M.V Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MR/ Dampella M.V - Official School Website',
+    description: 'Official website of MR/ Dampella M.V. Empowering students through quality education.',
+    images: ['/dmvlogo.jpg'],
+  },
   icons: {
     icon: [
       {
@@ -39,6 +78,17 @@ export const metadata: Metadata = {
     ],
     apple: '/dmvlogo.jpg',
     shortcut: '/dmvlogo.jpg',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 

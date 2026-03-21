@@ -1,0 +1,778 @@
+"use client"
+
+import { useState, useEffect } from "react"
+
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  GraduationCap,
+  LogOut,
+  Settings,
+  TrendingUp,
+  Users,
+  FileText,
+  MessageSquare,
+  Bell,
+  BarChart3,
+  Download,
+  CheckCircle,
+  InboxIcon,
+  ExternalLink,
+  Loader2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ThemeToggle } from "@/components/portal/theme-toggle"
+import { LanguageToggle } from "@/components/portal/language-toggle"
+import { useI18n } from "@/lib/portal/i18n-context"
+import type { User } from "@/lib/portal/auth-context"
+import { createClient } from "@/lib/supabase"
+
+interface DashboardProps {
+  user: User
+  onLogout: () => void
+}
+
+const EMOJIS = ["👋", "🌟", "🚀", "✨", "🎉", "🔥", "💪", "😎", "🎓", "📚"]
+
+// ─── Empty State Component ───────────────────────────────────────────────────
+function EmptyState({ icon: Icon, message, sub }: { icon: React.ComponentType<{ className?: string }>, message: string, sub?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+      <Icon className="size-10 text-muted-foreground/30" />
+      <p className="text-sm font-medium text-muted-foreground">{message}</p>
+      {sub && <p className="text-xs text-muted-foreground/70">{sub}</p>}
+    </div>
+  )
+}
+
+// ─── Past Papers Section (Supabase) ─────────────────────────────────────────
+function PastPapersSection({ gradeClass, t }: { gradeClass?: string; t: (k: string) => string }) {
+  const [papers, setPapers] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (!gradeClass) { setIsLoading(false); return }
+    supabase
+      .from('past_papers')
+      .select('*')
+      .eq('grade', gradeClass)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error) setPapers(data || [])
+        setIsLoading(false)
+      })
+  }, [gradeClass])
+
+  const byTerm: Record<string, any[]> = {
+    "Term 1": papers.filter(p => p.term === "Term 1"),
+    "Term 2": papers.filter(p => p.term === "Term 2"),
+    "Term 3": papers.filter(p => p.term === "Term 3"),
+    "Other": papers.filter(p => !p.term),
+  }
+  const activeTabs = Object.entries(byTerm).filter(([, v]) => v.length > 0)
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>{gradeClass || "Your Grade"} — {t("dashboard.pastPapers")}</span>
+          {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {!gradeClass ? (
+          <EmptyState icon={FileText} message="Grade not set" sub="Update your profile to see your past papers" />
+        ) : isLoading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : papers.length === 0 ? (
+          <EmptyState
+            icon={Download}
+            message="No past papers uploaded yet"
+            sub="Papers will appear here once the school uploads them for your grade"
+          />
+        ) : (
+          <Tabs defaultValue={activeTabs[0]?.[0] || "Term 1"} className="w-full">
+            <TabsList className="w-full mb-4">
+              {activeTabs.map(([term]) => (
+                <TabsTrigger key={term} value={term} className="flex-1">{term}</TabsTrigger>
+              ))}
+            </TabsList>
+            {activeTabs.map(([term, termPapers]) => (
+              <TabsContent key={term} value={term} className="space-y-2">
+                {termPapers.map(paper => (
+                  <div key={paper.id} className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/50 transition-colors">
+                    <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                      <FileText className="h-5 w-5 text-red-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{paper.title}</p>
+                      <p className="text-xs text-muted-foreground">{paper.subject}{paper.year ? ` · ${paper.year}` : ""}</p>
+                    </div>
+                    <Button size="sm" variant="outline" className="gap-1.5 shrink-0 rounded-lg"
+                      onClick={() => window.open(paper.file_url, '_blank')}>
+                      <ExternalLink className="h-3.5 w-3.5" /> Open
+                    </Button>
+                  </div>
+                ))}
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ─── My Marks Section (Student) ──────────────────────────────────────────────
+function MyMarksSection({ userEmail, t }: { userEmail: string; t: (k: string) => string }) {
+  const [marks, setMarks] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    supabase
+      .from('marks')
+      .select('*')
+      .eq('student_email', userEmail.toLowerCase())
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error) setMarks(data || [])
+        setIsLoading(false)
+      })
+  }, [userEmail])
+
+  const getGrade = (score: number) => {
+    if (score >= 90) return { label: 'A+', color: 'text-emerald-600' }
+    if (score >= 80) return { label: 'A', color: 'text-emerald-500' }
+    if (score >= 70) return { label: 'B', color: 'text-blue-500' }
+    if (score >= 60) return { label: 'C', color: 'text-amber-500' }
+    if (score >= 50) return { label: 'S', color: 'text-orange-500' }
+    return { label: 'F', color: 'text-red-500' }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>{t('dashboard.recentMarks')}</span>
+          {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : marks.length === 0 ? (
+          <EmptyState
+            icon={BarChart3}
+            message="No marks recorded yet"
+            sub="Your marks will appear here once entered by your teacher"
+          />
+        ) : (
+          <div className="space-y-3">
+            {marks.map(mark => {
+              const grade = getGrade(mark.score)
+              return (
+                <div key={mark.id} className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/50 transition-colors">
+                  <div className={`h-11 w-11 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 bg-muted ${grade.color}`}>
+                    {grade.label}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm">{mark.subject}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {mark.term ? `${mark.term} · ` : ''}{new Date(mark.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className={`text-xl font-bold ${grade.color}`}>{mark.score}</p>
+                    <p className="text-xs text-muted-foreground">/ 100</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ─── Student Dashboard ────────────────────────────────────────────────────────
+export function StudentDashboard({ user, onLogout }: DashboardProps) {
+  const { t } = useI18n()
+  const [emoji, setEmoji] = useState("")
+
+  useEffect(() => {
+    setEmoji(EMOJIS[Math.floor(Math.random() * EMOJIS.length)])
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-background">
+      <DashboardHeader user={user} onLogout={onLogout} />
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold mb-2">
+            {t("dashboard.welcomeBack")}, {user.fullName.split(" ")[0]} {emoji}
+          </h1>
+          <p className="text-muted-foreground">{t("dashboard.studentSubtitle")}</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <StatCard title={t("dashboard.enrolledClasses")} value="—" icon={BookOpen} trend="No data yet" />
+          <StatCard title={t("dashboard.assignmentsDue")} value="—" icon={FileText} trend="No data yet" />
+          <StatCard title={t("dashboard.averageGrade")} value="—" icon={TrendingUp} trend="No data yet" />
+          <StatCard title={t("dashboard.attendance")} value="—" icon={Calendar} trend="No data yet" />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Upcoming Assignments */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.upcomingAssignments")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  icon={CheckCircle}
+                  message="No upcoming assignments"
+                  sub="Your teacher hasn't assigned anything yet"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Past Papers — Supabase powered, grade-filtered */}
+            <PastPapersSection gradeClass={user.gradeClass} t={t} />
+
+            {/* My Marks — live from Supabase */}
+            <MyMarksSection userEmail={user.email} t={t} />
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Today's Schedule */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.todaysSchedule")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  icon={Clock}
+                  message="No schedule available"
+                  sub="Your timetable will appear here"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Announcements */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.recentAnnouncements")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  icon={Bell}
+                  message="No announcements yet"
+                  sub="School announcements will appear here"
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <div className="mt-12 pt-4 pb-4 px-6 border rounded-2xl bg-white backdrop-blur-sm shadow-sm inline-block mx-auto">
+          <p className="text-sm font-bold text-black text-center">
+            Designed and developed by <span className="underline underline-offset-4 decoration-black/20">Dilshan Methsara</span>
+          </p>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+// ─── Enter Marks Dialog (Teacher) ────────────────────────────────────────────
+function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: string) => string }) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [selectedStudent, setSelectedStudent] = useState<any>(null)
+  const [subject, setSubject] = useState("")
+  const [term, setTerm] = useState("")
+  const [score, setScore] = useState("")
+  const [isSearching, setIsSearching] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const supabase = createClient()
+
+  // Live search students as teacher types
+  useEffect(() => {
+    if (!query || query.length < 1) { setSuggestions([]); setShowDropdown(false); return }
+    setIsSearching(true)
+    const timer = setTimeout(async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, email, grade_class')
+        .eq('role', 'student')
+        .ilike('full_name', `%${query}%`)
+        .limit(8)
+      setSuggestions(data || [])
+      setShowDropdown(true)
+      setIsSearching(false)
+    }, 150)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  const selectStudent = (student: any) => {
+    setSelectedStudent(student)
+    setQuery(student.full_name)
+    setShowDropdown(false)
+    setSuggestions([])
+  }
+
+  const handleSave = async () => {
+    if (!selectedStudent || !subject || !score) return
+    setIsSaving(true)
+    try {
+      const { error } = await supabase.from('marks').insert({
+        student_email: selectedStudent.email,
+        student_name: selectedStudent.full_name,
+        grade: selectedStudent.grade_class,
+        subject,
+        term: term || null,
+        score: parseInt(score),
+        teacher_email: teacherEmail,
+      })
+      if (error) throw error
+      const { toast } = await import('sonner')
+      toast.success(`Marks saved for ${selectedStudent.full_name}!`)
+      setOpen(false)
+      resetForm()
+    } catch (err) {
+      const { toast } = await import('sonner')
+      toast.error('Failed to save marks')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const resetForm = () => {
+    setQuery(""); setSelectedStudent(null); setSubject(""); setTerm(""); setScore("")
+    setSuggestions([]); setShowDropdown(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm() }}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="justify-start">
+          <GraduationCap className="mr-2 size-4" />
+          {t('dashboard.enterMarks')}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[460px]">
+        <DialogHeader>
+          <DialogTitle>{t('dashboard.enterMarks')}</DialogTitle>
+          <DialogDescription>Search for a student and enter their marks.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-2">
+          {/* Student Search */}
+          <div className="space-y-2">
+            <Label>{t('dashboard.selectStudent')}</Label>
+            <div className="relative">
+              <Input
+                placeholder="Type student name..."
+                value={query}
+                onChange={e => { setQuery(e.target.value); setSelectedStudent(null) }}
+                className="h-11 rounded-xl pr-8"
+                onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+              />
+              {isSearching && <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-muted-foreground" />}
+
+              {/* Dropdown */}
+              {showDropdown && suggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover border rounded-xl shadow-lg overflow-hidden">
+                  {suggestions.map(s => (
+                    <button
+                      key={s.email}
+                      type="button"
+                      onClick={() => selectStudent(s)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted text-left transition-colors"
+                    >
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                        {s.full_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm">{s.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{s.grade_class} · {s.email}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {showDropdown && suggestions.length === 0 && !isSearching && query.length >= 2 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover border rounded-xl shadow-lg p-4 text-center text-sm text-muted-foreground">
+                  No students found matching "{query}"
+                </div>
+              )}
+            </div>
+            {selectedStudent && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/5 border border-primary/20">
+                <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                  {selectedStudent.full_name.charAt(0)}
+                </div>
+                <span className="text-sm font-medium">{selectedStudent.full_name}</span>
+                <Badge variant="secondary" className="ml-auto">{selectedStudent.grade_class}</Badge>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label>{t('common.subject')}</Label>
+              <Select value={subject} onValueChange={setSubject}>
+                <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select subject" /></SelectTrigger>
+                <SelectContent>
+                  {['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History'].map(s => (
+                    <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Term</Label>
+              <Select value={term} onValueChange={setTerm}>
+                <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Optional" /></SelectTrigger>
+                <SelectContent>
+                  {['Term 1','Term 2','Term 3'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t('dashboard.score')} <span className="text-muted-foreground text-xs">(out of 100)</span></Label>
+            <Input
+              type="number" min="0" max="100"
+              placeholder="e.g. 85"
+              value={score}
+              onChange={e => setScore(e.target.value)}
+              className="h-11 rounded-xl text-lg font-bold"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleSave} disabled={!selectedStudent || !subject || !score || isSaving}>
+            {isSaving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : t('dashboard.saveMarks')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Teacher Dashboard ────────────────────────────────────────────────────────
+export function TeacherDashboard({ user, onLogout }: DashboardProps) {
+  const { t } = useI18n()
+  const [emoji, setEmoji] = useState("")
+
+  useEffect(() => {
+    setEmoji(EMOJIS[Math.floor(Math.random() * EMOJIS.length)])
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-background">
+      <DashboardHeader user={user} onLogout={onLogout} />
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold mb-2">
+            {t("dashboard.welcomeBack")}, {user.fullName} {emoji}
+          </h1>
+          <p className="text-muted-foreground">{t("dashboard.teacherSubtitle")}</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <StatCard title={t("dashboard.activeClasses")} value="—" icon={BookOpen} trend="No data yet" />
+          <StatCard title={t("dashboard.totalStudents")} value="—" icon={Users} trend="No data yet" />
+          <StatCard title={t("dashboard.assignments")} value="—" icon={FileText} trend="No data yet" />
+          <StatCard title={t("dashboard.classAverage")} value="—" icon={BarChart3} trend="No data yet" />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Your Classes */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.yourClasses")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  icon={BookOpen}
+                  message="No classes assigned yet"
+                  sub="Your classes will appear here once set up"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Assignments to Review */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.assignmentsToReview")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  icon={InboxIcon}
+                  message="No submissions to review"
+                  sub="Student homework submissions will appear here"
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Today's Schedule */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.todaysSchedule")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  icon={Clock}
+                  message="No schedule available"
+                  sub="Your timetable will appear here"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.quickActions")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="justify-start">
+                      <FileText className="mr-2 size-4" />
+                      {t("dashboard.createAssignment")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>{t("dashboard.createAssignment")}</DialogTitle>
+                      <DialogDescription>
+                        Assign new homework to a specific grade.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="title">{t("dashboard.homeworkTitle")}</Label>
+                        <Input id="title" placeholder="e.g. Algebra Worksheet" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="grade">{t("common.grade")}</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("common.grade")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11"].map(g => (
+                              <SelectItem key={g} value={g}>{g}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="subject">{t("common.subject")}</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("common.subject")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History"].map(s => (
+                              <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="desc">{t("dashboard.instructions")}</Label>
+                        <Textarea id="desc" placeholder="Details about the homework..." />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button">{t("dashboard.assignHomework")}</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Button variant="outline" className="justify-start">
+                  <MessageSquare className="mr-2 size-4" />
+                  {t("dashboard.sendAnnouncement")}
+                </Button>
+
+                <Button variant="outline" className="justify-start">
+                  <BarChart3 className="mr-2 size-4" />
+                  {t("dashboard.viewReports")}
+                </Button>
+
+                <EnterMarksDialog teacherEmail={user.email} t={t} />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <div className="mt-12 pt-4 pb-4 px-6 border rounded-2xl bg-white backdrop-blur-sm shadow-sm inline-block mx-auto">
+          <p className="text-sm font-bold text-black text-center">
+            Designed and developed by <span className="underline underline-offset-4 decoration-black/20">Dilshan Methsara</span>
+          </p>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+// ─── Pending Approval ─────────────────────────────────────────────────────────
+export function PendingApprovalScreen({ user, onLogout }: DashboardProps) {
+  const { t } = useI18n()
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="size-6" />
+            <span className="font-semibold">EduPortal</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onLogout}>
+            <LogOut className="mr-2 size-4" />
+            {t("common.signOut")}
+          </Button>
+        </div>
+      </header>
+
+      <main className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardContent className="pt-8 pb-8">
+            <div className="size-20 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-6">
+              <Clock className="size-10 text-amber-500" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">{t("auth.pendingTitle")}</h1>
+            <p className="text-muted-foreground mb-6">
+              {t("auth.pendingDesc")} {user.fullName}.
+            </p>
+            <div className="rounded-lg border border-border bg-secondary/30 p-4 text-left mb-6">
+              <h3 className="font-medium mb-2">{t("auth.pendingNext")}</h3>
+              <ul className="text-sm text-muted-foreground space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="size-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  {t("auth.pendingTeam")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="size-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  {t("auth.pendingEmail")}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="size-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                  {t("auth.pendingTime")}
+                </li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  )
+}
+
+// ─── Shared Components ────────────────────────────────────────────────────────
+function DashboardHeader({ user, onLogout }: { user: User; onLogout: () => void }) {
+  const { t } = useI18n()
+  return (
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <GraduationCap className="size-6" />
+          <span className="font-semibold">EduPortal</span>
+          <Badge variant="secondary" className="ml-2 capitalize">
+            {t(`common.${user.role}`)}
+          </Badge>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <LanguageToggle />
+          <ThemeToggle />
+          <Button variant="ghost" size="icon" aria-label="Notifications">
+            <Bell className="size-5" />
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Settings">
+            <Settings className="size-5" />
+          </Button>
+          <div className="h-8 w-px bg-border" />
+          <div className="flex items-center gap-3">
+            <Avatar className="size-8">
+              <AvatarFallback>
+                {user.fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="hidden sm:block">
+              <p className="text-sm font-medium leading-none">{user.fullName}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onLogout}>
+            <LogOut className="size-4" />
+            <span className="sr-only sm:not-sr-only sm:ml-2">{t("common.signOut")}</span>
+          </Button>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  trend,
+}: {
+  title: string
+  value: string
+  icon: React.ComponentType<{ className?: string }>
+  trend: string
+}) {
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-sm text-muted-foreground">{title}</span>
+          <Icon className="size-5 text-muted-foreground" />
+        </div>
+        <div className="text-3xl font-bold mb-1">{value}</div>
+        <p className="text-xs text-muted-foreground">{trend}</p>
+      </CardContent>
+    </Card>
+  )
+}

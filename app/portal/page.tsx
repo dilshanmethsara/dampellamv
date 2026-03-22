@@ -101,7 +101,12 @@ function PortalApp() {
 
   // Show role selection
   return (
-    <div className="relative">
+    <div className="min-h-screen bg-background portal-theme font-sans transition-colors duration-500 relative overflow-hidden">
+      {/* Background Mesh Gradient */}
+      {view === "dashboard" && (
+        <div className="absolute inset-0 mesh-gradient opacity-[0.07] pointer-events-none -z-10 animate-pulse" />
+      )}
+      
       <div className="absolute top-6 left-6 z-10">
         <Button variant="outline" onClick={handleBackToWebsite} className="rounded-xl shadow-sm">
           <ArrowLeft className="h-4 w-4 mr-2" />

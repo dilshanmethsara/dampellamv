@@ -17,6 +17,7 @@ import {
   BarChart3,
   Download,
   CheckCircle,
+  PlusCircle,
   InboxIcon,
   ExternalLink,
   Loader2,
@@ -42,6 +43,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { StudentAIChat } from "@/components/portal/student-ai-chat"
 import { ThemeToggle } from "@/components/portal/theme-toggle"
 import { LanguageToggle } from "@/components/portal/language-toggle"
 import { useI18n } from "@/lib/portal/i18n-context"
@@ -56,6 +58,25 @@ interface DashboardProps {
 }
 
 const EMOJIS = ["👋", "🌟", "🚀", "✨", "🎉", "🔥", "💪", "😎", "🎓", "📚"]
+
+// ─── Stat Card Component ─────────────────────────────────────────────────────
+function StatCard({ title, value, icon: Icon, trend, colorClass = "bg-primary/10 text-primary" }: { title: string, value: string, icon: React.ComponentType<{ className?: string }>, trend: string, colorClass?: string }) {
+  return (
+    <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <div className={cn("p-2 rounded-xl transition-all duration-300 group-hover:scale-110", colorClass)}>
+          <Icon className="h-5 w-5" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground mt-1">{trend}</p>
+        <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all" />
+      </CardContent>
+    </Card>
+  )
+}
 
 // ─── Empty State Component ───────────────────────────────────────────────────
 function EmptyState({ icon: Icon, message, sub }: { icon: React.ComponentType<{ className?: string }>, message: string, sub?: string }) {
@@ -362,11 +383,62 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
         </div>
 
         {/* Stats */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title={t("dashboard.enrolledClasses")} value="—" icon={BookOpen} trend="No data yet" />
-          <StatCard title={t("dashboard.assignmentsDue")} value="—" icon={FileText} trend="No data yet" />
-          <StatCard title={t("dashboard.averageGrade")} value="—" icon={TrendingUp} trend="No data yet" />
-          <StatCard title={t("dashboard.attendance")} value="—" icon={Calendar} trend="No data yet" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.enrolledClasses")}</CardTitle>
+              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                <BookOpen className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all" />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.assignmentsDue")}</CardTitle>
+              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
+                <FileText className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all" />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.averageGrade")}</CardTitle>
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all" />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.attendance")}</CardTitle>
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                <Calendar className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all" />
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -408,6 +480,40 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
               </CardContent>
             </Card>
 
+            {/* Quick Actions */}
+            <Card className="glass-card border-none shadow-sm overflow-hidden group">
+              <CardHeader>
+                <CardTitle>{t("dashboard.quickActions")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                <Button variant="outline" className="justify-start border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-medium h-11 transition-all group overflow-hidden relative">
+                  <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 transition-all" />
+                  <BarChart3 className="mr-2 size-4 group-hover:scale-110 transition-transform" />
+                  {t("dashboard.recentMarks")}
+                </Button>
+                
+                <Button variant="outline" className="justify-start border-rose-200 hover:bg-rose-50 text-rose-700 font-medium h-11 transition-all group overflow-hidden relative">
+                  <div className="absolute inset-0 bg-rose-500/0 group-hover:bg-rose-500/5 transition-all" />
+                  <FileText className="mr-2 size-4 group-hover:scale-110 transition-transform" />
+                  {t("dashboard.pastPapers")}
+                </Button>
+
+                <Button variant="outline" className="justify-start border-orange-200 hover:bg-orange-50 text-orange-700 font-medium h-11 transition-all group overflow-hidden relative">
+                  <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/5 transition-all" />
+                  <Clock className="mr-2 size-4 group-hover:scale-110 transition-transform" />
+                  {t("dashboard.todaysSchedule")}
+                </Button>
+
+                <Button variant="outline" className="justify-start border-blue-200 hover:bg-blue-50 text-blue-700 font-medium h-11 transition-all group overflow-hidden relative" asChild>
+                  <Link href="/portal?update=profile">
+                    <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all" />
+                    <Settings className="mr-2 size-4 group-hover:scale-110 transition-transform" />
+                    {t("dashboard.manageSubjects") || "Update My Profile"}
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Announcements */}
             <Card>
               <CardHeader>
@@ -429,6 +535,9 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
           </p>
         </div>
       </main>
+
+      {/* AI Assistant */}
+      <StudentAIChat user={user} />
     </div>
   )
 }
@@ -506,8 +615,9 @@ function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm() }}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="justify-start">
-          <GraduationCap className="mr-2 size-4" />
+        <Button variant="outline" className="justify-start border-orange-200 hover:bg-orange-50 text-orange-700 font-medium h-11 transition-all group overflow-hidden relative">
+          <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/5 transition-all" />
+          <GraduationCap className="mr-2 size-4 group-hover:scale-110 transition-transform" />
           {t('dashboard.enterMarks')}
         </Button>
       </DialogTrigger>
@@ -574,8 +684,8 @@ function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) 
               <Select value={subject} onValueChange={setSubject}>
                 <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select subject" /></SelectTrigger>
                 <SelectContent>
-                  {(user.subjectsTaught && user.subjectsTaught.length > 0 
-                    ? user.subjectsTaught 
+                  {(user.subjectsTaught && user.subjectsTaught.length > 0
+                    ? user.subjectsTaught
                     : ['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama','Music','Buddhism','Test Subject']
                   ).map((s: string) => (
                     <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
@@ -682,11 +792,62 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
         )}
 
         {/* Stats */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title={t("dashboard.activeClasses")} value="—" icon={BookOpen} trend="No data yet" />
-          <StatCard title={t("dashboard.totalStudents")} value="—" icon={Users} trend="No data yet" />
-          <StatCard title={t("dashboard.assignments")} value="—" icon={FileText} trend="No data yet" />
-          <StatCard title={t("dashboard.classAverage")} value="—" icon={BarChart3} trend="No data yet" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.activeClasses")}</CardTitle>
+              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                <BookOpen className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all" />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.totalStudents")}</CardTitle>
+              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
+                <Users className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all" />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.assignments")}</CardTitle>
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+                <FileText className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all" />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.classAverage")}</CardTitle>
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
+              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all" />
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -744,11 +905,12 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
               <CardHeader>
                 <CardTitle>{t("dashboard.quickActions")}</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-2">
+              <CardContent className="grid gap-3">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="justify-start">
-                      <FileText className="mr-2 size-4" />
+                    <Button variant="outline" className="justify-start border-blue-200 hover:bg-blue-50 text-blue-700 font-medium h-11 transition-all group overflow-hidden relative">
+                      <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all" />
+                      <PlusCircle className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                       {t("dashboard.createAssignment")}
                     </Button>
                   </DialogTrigger>
@@ -784,8 +946,8 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                             <SelectValue placeholder={t("common.subject")} />
                           </SelectTrigger>
                           <SelectContent>
-                            {(user.subjectsTaught && user.subjectsTaught.length > 0 
-                              ? user.subjectsTaught 
+                            {(user.subjectsTaught && user.subjectsTaught.length > 0
+                              ? user.subjectsTaught
                               : ["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama", "Music", "Buddhism", "Test Subject"]
                             ).map(s => (
                               <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
@@ -804,19 +966,22 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="outline" className="justify-start">
-                  <MessageSquare className="mr-2 size-4" />
+                <Button variant="outline" className="justify-start border-purple-200 hover:bg-purple-50 text-purple-700 font-medium h-11 transition-all group overflow-hidden relative">
+                  <div className="absolute inset-0 bg-purple-500/0 group-hover:bg-purple-500/5 transition-all" />
+                  <MessageSquare className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                   {t("dashboard.sendAnnouncement")}
                 </Button>
 
-                <Button variant="outline" className="justify-start">
-                  <BarChart3 className="mr-2 size-4" />
+                <Button variant="outline" className="justify-start border-emerald-200 hover:bg-emerald-50 text-emerald-700 font-medium h-11 transition-all group overflow-hidden relative">
+                  <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-all" />
+                  <BarChart3 className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                   {t("dashboard.viewReports")}
                 </Button>
 
-                <Button variant="outline" className="justify-start" asChild>
+                <Button variant="outline" className="justify-start border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-medium h-11 transition-all group overflow-hidden relative" asChild>
                   <Link href="/portal?update=profile">
-                    <Settings className="mr-2 size-4" />
+                    <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 transition-all" />
+                    <Settings className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                     Manage My Subjects
                   </Link>
                 </Button>
@@ -1058,27 +1223,3 @@ function DashboardHeader({ user, onLogout, onBackToWebsite }: { user: User; onLo
   )
 }
 
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  trend,
-}: {
-  title: string
-  value: string
-  icon: React.ComponentType<{ className?: string }>
-  trend: string
-}) {
-  return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-muted-foreground">{title}</span>
-          <Icon className="size-5 text-muted-foreground" />
-        </div>
-        <div className="text-3xl font-bold mb-1">{value}</div>
-        <p className="text-xs text-muted-foreground">{trend}</p>
-      </CardContent>
-    </Card>
-  )
-}

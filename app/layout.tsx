@@ -19,19 +19,19 @@ const baseUrl = 'https://dampellamv.vercel.app'
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'MR/ Dampella M.V - Official School Website',
+    default: 'MR/ Dampella M.V | Dampella Maha Vidyalaya - Official Website',
     template: '%s | MR/ Dampella M.V',
   },
-  description: 'Official website of MR/ Dampella M.V, a prestigious government school in the Southern Province, Sri Lanka. Excellence in education with dedicated faculty and modern facilities.',
+  description: 'Official website of MR/ Dampella M.V (Dampella Maha Vidyalaya), a prestigious government school in the Southern Province, Sri Lanka. Excellence in education since decades.',
   keywords: [
+    'Dampella Maha Vidyalaya', 
     'MR/ Dampella M.V', 
     'Dampella M.V', 
-    'Dampella Maha Vidyalaya', 
     'Dampella School', 
-    'Government School Sri Lanka', 
+    'Government School Matara',
     'Southern Province Schools', 
     'Matara District Schools', 
-    'Quality Education Sri Lanka'
+    'Best Schools in Southern Province Sri Lanka'
   ],
   authors: [{ name: 'MR/ Dampella M.V' }],
   creator: 'Dilshan Methsara',
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: baseUrl,
-    title: 'MR/ Dampella M.V - Official School Website',
-    description: 'Official website of MR/ Dampella M.V. Empowering students through quality education since decades.',
+    title: 'MR/ Dampella M.V | Dampella Maha Vidyalaya - Official Website',
+    description: 'Welcome to the official website of MR/ Dampella M.V (Dampella Maha Vidyalaya). Empowering students through quality education in Sri Lanka.',
     siteName: 'MR/ Dampella M.V',
     images: [
       {
@@ -57,8 +57,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MR/ Dampella M.V - Official School Website',
-    description: 'Official website of MR/ Dampella M.V. Empowering students through quality education.',
+    title: 'MR/ Dampella M.V | Dampella Maha Vidyalaya',
+    description: 'Official website of MR/ Dampella M.V (Dampella Maha Vidyalaya). Empowering students through quality education.',
     images: ['/dmvlogo.jpg'],
   },
   icons: {

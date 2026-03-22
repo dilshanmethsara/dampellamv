@@ -9,8 +9,8 @@ import { schoolInfo } from "@/lib/data"
 import { createClient } from "@/lib/supabase"
 
 export const metadata: Metadata = {
-  title: "About Us",
-  description: `Learn about ${schoolInfo.name} - our history, vision, mission, and values. A government school committed to excellence in education.`,
+  title: "About Us | Dampella Maha Vidyalaya",
+  description: `Learn about MR/ Dampella M.V (Dampella Maha Vidyalaya) - our history, vision, mission, and values. A leading government school in Sri Lanka.`,
 }
 
 export default async function AboutPage() {

@@ -41,7 +41,7 @@ export interface Club {
 
 export const schoolInfo = {
   name: "MR/ Dampella M.V",
-  fullName: "Maha Vidyalaya Dampella",
+  fullName: "Dampella Maha Vidyalaya",
   motto: "Knowledge is Power, Education is the Key 🔑",
   address: "Dampella, Southern Province, Sri Lanka",
   phone: "+94 XX XXX XXXX",

@@ -112,6 +112,9 @@ export function HeroSection() {
             </span>
           </h1>
 
+          {/* Hidden full name for SEO */}
+          <h2 className="sr-only">Dampella Maha Vidyalaya</h2>
+
           {/* Motto with decorative lines */}
           <div
             className={`flex items-center justify-center gap-4 mb-8 transition-all duration-700 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}

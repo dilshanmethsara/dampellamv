@@ -572,7 +572,7 @@ function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: st
               <Select value={subject} onValueChange={setSubject}>
                 <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select subject" /></SelectTrigger>
                 <SelectContent>
-                  {['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History'].map(s => (
+                  {['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama'].map(s => (
                     <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
                   ))}
                 </SelectContent>
@@ -735,7 +735,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                             <SelectValue placeholder={t("common.subject")} />
                           </SelectTrigger>
                           <SelectContent>
-                            {["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History"].map(s => (
+                            {["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama"].map(s => (
                               <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
                             ))}
                           </SelectContent>

@@ -110,7 +110,8 @@ export const translations = {
       "ICT": "ICT",
       "Agri": "Agri",
       "Home Science": "Home Science",
-      "History": "History"
+      "History": "History",
+      "Drama": "Drama"
     }
   },
   si: {
@@ -224,7 +225,8 @@ export const translations = {
       "ICT": "තොරතුරු තාක්ෂණය",
       "Agri": "කෘෂිකර්මය",
       "Home Science": "ගෘහ විද්‍යාව",
-      "History": "ඉතිහාසය"
+      "History": "ඉතිහාසය",
+      "Drama": "නාට්‍ය හා රංග කලාව"
     }
   }
 }

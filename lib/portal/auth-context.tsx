@@ -33,7 +33,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>(null)
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true) // Start as true during session check
+  
+  // Initialize isLoading based on whether a session exists to prevent flicker
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem("portal_auth_session")
+    }
+    return true
+  })
+  
   const supabase = createClient()
 
   const SESSION_KEY = "portal_auth_session"

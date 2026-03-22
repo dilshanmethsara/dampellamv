@@ -22,7 +22,7 @@ export function LoadingScreen() {
         </h2>
         <div className="flex items-center justify-center gap-2 text-muted-foreground font-medium">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          <span>Starting your classroom...</span>
+          <span>Preparing Portal...</span>
         </div>
       </div>
 

@@ -21,6 +21,7 @@ import {
   ExternalLink,
   Loader2,
   ArrowLeft,
+  RefreshCcw,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -44,7 +45,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ThemeToggle } from "@/components/portal/theme-toggle"
 import { LanguageToggle } from "@/components/portal/language-toggle"
 import { useI18n } from "@/lib/portal/i18n-context"
-import type { User } from "@/lib/portal/auth-context"
+import { useAuth, type User } from "@/lib/portal/auth-context"
+import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
 
 interface DashboardProps {
@@ -432,7 +434,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
 }
 
 // ─── Enter Marks Dialog (Teacher) ────────────────────────────────────────────
-function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: string) => string }) {
+function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<any[]>([])
@@ -481,7 +483,7 @@ function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: st
         subject,
         term: term || null,
         score: parseInt(score),
-        teacher_email: teacherEmail,
+        teacher_email: user.email,
       })
       if (error) throw error
       const { toast } = await import('sonner')
@@ -572,7 +574,10 @@ function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: st
               <Select value={subject} onValueChange={setSubject}>
                 <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select subject" /></SelectTrigger>
                 <SelectContent>
-                  {['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama'].map(s => (
+                  {(user.subjectsTaught && user.subjectsTaught.length > 0 
+                    ? user.subjectsTaught 
+                    : ['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama','Music','Buddhism','Test Subject']
+                  ).map((s: string) => (
                     <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
                   ))}
                 </SelectContent>
@@ -614,6 +619,7 @@ function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: st
 // ─── Teacher Dashboard ────────────────────────────────────────────────────────
 export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardProps) {
   const { t } = useI18n()
+  const { updateProfile } = useAuth()
   const [emoji, setEmoji] = useState("")
 
   useEffect(() => {
@@ -629,8 +635,51 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
           <h1 className="text-2xl font-bold mb-2">
             {t("dashboard.welcomeBack")}, {user.fullName} {emoji}
           </h1>
-          <p className="text-muted-foreground">{t("dashboard.teacherSubtitle")}</p>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <p className="text-muted-foreground mr-2">{t("dashboard.teacherSubtitle")}</p>
+            {user.subjectsTaught && Array.isArray(user.subjectsTaught) && user.subjectsTaught.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {user.subjectsTaught.map((subj: string) => (
+                  <Badge key={subj} variant="secondary" className="bg-primary/5 text-primary border-primary/20 text-xs px-2 py-0.5 font-medium">
+                    {t(`subjects.${subj}`) || subj}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <Badge variant="destructive" className="animate-pulse">Profile Incomplete - Missing Subjects</Badge>
+            )}
+          </div>
         </div>
+
+        {/* Nudge for new subjects */}
+        {user.subjectsTaught && Array.isArray(user.subjectsTaught) && user.subjectsTaught.length < 13 && (
+          <div className="mb-8 p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-2 text-blue-700">
+              <BookOpen className="size-4" />
+              <span className="text-sm font-medium">New subjects are available! Update your profile to add them.</span>
+            </div>
+            <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100" asChild>
+              <Link href="/portal?update=profile">Manage Subjects</Link>
+            </Button>
+          </div>
+        )}
+        {/* Warning for old users if they somehow bypass the screen */}
+        {(!user.subjectsTaught || !Array.isArray(user.subjectsTaught) || user.subjectsTaught.length === 0) && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-100 rounded-full text-amber-600">
+                <Settings className="size-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-amber-900">Action Required: Update Your Profile</h3>
+                <p className="text-sm text-amber-700">Please select your subjects to unlock all features.</p>
+              </div>
+            </div>
+            <Button variant="outline" className="bg-white border-amber-200 hover:bg-amber-100" asChild>
+              <Link href="/portal?update=profile">Update Now</Link>
+            </Button>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -735,7 +784,10 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                             <SelectValue placeholder={t("common.subject")} />
                           </SelectTrigger>
                           <SelectContent>
-                            {["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama"].map(s => (
+                            {(user.subjectsTaught && user.subjectsTaught.length > 0 
+                              ? user.subjectsTaught 
+                              : ["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama", "Music", "Buddhism", "Test Subject"]
+                            ).map(s => (
                               <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
                             ))}
                           </SelectContent>
@@ -762,7 +814,14 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                   {t("dashboard.viewReports")}
                 </Button>
 
-                <EnterMarksDialog teacherEmail={user.email} t={t} />
+                <Button variant="outline" className="justify-start" asChild>
+                  <Link href="/portal?update=profile">
+                    <Settings className="mr-2 size-4" />
+                    Manage My Subjects
+                  </Link>
+                </Button>
+
+                <EnterMarksDialog user={user} t={t} />
               </CardContent>
             </Card>
           </div>
@@ -780,6 +839,23 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
 // ─── Pending Approval ─────────────────────────────────────────────────────────
 export function PendingApprovalScreen({ user, onLogout, onBackToWebsite }: DashboardProps) {
   const { t } = useI18n()
+  const { refreshStatus } = useAuth()
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // Auto-refresh status every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshStatus()
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [refreshStatus])
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await refreshStatus()
+    setIsRefreshing(false)
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b">
@@ -828,6 +904,100 @@ export function PendingApprovalScreen({ user, onLogout, onBackToWebsite }: Dashb
                 </li>
               </ul>
             </div>
+
+            <Button 
+              className="w-full rounded-xl" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCcw className={cn("mr-2 size-4", isRefreshing && "animate-spin")} />
+              {isRefreshing ? "Checking..." : "Check Approval Status"}
+            </Button>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  )
+}
+
+// ─── Profile Completion (For Old Accounts) ───────────────────────────────────
+export function ProfileCompletionScreen({ user, onLogout }: { user: User; onLogout: () => void }) {
+  const { t } = useI18n()
+  const { updateProfile } = useAuth()
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const toggleSubject = (s: string) => {
+    setSelectedSubjects(prev => 
+      prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]
+    )
+  }
+
+  const handleSave = async () => {
+    if (selectedSubjects.length === 0) {
+      const { toast } = await import('sonner')
+      toast.error("Please select at least one subject.")
+      return
+    }
+    setIsUpdating(true)
+    await updateProfile({ subjectsTaught: selectedSubjects })
+    setIsUpdating(false)
+  }
+
+  const allSubjects = ['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama','Music','Buddhism']
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="size-6" />
+            <span className="font-semibold">EduPortal</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onLogout}>
+            <LogOut className="mr-2 size-4" />
+            {t("common.signOut")}
+          </Button>
+        </div>
+      </header>
+
+      <main className="flex-1 flex items-center justify-center p-4 py-12">
+        <Card className="w-full max-w-lg">
+          <CardHeader className="text-center">
+            <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="size-8 text-primary" />
+            </div>
+            <CardTitle className="text-2xl font-bold">Complete Your Profile</CardTitle>
+            <p className="text-muted-foreground">
+              Welcome back, {user.fullName}! We've added new subject-specific features. Please select the subjects you teach to continue.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {allSubjects.map(s => (
+                <button
+                  key={s}
+                  onClick={() => toggleSubject(s)}
+                  className={cn(
+                    "px-3 py-2 rounded-xl border text-sm transition-all text-center",
+                    selectedSubjects.includes(s) 
+                      ? "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20" 
+                      : "bg-background border-border hover:border-primary/50"
+                  )}
+                >
+                  {t(`subjects.${s}`)}
+                </button>
+              ))}
+            </div>
+            
+            <Button 
+              className="w-full h-12 rounded-xl text-lg font-medium"
+              onClick={handleSave}
+              disabled={isUpdating}
+            >
+              {isUpdating ? <Loader2 className="mr-2 animate-spin" /> : <CheckCircle className="mr-2" />}
+              Save and Continue to Dashboard
+            </Button>
           </CardContent>
         </Card>
       </main>

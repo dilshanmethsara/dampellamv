@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,6 +26,10 @@ const SUBJECTS = [
   "Agri",
   "Home Science",
   "History",
+  "Drama",
+  "Music",
+  "Buddhism",
+  "Test Subject",
 ]
 
 interface AuthFormsProps {
@@ -65,7 +70,14 @@ export function AuthForms({ role, onBack, onSuccess }: AuthFormsProps) {
     } else {
       userData.phoneNumber = formData.get("phoneNumber") as string
       userData.teacherId = formData.get("teacherId") as string
-      userData.subjectsTaught = formData.getAll("subjects") as string[]
+      const subjects = formData.getAll("subjects") as string[]
+      
+      if (subjects.length === 0) {
+        toast.error("Please select at least one subject you teach.")
+        return
+      }
+      
+      userData.subjectsTaught = subjects
     }
 
     userData.whatsappNumber = formData.get("whatsappNumber") as string

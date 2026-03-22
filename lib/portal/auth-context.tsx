@@ -13,6 +13,7 @@ export interface User {
   gradeClass?: string
   approvalStatus?: string
   whatsappNumber?: string
+  subjectsTaught?: string[]
 }
 
 interface AuthContextType {
@@ -22,6 +23,8 @@ interface AuthContextType {
   login: (email: string, pass: string, role: UserRole) => Promise<void>
   signup: (userData: any) => Promise<boolean>
   logout: () => void
+  refreshStatus: () => Promise<void>
+  updateProfile: (updates: Partial<User>) => Promise<boolean>
   isLoading: boolean
 }
 
@@ -50,6 +53,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (diff < expiryMs) {
           setUser(savedUser)
           setRole(savedRole)
+          
+          // Re-fetch profile to ensure session is in sync with latest DB changes
+          const supabase = createClient()
+          supabase.from('profiles').select('*').eq('email', savedUser.email).single()
+            .then(({ data: profile }) => {
+              if (profile) {
+                const refreshed = {
+                  ...savedUser,
+                  approvalStatus: profile.approval_status,
+                  subjectsTaught: profile.subjects_taught,
+                  gradeClass: profile.grade_class,
+                }
+                setUser(refreshed)
+                const session = { user: refreshed, role: savedRole, timestamp: Date.now() }
+                localStorage.setItem("portal_auth_session", JSON.stringify(session))
+              }
+            })
+
+          // Only enforce the 5s wait if we ARE restoring a session
+          const elapsedTime = Date.now() - startTime
+          const waitTime = Math.max(0, 5000 - elapsedTime)
+          setTimeout(() => setIsLoading(false), waitTime)
+          return // Exit early as we've handled loading
         } else {
           localStorage.removeItem(SESSION_KEY)
         }
@@ -59,13 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Ensure loading screen stays for at least 5 seconds
-    const elapsedTime = Date.now() - startTime
-    const waitTime = Math.max(0, 5000 - elapsedTime)
-    
-    setTimeout(() => {
-      setIsLoading(false)
-    }, waitTime)
+    // If no session or expired, load instantly
+    setIsLoading(false)
   }, [])
 
   const saveSession = (userData: User, userRole: UserRole) => {
@@ -108,7 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: profile.full_name,
         role: profile.role,
         gradeClass: profile.grade_class,   // ← grade loaded from DB
-        approvalStatus: profile.approval_status
+        approvalStatus: profile.approval_status,
+        subjectsTaught: profile.subjects_taught
       }
       
       setRole(profile.role as UserRole)
@@ -186,6 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           teacher_id: userData.teacherId,
           student_id: userData.studentId?.trim().toUpperCase(),
           whatsapp_number: userData.whatsappNumber,
+          subjects_taught: userData.subjectsTaught,
           password: userData.password,            // ← password saved (plaintext for demo)
           approval_status: userData.role === 'teacher' ? 'pending' : 'approved'
         })
@@ -198,7 +221,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: userData.role,
         gradeClass: userData.gradeClass,          // ← grade set in state immediately
         approvalStatus: userData.role === 'teacher' ? 'pending' : 'approved',
-        whatsappNumber: userData.whatsappNumber
+        whatsappNumber: userData.whatsappNumber,
+        subjectsTaught: userData.subjectsTaught
       }
 
       setRole(userData.role)
@@ -221,8 +245,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("portal_auth_session")
   }
 
+  const refreshStatus = async () => {
+    if (!user) return
+    
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', user.email)
+        .single()
+
+      if (error || !profile) throw new Error("Could not refresh status")
+
+      const updatedUser = {
+        ...user,
+        approvalStatus: profile.approval_status,
+        fullName: profile.full_name,
+        subjectsTaught: profile.subjects_taught,
+        gradeClass: profile.grade_class
+      }
+
+      setUser(updatedUser)
+      saveSession(updatedUser, role)
+      
+      if (profile.approval_status === 'approved' && user.approvalStatus === 'pending') {
+        toast.success("Your account has been approved! Redirecting...")
+      } else {
+        toast.info("Status updated.")
+      }
+    } catch (err) {
+      console.error("Refresh error:", err)
+      toast.error("Failed to check status. Please try again.")
+    }
+  }
+
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!user) return false
+    
+    try {
+      // Map frontend fields to DB fields
+      const dbUpdates: any = {}
+      if (updates.fullName) dbUpdates.full_name = updates.fullName
+      if (updates.subjectsTaught) dbUpdates.subjects_taught = updates.subjectsTaught
+      if (updates.whatsappNumber) dbUpdates.whatsapp_number = updates.whatsappNumber
+      if (updates.gradeClass) dbUpdates.grade_class = updates.gradeClass
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(dbUpdates)
+        .eq('email', user.email)
+
+      if (error) throw error
+
+      const updatedUser = { ...user, ...updates }
+      setUser(updatedUser)
+      saveSession(updatedUser, role)
+      
+      toast.success("Profile updated successfully!")
+      return true
+    } catch (err) {
+      console.error("Update error:", err)
+      toast.error("Failed to update profile.")
+      return false
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ role, setRole, user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ role, setRole, user, login, signup, logout, refreshStatus, updateProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   )

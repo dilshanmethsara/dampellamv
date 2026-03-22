@@ -9,6 +9,7 @@ import {
   StudentDashboard,
   TeacherDashboard,
   PendingApprovalScreen,
+  ProfileCompletionScreen,
 } from "@/components/portal/dashboards"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
@@ -68,8 +69,14 @@ function PortalApp() {
 
   // If user is logged in, show appropriate dashboard
   if (user) {
+    // NEW: Check if teacher needs to complete profile (for old users) - high priority
+    const hasSubjects = user.subjectsTaught && Array.isArray(user.subjectsTaught) && user.subjectsTaught.length > 0;
+    if (user.role === "teacher" && !hasSubjects) {
+      return <ProfileCompletionScreen user={user} onLogout={handleLogout} />
+    }
+
     // Check if teacher is pending approval
-    if (user.role === "teacher" && user.approvalStatus === "pending") {
+    if (user.role === "teacher" && (user.approvalStatus === "pending" || !user.approvalStatus)) {
       return <PendingApprovalScreen user={user} onLogout={handleLogout} onBackToWebsite={handleBackToWebsite} />
     }
 

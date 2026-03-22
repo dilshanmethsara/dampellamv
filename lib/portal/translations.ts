@@ -111,7 +111,10 @@ export const translations = {
       "Agri": "Agri",
       "Home Science": "Home Science",
       "History": "History",
-      "Drama": "Drama"
+      "Drama": "Drama",
+      "Music": "Music",
+      "Buddhism": "Buddhism",
+      "Test Subject": "Test Subject"
     }
   },
   si: {
@@ -226,7 +229,10 @@ export const translations = {
       "Agri": "කෘෂිකර්මය",
       "Home Science": "ගෘහ විද්‍යාව",
       "History": "ඉතිහාසය",
-      "Drama": "නාට්‍ය හා රංග කලාව"
+      "Drama": "නාට්‍ය හා රංග කලාව",
+      "Music": "සංගීතය",
+      "Buddhism": "බුද්ධ ධර්මය",
+      "Test Subject": "පරීක්ෂණ විෂය"
     }
   }
 }

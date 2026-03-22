@@ -67,6 +67,80 @@ export default function AdminSettingsPage() {
     }
   }
 
+  const handleExportData = async () => {
+    try {
+      const { data: profiles } = await supabase.from('profiles').select('*')
+      const { data: posts } = await supabase.from('posts').select('*')
+      const { data: events } = await supabase.from('events').select('*')
+      const { data: schoolSettings } = await supabase.from('school_settings').select('*')
+
+      const backupData = {
+        metadata: {
+          version: "1.0",
+          timestamp: new Date().toISOString(),
+          school: settings?.name || "LMS"
+        },
+        profiles,
+        posts,
+        events,
+        schoolSettings
+      }
+
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `lms_backup_${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      toast.success("Backup downloaded successfully!")
+    } catch (error) {
+      console.error("Export error:", error)
+      toast.error("Failed to generate backup")
+    }
+  }
+
+  const handleExportProfilesCSV = async () => {
+    try {
+      const { data: profiles } = await supabase.from('profiles').select('*')
+      if (!profiles) return
+
+      const headers = ["Full Name", "Email", "WhatsApp", "Role", "Subjects", "Grade/Class", "Joined At"]
+      const rows = profiles.map(p => [
+        p.full_name || "",
+        p.email || "",
+        p.whatsapp_number || "",
+        p.role || "",
+        Array.isArray(p.subjects_taught) ? p.subjects_taught.join(", ") : "",
+        p.grade_class || "",
+        p.created_at ? new Date(p.created_at).toLocaleDateString() : ""
+      ])
+
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      ].join("\n")
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `user_list_${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      toast.success("User list downloaded!")
+    } catch (error) {
+      console.error("CSV Export error:", error)
+      toast.error("Failed to generate CSV")
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="p-6 lg:p-8 flex flex-col items-center justify-center min-h-[400px]">
@@ -509,7 +583,10 @@ export default function AdminSettingsPage() {
                     <p className="text-sm text-muted-foreground">Download all posts, events, and settings</p>
                   </div>
                 </div>
-                <Button variant="outline">Export</Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={handleExportData}>JSON Backup</Button>
+                  <Button variant="outline" onClick={handleExportProfilesCSV}>User List (CSV)</Button>
+                </div>
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">

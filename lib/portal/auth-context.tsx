@@ -43,13 +43,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error || !profile) {
-        toast.error("No account found with this email address.")
+        toast.error("Invalid login credentials. Please check your email, password, and portal type.")
         return
       }
 
       // Check password
       if (profile.password && profile.password !== pass) {
-        toast.error("Incorrect password. Please try again.")
+        toast.error("Invalid login credentials. Please check your email, password, and portal type.")
+        return
+      }
+
+      // Enforce role matching
+      if (profile.role !== newRole) {
+        toast.error("Invalid login credentials. Please check your email, password, and portal type.")
         return
       }
 

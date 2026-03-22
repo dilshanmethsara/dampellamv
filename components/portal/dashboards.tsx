@@ -238,7 +238,7 @@ function SubmittedMarksSection({ teacherEmail, t }: { teacherEmail: string; t: (
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span>{t('dashboard.submittedMarks')}</span>
           {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
@@ -254,29 +254,87 @@ function SubmittedMarksSection({ teacherEmail, t }: { teacherEmail: string; t: (
             sub="Marks you enter for students will appear here"
           />
         ) : (
-          <div className="space-y-3">
-            {marks.map(mark => (
-              <div key={mark.id} className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/50 transition-colors">
-                <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center font-bold text-primary shrink-0">
-                  {mark.score}
+          <Tabs defaultValue="recent" className="space-y-4">
+            <TabsList className="grid grid-cols-4 h-9 w-full max-w-[480px]">
+              <TabsTrigger value="recent" className="text-xs">Recent</TabsTrigger>
+              <TabsTrigger value="grade" className="text-xs">Grade</TabsTrigger>
+              <TabsTrigger value="subject" className="text-xs">Subject</TabsTrigger>
+              <TabsTrigger value="term" className="text-xs">Term</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="recent" className="space-y-3 pt-1">
+              {marks.slice(0, 10).map(mark => (
+                <MarkItem key={mark.id} mark={mark} />
+              ))}
+            </TabsContent>
+
+            <TabsContent value="grade" className="space-y-4 pt-1">
+              {[...new Set(marks.map(m => m.grade))].sort().map(grade => (
+                <div key={grade} className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{grade}</h4>
+                  {marks.filter(m => m.grade === grade).map(mark => (
+                    <MarkItem key={mark.id} mark={mark} showGrade={false} />
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{mark.student_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {mark.subject} {mark.term ? `· ${mark.term}` : ''} · {mark.grade}
-                  </p>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="subject" className="space-y-4 pt-1">
+              {[...new Set(marks.map(m => m.subject))].sort().map(subj => (
+                <div key={subj} className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
+                    {t(`subjects.${subj}`) || subj}
+                  </h4>
+                  {marks.filter(m => m.subject === subj).map(mark => (
+                    <MarkItem key={mark.id} mark={mark} showSubject={false} />
+                  ))}
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(mark.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="term" className="space-y-4 pt-1">
+              {["Term 1", "Term 2", "Term 3"].filter(t => marks.some(m => m.term === t)).map(term => (
+                <div key={term} className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{term}</h4>
+                  {marks.filter(m => m.term === term).map(mark => (
+                    <MarkItem key={mark.id} mark={mark} />
+                  ))}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+              {marks.some(m => !m.term) && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">Other</h4>
+                  {marks.filter(m => !m.term).map(mark => (
+                    <MarkItem key={mark.id} mark={mark} />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
     </Card>
+  )
+}
+
+function MarkItem({ mark, showGrade = true, showSubject = true }: { mark: any, showGrade?: boolean, showSubject?: boolean }) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/30 transition-colors">
+      <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center font-bold text-primary shrink-0 text-sm">
+        {mark.score}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-sm truncate">{mark.student_name}</p>
+        <p className="text-xs text-muted-foreground">
+          {showSubject && mark.subject} {mark.term && `· ${mark.term}`} {showGrade && `· ${mark.grade}`}
+        </p>
+      </div>
+      <div className="text-right shrink-0">
+        <p className="text-xs text-muted-foreground font-medium">
+          {new Date(mark.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+        </p>
+      </div>
+    </div>
   )
 }
 

@@ -30,8 +30,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>(null)
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true) // Start as true during session check
   const supabase = createClient()
+
+  const SESSION_KEY = "portal_auth_session"
+  const EXPIRY_DAYS = 3
+
+  // Load session on mount
+  React.useEffect(() => {
+    const startTime = Date.now()
+    const savedSession = localStorage.getItem(SESSION_KEY)
+    if (savedSession) {
+      try {
+        const { user: savedUser, role: savedRole, timestamp } = JSON.parse(savedSession)
+        const now = Date.now()
+        const diff = now - timestamp
+        const expiryMs = EXPIRY_DAYS * 24 * 60 * 60 * 1000
+
+        if (diff < expiryMs) {
+          setUser(savedUser)
+          setRole(savedRole)
+        } else {
+          localStorage.removeItem(SESSION_KEY)
+        }
+      } catch (e) {
+        console.error("Failed to parse session", e)
+        localStorage.removeItem(SESSION_KEY)
+      }
+    }
+
+    // Ensure loading screen stays for at least 5 seconds
+    const elapsedTime = Date.now() - startTime
+    const waitTime = Math.max(0, 5000 - elapsedTime)
+    
+    setTimeout(() => {
+      setIsLoading(false)
+    }, waitTime)
+  }, [])
+
+  const saveSession = (userData: User, userRole: UserRole) => {
+    const session = {
+      user: userData,
+      role: userRole,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  }
 
   const login = async (email: string, pass: string, newRole: UserRole) => {
     setIsLoading(true)
@@ -59,14 +103,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      setRole(profile.role as UserRole)
-      setUser({
+      const userData = {
         email: profile.email,
         fullName: profile.full_name,
         role: profile.role,
         gradeClass: profile.grade_class,   // ← grade loaded from DB
         approvalStatus: profile.approval_status
-      })
+      }
+      
+      setRole(profile.role as UserRole)
+      setUser(userData)
+      saveSession(userData, profile.role as UserRole)
       toast.success("Welcome back, " + profile.full_name.split(" ")[0] + "!")
     } catch (err) {
       console.error("Login error:", err)
@@ -145,15 +192,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error
 
-      setRole(userData.role)
-      setUser({
+      const userDataObj = {
         email: userData.email.trim().toLowerCase(),
         fullName: userData.fullName,
         role: userData.role,
         gradeClass: userData.gradeClass,          // ← grade set in state immediately
         approvalStatus: userData.role === 'teacher' ? 'pending' : 'approved',
         whatsappNumber: userData.whatsappNumber
-      })
+      }
+
+      setRole(userData.role)
+      setUser(userDataObj)
+      saveSession(userDataObj, userData.role)
       toast.success("Account created successfully!")
       return true
     } catch (err) {
@@ -168,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setRole(null)
     setUser(null)
+    localStorage.removeItem("portal_auth_session")
   }
 
   return (

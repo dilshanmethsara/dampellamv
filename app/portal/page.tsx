@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth, type UserRole } from "@/lib/portal/auth-context"
 import { RoleSelector } from "@/components/portal/role-selector"
 import { AuthForms } from "@/components/portal/auth-forms"
@@ -12,11 +13,34 @@ import {
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { LoadingScreen, ClosingScreen, SignOutScreen } from "@/components/portal/loading-screen"
 
 function PortalApp() {
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading } = useAuth()
+  const router = useRouter()
   const [view, setView] = useState<"role-select" | "auth" | "dashboard">("role-select")
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
+  const [isClosing, setIsClosing] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
+  if (isClosing) {
+    return <ClosingScreen />
+  }
+
+  if (isSigningOut) {
+    return <SignOutScreen />
+  }
+
+  const handleBackToWebsite = () => {
+    setIsClosing(true)
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+  }
 
   const handleSelectRole = (role: UserRole) => {
     setSelectedRole(role)
@@ -33,24 +57,28 @@ function PortalApp() {
   }
 
   const handleLogout = () => {
-    logout()
-    setSelectedRole(null)
-    setView("role-select")
+    setIsSigningOut(true)
+    setTimeout(() => {
+      logout()
+      setSelectedRole(null)
+      setView("role-select")
+      setIsSigningOut(false)
+    }, 2000)
   }
 
   // If user is logged in, show appropriate dashboard
-  if (user && (view === "dashboard" || view === "auth")) {
+  if (user) {
     // Check if teacher is pending approval
     if (user.role === "teacher" && user.approvalStatus === "pending") {
-      return <PendingApprovalScreen user={user} onLogout={handleLogout} />
+      return <PendingApprovalScreen user={user} onLogout={handleLogout} onBackToWebsite={handleBackToWebsite} />
     }
 
     // Show role-specific dashboard
     if (user.role === "student") {
-      return <StudentDashboard user={user} onLogout={handleLogout} />
+      return <StudentDashboard user={user} onLogout={handleLogout} onBackToWebsite={handleBackToWebsite} />
     }
 
-    return <TeacherDashboard user={user} onLogout={handleLogout} />
+    return <TeacherDashboard user={user} onLogout={handleLogout} onBackToWebsite={handleBackToWebsite} />
   }
 
   // Show auth forms
@@ -65,7 +93,17 @@ function PortalApp() {
   }
 
   // Show role selection
-  return <RoleSelector onSelectRole={handleSelectRole} />
+  return (
+    <div className="relative">
+      <div className="absolute top-6 left-6 z-10">
+        <Button variant="outline" onClick={handleBackToWebsite} className="rounded-xl shadow-sm">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Website
+        </Button>
+      </div>
+      <RoleSelector onSelectRole={handleSelectRole} />
+    </div>
+  )
 }
 
 export default function PortalPage() {

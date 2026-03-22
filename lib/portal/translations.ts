@@ -98,7 +98,8 @@ export const translations = {
       selectStudent: "Select Student (ID or Name)",
       score: "Score / Marks",
       saveMarks: "Save Marks",
-      recentMarks: "Recent Marks"
+      recentMarks: "Recent Marks",
+      submittedMarks: "Submitted Marks History"
     },
     subjects: {
       "Sinhala": "Sinhala",
@@ -211,7 +212,8 @@ export const translations = {
       selectStudent: "ශිෂ්‍යයා තෝරන්න (හැඳුනුම්පත හෝ නම)",
       score: "ලකුණු",
       saveMarks: "ලකුණු සුරකින්න",
-      recentMarks: "මෑත ලකුණු"
+      recentMarks: "මෑත ලකුණු",
+      submittedMarks: "ඇතුළත් කළ ලකුණු ඉතිහාසය"
     },
     subjects: {
       "Sinhala": "සිංහල",

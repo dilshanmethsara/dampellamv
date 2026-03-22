@@ -20,8 +20,10 @@ import {
   InboxIcon,
   ExternalLink,
   Loader2,
+  ArrowLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -48,6 +50,7 @@ import { createClient } from "@/lib/supabase"
 interface DashboardProps {
   user: User
   onLogout: () => void
+  onBackToWebsite?: () => void
 }
 
 const EMOJIS = ["👋", "🌟", "🚀", "✨", "🎉", "🔥", "💪", "😎", "🎓", "📚"]
@@ -215,8 +218,70 @@ function MyMarksSection({ userEmail, t }: { userEmail: string; t: (k: string) =>
   )
 }
 
+// ─── Submitted Marks Section (Teacher) ───────────────────────────────────────
+function SubmittedMarksSection({ teacherEmail, t }: { teacherEmail: string; t: (k: string) => string }) {
+  const [marks, setMarks] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    supabase
+      .from('marks')
+      .select('*')
+      .eq('teacher_email', teacherEmail.toLowerCase())
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error) setMarks(data || [])
+        setIsLoading(false)
+      })
+  }, [teacherEmail])
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>{t('dashboard.submittedMarks')}</span>
+          {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        ) : marks.length === 0 ? (
+          <EmptyState
+            icon={BarChart3}
+            message="No marks submitted yet"
+            sub="Marks you enter for students will appear here"
+          />
+        ) : (
+          <div className="space-y-3">
+            {marks.map(mark => (
+              <div key={mark.id} className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/50 transition-colors">
+                <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center font-bold text-primary shrink-0">
+                  {mark.score}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">{mark.student_name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {mark.subject} {mark.term ? `· ${mark.term}` : ''} · {mark.grade}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(mark.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 // ─── Student Dashboard ────────────────────────────────────────────────────────
-export function StudentDashboard({ user, onLogout }: DashboardProps) {
+export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardProps) {
   const { t } = useI18n()
   const [emoji, setEmoji] = useState("")
 
@@ -226,7 +291,7 @@ export function StudentDashboard({ user, onLogout }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader user={user} onLogout={onLogout} />
+      <DashboardHeader user={user} onLogout={onLogout} onBackToWebsite={onBackToWebsite} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -489,7 +554,7 @@ function EnterMarksDialog({ teacherEmail, t }: { teacherEmail: string; t: (k: st
 }
 
 // ─── Teacher Dashboard ────────────────────────────────────────────────────────
-export function TeacherDashboard({ user, onLogout }: DashboardProps) {
+export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardProps) {
   const { t } = useI18n()
   const [emoji, setEmoji] = useState("")
 
@@ -499,7 +564,7 @@ export function TeacherDashboard({ user, onLogout }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader user={user} onLogout={onLogout} />
+      <DashboardHeader user={user} onLogout={onLogout} onBackToWebsite={onBackToWebsite} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -546,6 +611,9 @@ export function TeacherDashboard({ user, onLogout }: DashboardProps) {
                 />
               </CardContent>
             </Card>
+
+            {/* Submitted Marks Section — Teacher's history */}
+            <SubmittedMarksSection teacherEmail={user.email} t={t} />
           </div>
 
           {/* Sidebar */}
@@ -652,7 +720,7 @@ export function TeacherDashboard({ user, onLogout }: DashboardProps) {
 }
 
 // ─── Pending Approval ─────────────────────────────────────────────────────────
-export function PendingApprovalScreen({ user, onLogout }: DashboardProps) {
+export function PendingApprovalScreen({ user, onLogout, onBackToWebsite }: DashboardProps) {
   const { t } = useI18n()
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -662,10 +730,16 @@ export function PendingApprovalScreen({ user, onLogout }: DashboardProps) {
             <GraduationCap className="size-6" />
             <span className="font-semibold">EduPortal</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={onLogout}>
-            <LogOut className="mr-2 size-4" />
-            {t("common.signOut")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onBackToWebsite}>
+              <ArrowLeft className="mr-2 size-4" />
+              Back to Website
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onLogout}>
+              <LogOut className="mr-2 size-4" />
+              {t("common.signOut")}
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -704,7 +778,7 @@ export function PendingApprovalScreen({ user, onLogout }: DashboardProps) {
 }
 
 // ─── Shared Components ────────────────────────────────────────────────────────
-function DashboardHeader({ user, onLogout }: { user: User; onLogout: () => void }) {
+function DashboardHeader({ user, onLogout, onBackToWebsite }: { user: User; onLogout: () => void; onBackToWebsite?: () => void }) {
   const { t } = useI18n()
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -718,6 +792,10 @@ function DashboardHeader({ user, onLogout }: { user: User; onLogout: () => void 
         </div>
 
         <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={onBackToWebsite} className="hidden md:flex">
+            <ArrowLeft className="mr-2 size-4" />
+            Back to Website
+          </Button>
           <LanguageToggle />
           <ThemeToggle />
           <Button variant="ghost" size="icon" aria-label="Notifications">

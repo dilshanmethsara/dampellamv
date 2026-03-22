@@ -68,6 +68,8 @@ export function AuthForms({ role, onBack, onSuccess }: AuthFormsProps) {
       userData.subjectsTaught = formData.getAll("subjects") as string[]
     }
 
+    userData.whatsappNumber = formData.get("whatsappNumber") as string
+
     const success = await signup(userData as Parameters<typeof signup>[0])
     if (success) onSuccess()
   }
@@ -253,6 +255,18 @@ function StudentSignupForm({
         </Field>
 
         <Field>
+          <FieldLabel htmlFor="student-whatsapp">{t("auth.whatsappNumber")}</FieldLabel>
+          <Input
+            id="student-whatsapp"
+            name="whatsappNumber"
+            type="tel"
+            placeholder="07X XXX XXXX"
+            required
+            className="h-11 rounded-xl"
+          />
+        </Field>
+
+        <Field>
           <FieldLabel htmlFor="student-password">{t("auth.password")}</FieldLabel>
           <div className="relative">
             <Input
@@ -367,6 +381,18 @@ function TeacherSignupForm({
             placeholder="jane@example.com"
             required
             autoComplete="email"
+            className="h-11 rounded-xl"
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="teacher-whatsapp">{t("auth.whatsappNumber")}</FieldLabel>
+          <Input
+            id="teacher-whatsapp"
+            name="whatsappNumber"
+            type="tel"
+            placeholder="07X XXX XXXX"
+            required
             className="h-11 rounded-xl"
           />
         </Field>

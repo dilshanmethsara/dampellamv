@@ -12,6 +12,7 @@ export interface User {
   role: string
   gradeClass?: string
   approvalStatus?: string
+  whatsappNumber?: string
 }
 
 interface AuthContextType {
@@ -107,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           grade_class: userData.gradeClass,      // ← grade saved to DB
           teacher_id: userData.teacherId,
           student_id: userData.studentId?.trim().toUpperCase(),
+          whatsapp_number: userData.whatsappNumber,
           password: userData.password,            // ← password saved (plaintext for demo)
           approval_status: userData.role === 'teacher' ? 'pending' : 'approved'
         })
@@ -119,7 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: userData.fullName,
         role: userData.role,
         gradeClass: userData.gradeClass,          // ← grade set in state immediately
-        approvalStatus: userData.role === 'teacher' ? 'pending' : 'approved'
+        approvalStatus: userData.role === 'teacher' ? 'pending' : 'approved',
+        whatsappNumber: userData.whatsappNumber
       })
       toast.success("Account created successfully!")
       return true

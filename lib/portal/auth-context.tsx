@@ -86,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return false
         }
       }
-
       // Check if email already registered
       const { data: existing } = await supabase
         .from('profiles')
@@ -95,8 +94,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (existing) {
-        toast.error("An account with this email already exists. Please sign in.")
+        toast.error("An account with this email already exists.")
         return false
+      }
+
+      // Check if Student ID or Teacher ID already registered
+      if (userData.role === 'student' && userData.studentId) {
+        const { data: existingId } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('student_id', userData.studentId.trim().toUpperCase())
+          .single()
+
+        if (existingId) {
+          toast.error("This Student ID is already registered with another account.")
+          return false
+        }
+      } else if (userData.role === 'teacher' && userData.teacherId) {
+        const { data: existingId } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('teacher_id', userData.teacherId.trim())
+          .single()
+
+        if (existingId) {
+          toast.error("This Teacher ID is already registered with another account.")
+          return false
+        }
       }
 
       const { error } = await supabase

@@ -71,7 +71,7 @@ export function StudentAIChat({ user }: { user: any }) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[60] font-sans">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] font-sans flex flex-col items-end">
       {/* FAB */}
       {!isOpen && (
         <Button
@@ -89,7 +89,7 @@ export function StudentAIChat({ user }: { user: any }) {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="w-[350px] sm:w-[400px] h-[500px] flex flex-col shadow-2xl border-none glass-card animate-in slide-in-from-bottom-5 duration-300 overflow-hidden">
+        <Card className="w-[calc(100vw-2rem)] sm:w-[400px] h-[70vh] sm:h-[500px] max-h-[80vh] flex flex-col shadow-2xl border-none glass-card animate-in slide-in-from-bottom-5 duration-300 overflow-hidden">
           <CardHeader className="bg-primary p-4 flex flex-row items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">

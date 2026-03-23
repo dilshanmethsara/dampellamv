@@ -137,9 +137,9 @@ function PastPapersSection({ gradeClass, t }: { gradeClass?: string; t: (k: stri
           />
         ) : (
           <Tabs defaultValue={activeTabs[0]?.[0] || "Term 1"} className="w-full">
-            <TabsList className="w-full mb-4">
+            <TabsList className="w-full mb-4 flex overflow-x-auto justify-start sm:grid sm:grid-cols-4 min-h-10">
               {activeTabs.map(([term]) => (
-                <TabsTrigger key={term} value={term} className="flex-1">{term}</TabsTrigger>
+                <TabsTrigger key={term} value={term} className="flex-1 shrink-0 px-4 min-w-max sm:min-w-0">{term}</TabsTrigger>
               ))}
             </TabsList>
             {activeTabs.map(([term, termPapers]) => (
@@ -278,11 +278,11 @@ function SubmittedMarksSection({ teacherEmail, t }: { teacherEmail: string; t: (
           />
         ) : (
           <Tabs defaultValue="recent" className="space-y-4">
-            <TabsList className="grid grid-cols-4 h-9 w-full max-w-[480px]">
-              <TabsTrigger value="recent" className="text-xs">Recent</TabsTrigger>
-              <TabsTrigger value="grade" className="text-xs">Grade</TabsTrigger>
-              <TabsTrigger value="subject" className="text-xs">Subject</TabsTrigger>
-              <TabsTrigger value="term" className="text-xs">Term</TabsTrigger>
+            <TabsList className="flex w-full overflow-x-auto justify-start h-auto min-h-10 sm:max-w-[480px] sm:grid sm:grid-cols-4">
+              <TabsTrigger value="recent" className="text-xs shrink-0 px-3 py-1.5 min-w-max sm:min-w-0">Recent</TabsTrigger>
+              <TabsTrigger value="grade" className="text-xs shrink-0 px-3 py-1.5 min-w-max sm:min-w-0">Grade</TabsTrigger>
+              <TabsTrigger value="subject" className="text-xs shrink-0 px-3 py-1.5 min-w-max sm:min-w-0">Subject</TabsTrigger>
+              <TabsTrigger value="term" className="text-xs shrink-0 px-3 py-1.5 min-w-max sm:min-w-0">Term</TabsTrigger>
             </TabsList>
 
             <TabsContent value="recent" className="space-y-3 pt-1">

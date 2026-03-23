@@ -1175,32 +1175,32 @@ function DashboardHeader({ user, onLogout, onBackToWebsite }: { user: User; onLo
   const { t } = useI18n()
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="size-6" />
-          <span className="font-semibold">EduPortal</span>
-          <Badge variant="secondary" className="ml-2 capitalize">
+      <div className="container mx-auto px-2 sm:px-4 min-h-[4rem] py-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <GraduationCap className="size-5 sm:size-6 shrink-0" />
+          <span className="font-semibold text-sm sm:text-base">EduPortal</span>
+          <Badge variant="secondary" className="ml-1 sm:ml-2 capitalize text-[10px] sm:text-xs">
             {t(`common.${user.role}`)}
           </Badge>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={onBackToWebsite} className="hidden md:flex">
+        <div className="flex items-center gap-1 sm:gap-4 ml-auto">
+          <Button variant="outline" size="sm" onClick={onBackToWebsite} className="hidden md:flex shrink-0">
             <ArrowLeft className="mr-2 size-4" />
             Back to Website
           </Button>
           <LanguageToggle />
           <ThemeToggle />
-          <Button variant="ghost" size="icon" aria-label="Notifications">
+          <Button variant="ghost" size="icon" aria-label="Notifications" className="hidden sm:inline-flex shrink-0">
             <Bell className="size-5" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Settings">
+          <Button variant="ghost" size="icon" aria-label="Settings" className="hidden sm:inline-flex shrink-0">
             <Settings className="size-5" />
           </Button>
-          <div className="h-8 w-px bg-border" />
-          <div className="flex items-center gap-3">
-            <Avatar className="size-8">
-              <AvatarFallback>
+          <div className="hidden sm:block h-8 w-px bg-border shrink-0" />
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Avatar className="size-7 sm:size-8">
+              <AvatarFallback className="text-xs sm:text-sm">
                 {user.fullName
                   .split(" ")
                   .map((n) => n[0])
@@ -1213,9 +1213,9 @@ function DashboardHeader({ user, onLogout, onBackToWebsite }: { user: User; onLo
               <p className="text-xs text-muted-foreground">{user.email}</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={onLogout}>
-            <LogOut className="size-4" />
-            <span className="sr-only sm:not-sr-only sm:ml-2">{t("common.signOut")}</span>
+          <Button variant="ghost" size="sm" onClick={onLogout} className="px-2 sm:px-3 shrink-0 ml-1 sm:ml-0">
+            <LogOut className="size-4 sm:mr-2" />
+            <span className="sr-only sm:not-sr-only sm:inline-block">{t("common.signOut")}</span>
           </Button>
         </div>
       </div>

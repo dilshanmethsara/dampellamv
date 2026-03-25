@@ -111,7 +111,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${playfair.variable} dark`} suppressHydrationWarning>
       <body className="font-sans antialiased overflow-x-hidden">
         <Providers>
           {children}

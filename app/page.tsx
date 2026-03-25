@@ -7,6 +7,7 @@ import { AnnouncementsSection } from "@/components/home/announcements-section"
 import { EventsSection } from "@/components/home/events-section"
 import { GallerySection } from "@/components/home/gallery-section"
 import { ClubsSection } from "@/components/home/clubs-section"
+import { PrefectBoardSection } from "@/components/home/prefect-board-section"
 import { ContactSection } from "@/components/home/contact-section"
 
 export default function HomePage() {
@@ -21,6 +22,7 @@ export default function HomePage() {
         <EventsSection />
         <GallerySection />
         <ClubsSection />
+        <PrefectBoardSection />
         <ContactSection />
       </main>
       <Footer />

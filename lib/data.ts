@@ -290,3 +290,36 @@ export const categories = [
   { value: "sports", label: "Sports" },
   { value: "club", label: "Club Activities" }
 ]
+
+export interface Prefect {
+  id: string
+  name: string
+  role: string
+  image?: string
+  quote?: string
+}
+
+export const prefects: Prefect[] = [
+  {
+    id: "1",
+    name: "Dilshan Methsara",
+    role: "Head Prefect",
+    quote: "Leading with integrity and serving with pride."
+  },
+  {
+    id: "2",
+    name: "Nethmi Perera",
+    role: "Head Girl",
+    quote: "Empowering students to reach their full potential."
+  },
+  {
+    id: "3",
+    name: "Ganidu Lakshan",
+    role: "Deputy Head Prefect",
+  },
+  {
+    id: "4",
+    name: "Sanduni Wijesinghe",
+    role: "Deputy Head Girl",
+  }
+]

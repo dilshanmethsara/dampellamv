@@ -14,6 +14,7 @@ import { MapPin, Phone, Mail, Clock, Send, CheckCircle, AlertCircle } from "luci
 import { useSettings } from "@/lib/hooks/use-settings"
 import { createClient } from "@/lib/supabase"
 import { toast } from "sonner"
+import emailjs from "@emailjs/browser"
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -70,8 +71,22 @@ export default function ContactPage() {
 
       if (submitError) throw submitError
 
+      // Send confirmation email via EmailJS
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        {
+          to_name: data.name,
+          to_email: data.email,
+          subject: data.subject,
+          message: data.message,
+          reply_to: data.email,
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      )
+
       setIsSubmitted(true)
-      toast.success("Message sent successfully!")
+      toast.success("Message sent successfully! A confirmation email has been sent.")
     } catch (err: any) {
       console.error("Error submitting contact form:", err)
       setError("Failed to send message. Please try again later.")
@@ -208,25 +223,16 @@ export default function ContactPage() {
 
               {/* Map Placeholder */}
               <FadeIn direction="left" delay={100}>
-                <Card className="h-full min-h-[400px] overflow-hidden">
+                <Card className="h-full min-h-[400px] overflow-hidden border-primary/10 shadow-xl">
                   <CardContent className="p-0 h-full">
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <div className="text-center p-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                          <MapPin className="h-8 w-8 text-primary" />
-                        </div>
-                        <h3 className="font-semibold text-xl text-foreground mb-2">Find Us</h3>
-                        <p className="text-muted-foreground mb-4">{settings?.address}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Southern Province, Sri Lanka
-                        </p>
-                        <div className="mt-6 p-4 bg-background/50 rounded-lg">
-                          <p className="text-sm text-muted-foreground">
-                            For directions, please call our office or use your preferred maps application.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d743.0890524879925!2d80.50194759651778!3d6.046827263850894!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae1410b26f4b969%3A0xf6a05949edb8ab64!2sMR%20Dampalle%20Maha%20Vidyalaya!5e0!3m2!1sen!2slk!4v1774454713243!5m2!1sen!2slk" 
+                      className="w-full h-full min-h-[400px] filter invert dark:invert-0 dark:hue-rotate-180 dark:contrast-75 transition-all duration-300 hover:filter-none"
+                      style={{ border: 0 }} 
+                      allowFullScreen={true} 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
                   </CardContent>
                 </Card>
               </FadeIn>

@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface Message {
   role: "user" | "ai"
@@ -46,29 +47,44 @@ export function StudentAIChat({ user }: { user: any }) {
     setInput("")
     setIsTyping(true)
 
-    // Simulate AI thinking and response
-    setTimeout(() => {
-      const responseText = generateResponse(input)
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            text: m.text
+          }))
+        })
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) throw new Error(data.error || "Failed to get response")
+
       const aiMessage: Message = {
         role: "ai",
-        text: responseText,
+        text: data.text,
         timestamp: new Date()
       }
       setMessages(prev => [...prev, aiMessage])
+    } catch (error: any) {
+      console.error("Chat Error:", error)
+      toast.error(error.message || "Something went wrong")
+      
+      const errorMessage: Message = {
+        role: "ai",
+        text: "I'm sorry, I'm having trouble connecting to the school servers right now. Please try again in a moment.",
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
-  const generateResponse = (query: string): string => {
-    const q = query.toLowerCase()
-    if (q.includes("exam") || q.includes("paper")) return "You can find all past papers for your grade in the 'Past Papers' section of your dashboard. Would you like me to help you find a specific subject?"
-    if (q.includes("marks") || q.includes("result")) return "Your recent marks are displayed in the 'Recent Marks' card. Your teachers update these regularly as they grade your work."
-    if (q.includes("homework") || q.includes("assignment")) return "Check the 'Upcoming Assignments' section. If there's anything new, it will appear there with the due date."
-    if (q.includes("hello") || q.includes("hi")) return "Hi there! I'm here to help you navigate the portal. What's on your mind?"
-    if (q.includes("thank")) return "You're very welcome! Let me know if you need anything else. Good luck with your studies! 🌟"
-    
-    return "That's a great question! While I'm still learning, I'm here to help you find your way around the Dampella LMS. You can ask me about marks, papers, or assignments!"
-  }
+
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] font-sans flex flex-col items-end">

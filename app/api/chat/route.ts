@@ -45,10 +45,17 @@ export async function POST(req: Request) {
     })
 
     // Prepare chat history for context (Gemini format)
-    const history = messages.slice(0, -1).map((m: any) => ({
+    // IMPORTANT: Gemini requires the first message in history to be from the 'user'
+    let history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.text }],
     }))
+
+    // If the history starts with a 'model' message (the AI's initial greeting), 
+    // we must skip it so the history starts with a 'user' message.
+    if (history.length > 0 && history[0].role === "model") {
+      history = history.slice(1)
+    }
 
     const chat = model.startChat({
       history: history,
@@ -60,9 +67,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ text })
   } catch (error: any) {
-    console.error("Gemini API Error:", error)
+    console.error("Gemini API Error Detail:", error)
     return NextResponse.json(
-      { error: "Failed to generate response. Please try again later." },
+      { error: error.message || "Failed to generate response. Please try again later." },
       { status: 500 }
     )
   }

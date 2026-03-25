@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 import { NextResponse } from "next/server"
 
 // Initialize the Google Generative AI with the API Key
+// Specifying v1 for better stability
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "")
 
 const SYSTEM_PROMPT = `
@@ -38,21 +39,19 @@ export async function POST(req: Request) {
     // Get the latest message from the history
     const lastMessage = messages[messages.length - 1]
     
-    // Prepare the model
+    // Prepare the model - using gemini-2.5-flash on v1 API
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      systemInstruction: SYSTEM_PROMPT
-    })
+      model: "gemini-2.5-flash"
+    }, { apiVersion: "v1" })
 
-    // Prepare chat history for context (Gemini format)
-    // IMPORTANT: Gemini requires the first message in history to be from the 'user'
+    // Prepare chat history
+    // For gemini-pro, we'll prepend the system prompt to the first user message if history is empty
     let history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.text }],
     }))
 
-    // If the history starts with a 'model' message (the AI's initial greeting), 
-    // we must skip it so the history starts with a 'user' message.
+    // Ensure history starts with user for gemini-pro as well
     if (history.length > 0 && history[0].role === "model") {
       history = history.slice(1)
     }
@@ -61,7 +60,12 @@ export async function POST(req: Request) {
       history: history,
     })
 
-    const result = await chat.sendMessage(lastMessage.text)
+    // Prepend system prompt to the message if it's the first one to give context to the new model
+    const finalPrompt = history.length === 0 
+      ? `${SYSTEM_PROMPT}\n\nStudent: ${lastMessage.text}`
+      : lastMessage.text
+
+    const result = await chat.sendMessage(finalPrompt)
     const response = await result.response
     const text = response.text()
 

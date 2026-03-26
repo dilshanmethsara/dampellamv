@@ -29,9 +29,13 @@ export function StudentAIChat({ user }: { user: any }) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
+    // Small timeout to ensure the DOM has updated with the new message
+    const timer = setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      }
+    }, 100)
+    return () => clearTimeout(timer)
   }, [messages, isTyping])
 
   const handleSend = async () => {

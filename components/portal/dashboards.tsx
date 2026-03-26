@@ -24,6 +24,7 @@ import {
   ArrowLeft,
   RefreshCcw,
 } from "lucide-react"
+import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -365,10 +366,51 @@ function MarkItem({ mark, showGrade = true, showSubject = true }: { mark: any, s
 export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardProps) {
   const { t } = useI18n()
   const [emoji, setEmoji] = useState("")
+  const [assignments, setAssignments] = useState<any[]>([])
+  const [announcements, setAnnouncements] = useState<any[]>([])
+  const [loadingAssignments, setLoadingAssignments] = useState(true)
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true)
+
+  // Section Refs for Scrolling
+  const marksRef = useRef<HTMLDivElement>(null)
+  const papersRef = useRef<HTMLDivElement>(null)
+  const scheduleRef = useRef<HTMLDivElement>(null)
+  const assignmentsRef = useRef<HTMLDivElement>(null)
+
+  const supabase = createClient()
 
   useEffect(() => {
     setEmoji(EMOJIS[Math.floor(Math.random() * EMOJIS.length)])
-  }, [])
+
+    // Fetch Assignments
+    if (user.gradeClass) {
+      supabase
+        .from('assignments')
+        .select('*')
+        .eq('grade', user.gradeClass)
+        .order('created_at', { ascending: false })
+        .limit(5)
+        .then(({ data }) => {
+          setAssignments(data || [])
+          setLoadingAssignments(false)
+        })
+    }
+
+    // Fetch Announcements
+    supabase
+      .from('announcements')
+      .select('*')
+      .order('date', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        setAnnouncements(data || [])
+        setLoadingAnnouncements(false)
+      })
+  }, [user.gradeClass])
+
+  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -444,30 +486,56 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             {/* Upcoming Assignments */}
-            <Card>
+            <Card ref={assignmentsRef} className="scroll-mt-24">
               <CardHeader>
-                <CardTitle>{t("dashboard.upcomingAssignments")}</CardTitle>
+                <CardTitle className="flex justify-between items-center">
+                  <span>{t("dashboard.upcomingAssignments")}</span>
+                  {loadingAssignments && <Loader2 className="size-4 animate-spin" />}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <EmptyState
-                  icon={CheckCircle}
-                  message="No upcoming assignments"
-                  sub="Your teacher hasn't assigned anything yet"
-                />
+                {loadingAssignments ? (
+                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+                ) : assignments.length === 0 ? (
+                  <EmptyState
+                    icon={CheckCircle}
+                    message="No upcoming assignments"
+                    sub="Your teacher hasn't assigned anything yet"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {assignments.map(a => (
+                      <div key={a.id} className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/50 transition-colors">
+                        <div className="size-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                          <FileText className="size-5 text-purple-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{a.title}</p>
+                          <p className="text-xs text-muted-foreground">{a.subject} • Due {a.due_date ? new Date(a.due_date).toLocaleDateString() : 'No date'}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/5">View</Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Past Papers — Supabase powered, grade-filtered */}
-            <PastPapersSection gradeClass={user.gradeClass} t={t} />
+            <div ref={papersRef} className="scroll-mt-24">
+              <PastPapersSection gradeClass={user.gradeClass} t={t} />
+            </div>
 
             {/* My Marks — live from Supabase */}
-            <MyMarksSection userEmail={user.email} t={t} />
+            <div ref={marksRef} className="scroll-mt-24">
+              <MyMarksSection userEmail={user.email} t={t} />
+            </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Today's Schedule */}
-            <Card>
+            <Card ref={scheduleRef} className="scroll-mt-24">
               <CardHeader>
                 <CardTitle>{t("dashboard.todaysSchedule")}</CardTitle>
               </CardHeader>
@@ -486,19 +554,31 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                 <CardTitle>{t("dashboard.quickActions")}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3">
-                <Button variant="outline" className="justify-start border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-medium h-11 transition-all group overflow-hidden relative">
+                <Button
+                  onClick={() => scrollTo(marksRef)}
+                  variant="outline"
+                  className="justify-start border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-medium h-11 transition-all group overflow-hidden relative"
+                >
                   <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 transition-all" />
                   <BarChart3 className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                   {t("dashboard.recentMarks")}
                 </Button>
-                
-                <Button variant="outline" className="justify-start border-rose-200 hover:bg-rose-50 text-rose-700 font-medium h-11 transition-all group overflow-hidden relative">
+
+                <Button
+                  onClick={() => scrollTo(papersRef)}
+                  variant="outline"
+                  className="justify-start border-rose-200 hover:bg-rose-50 text-rose-700 font-medium h-11 transition-all group overflow-hidden relative"
+                >
                   <div className="absolute inset-0 bg-rose-500/0 group-hover:bg-rose-500/5 transition-all" />
                   <FileText className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                   {t("dashboard.pastPapers")}
                 </Button>
 
-                <Button variant="outline" className="justify-start border-orange-200 hover:bg-orange-50 text-orange-700 font-medium h-11 transition-all group overflow-hidden relative">
+                <Button
+                  onClick={() => scrollTo(scheduleRef)}
+                  variant="outline"
+                  className="justify-start border-orange-200 hover:bg-orange-50 text-orange-700 font-medium h-11 transition-all group overflow-hidden relative"
+                >
                   <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/5 transition-all" />
                   <Clock className="mr-2 size-4 group-hover:scale-110 transition-transform" />
                   {t("dashboard.todaysSchedule")}
@@ -515,16 +595,37 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
             </Card>
 
             {/* Announcements */}
-            <Card>
+            <Card className="scroll-mt-24">
               <CardHeader>
-                <CardTitle>{t("dashboard.recentAnnouncements")}</CardTitle>
+                <CardTitle className="flex justify-between items-center">
+                  <span>{t("dashboard.recentAnnouncements")}</span>
+                  {loadingAnnouncements && <Loader2 className="size-4 animate-spin" />}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <EmptyState
-                  icon={Bell}
-                  message="No announcements yet"
-                  sub="School announcements will appear here"
-                />
+                {loadingAnnouncements ? (
+                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+                ) : announcements.length === 0 ? (
+                  <EmptyState
+                    icon={Bell}
+                    message="No announcements yet"
+                    sub="School announcements will appear here"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {announcements.map(ann => (
+                      <div key={ann.id} className="flex items-start gap-3 p-3 rounded-xl border hover:bg-muted/50 transition-colors">
+                        <div className="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Bell className="size-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{ann.title}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{ann.summary || ann.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -686,7 +787,7 @@ function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) 
                 <SelectContent>
                   {(user.subjectsTaught && user.subjectsTaught.length > 0
                     ? user.subjectsTaught
-                    : ['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama','Music','Buddhism','Test Subject']
+                    : ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Buddhism', 'Test Subject']
                   ).map((s: string) => (
                     <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
                   ))}
@@ -698,7 +799,7 @@ function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) 
               <Select value={term} onValueChange={setTerm}>
                 <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Optional" /></SelectTrigger>
                 <SelectContent>
-                  {['Term 1','Term 2','Term 3'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {['Term 1', 'Term 2', 'Term 3'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -718,7 +819,7 @@ function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleSave} disabled={!selectedStudent || !subject || !score || isSaving}>
-            {isSaving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : t('dashboard.saveMarks')}
+            {isSaving ? <><Loader2 className="size-4 animate-spin mr-2" />Saving...</> : t('dashboard.saveMarks')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -732,9 +833,72 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
   const { updateProfile } = useAuth()
   const [emoji, setEmoji] = useState("")
 
+  // Assignment Dialog State
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false)
+  const [assignmentTitle, setAssignmentTitle] = useState("")
+  const [assignmentGrade, setAssignmentGrade] = useState("")
+  const [assignmentSubject, setAssignmentSubject] = useState("")
+  const [assignmentDesc, setAssignmentDesc] = useState("")
+  const [isSavingAssignment, setIsSavingAssignment] = useState(false)
+
+  // Announcement Dialog State
+  const [isAnnounceDialogOpen, setIsAnnounceDialogOpen] = useState(false)
+  const [annTitle, setAnnTitle] = useState("")
+  const [annContent, setAnnContent] = useState("")
+  const [annCategory, setAnnCategory] = useState("announcement")
+  const [isSavingAnn, setIsSavingAnn] = useState(false)
+
+  const supabase = createClient()
+
   useEffect(() => {
     setEmoji(EMOJIS[Math.floor(Math.random() * EMOJIS.length)])
   }, [])
+
+  const handleAssignHomework = async () => {
+    setIsSavingAssignment(true)
+    try {
+      const { error } = await supabase.from('assignments').insert({
+        title: assignmentTitle,
+        description: assignmentDesc,
+        grade: assignmentGrade,
+        subject: assignmentSubject,
+        teacher_email: user.email,
+        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week default
+      })
+      if (error) throw error
+      const { toast } = await import('sonner')
+      toast.success(`Assignment "${assignmentTitle}" created!`)
+      setIsAssignDialogOpen(false)
+      setAssignmentTitle(""); setAssignmentDesc(""); setAssignmentGrade(""); setAssignmentSubject("")
+    } catch {
+      const { toast } = await import('sonner')
+      toast.error('Failed to create assignment')
+    } finally {
+      setIsSavingAssignment(false)
+    }
+  }
+
+  const handleSendAnnouncement = async () => {
+    setIsSavingAnn(true)
+    try {
+      const { error } = await supabase.from('announcements').insert({
+        title: annTitle,
+        content: annContent,
+        category: annCategory,
+        date: new Date().toISOString().split('T')[0],
+      })
+      if (error) throw error
+      const { toast } = await import('sonner')
+      toast.success(`Announcement posted!`)
+      setIsAnnounceDialogOpen(false)
+      setAnnTitle(""); setAnnContent(""); setAnnCategory("announcement")
+    } catch {
+      const { toast } = await import('sonner')
+      toast.error('Failed to post announcement')
+    } finally {
+      setIsSavingAnn(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -761,93 +925,12 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
           </div>
         </div>
 
-        {/* Nudge for new subjects */}
-        {user.subjectsTaught && Array.isArray(user.subjectsTaught) && user.subjectsTaught.length < 13 && (
-          <div className="mb-8 p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between">
-            <div className="flex items-center gap-2 text-blue-700">
-              <BookOpen className="size-4" />
-              <span className="text-sm font-medium">New subjects are available! Update your profile to add them.</span>
-            </div>
-            <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100" asChild>
-              <Link href="/portal?update=profile">Manage Subjects</Link>
-            </Button>
-          </div>
-        )}
-        {/* Warning for old users if they somehow bypass the screen */}
-        {(!user.subjectsTaught || !Array.isArray(user.subjectsTaught) || user.subjectsTaught.length === 0) && (
-          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-full text-amber-600">
-                <Settings className="size-5" />
-              </div>
-              <div>
-                <h3 className="font-bold text-amber-900">Action Required: Update Your Profile</h3>
-                <p className="text-sm text-amber-700">Please select your subjects to unlock all features.</p>
-              </div>
-            </div>
-            <Button variant="outline" className="bg-white border-amber-200 hover:bg-amber-100" asChild>
-              <Link href="/portal?update=profile">Update Now</Link>
-            </Button>
-          </div>
-        )}
-
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.activeClasses")}</CardTitle>
-              <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
-                <BookOpen className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
-              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all" />
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.totalStudents")}</CardTitle>
-              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
-                <Users className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
-              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all" />
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.assignments")}</CardTitle>
-              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
-                <FileText className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
-              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all" />
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border-none shadow-sm overflow-hidden relative group">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.classAverage")}</CardTitle>
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
-                <BarChart3 className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("dashboard.noDataYet")}</p>
-              <div className="absolute -bottom-2 -right-2 h-16 w-16 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all" />
-            </CardContent>
-          </Card>
+          <StatCard title={t("dashboard.activeClasses")} value="--" icon={BookOpen} trend={t("dashboard.noDataYet")} colorClass="bg-blue-500/10 text-blue-600" />
+          <StatCard title={t("dashboard.totalStudents")} value="--" icon={Users} trend={t("dashboard.noDataYet")} colorClass="bg-purple-500/10 text-purple-600" />
+          <StatCard title={t("dashboard.assignments")} value="--" icon={FileText} trend={t("dashboard.noDataYet")} colorClass="bg-amber-500/10 text-amber-600" />
+          <StatCard title={t("dashboard.classAverage")} value="--" icon={BarChart3} trend={t("dashboard.noDataYet")} colorClass="bg-emerald-500/10 text-emerald-600" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -858,11 +941,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                 <CardTitle>{t("dashboard.yourClasses")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <EmptyState
-                  icon={BookOpen}
-                  message="No classes assigned yet"
-                  sub="Your classes will appear here once set up"
-                />
+                <EmptyState icon={BookOpen} message="No classes assigned yet" sub="Your classes will appear here once set up" />
               </CardContent>
             </Card>
 
@@ -872,15 +951,11 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                 <CardTitle>{t("dashboard.assignmentsToReview")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <EmptyState
-                  icon={InboxIcon}
-                  message="No submissions to review"
-                  sub="Student homework submissions will appear here"
-                />
+                <EmptyState icon={InboxIcon} message="No submissions to review" sub="Student homework submissions will appear here" />
               </CardContent>
             </Card>
 
-            {/* Submitted Marks Section — Teacher's history */}
+            {/* Submitted Marks Section */}
             <SubmittedMarksSection teacherEmail={user.email} t={t} />
           </div>
 
@@ -892,21 +967,18 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                 <CardTitle>{t("dashboard.todaysSchedule")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <EmptyState
-                  icon={Clock}
-                  message="No schedule available"
-                  sub="Your timetable will appear here"
-                />
+                <EmptyState icon={Clock} message="No schedule available" sub="Your timetable will appear here" />
               </CardContent>
             </Card>
 
             {/* Quick Actions */}
-            <Card>
+            <Card className="glass-card border-none shadow-sm overflow-hidden group">
               <CardHeader>
                 <CardTitle>{t("dashboard.quickActions")}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3">
-                <Dialog>
+                {/* Create Assignment Dialog */}
+                <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="justify-start border-blue-200 hover:bg-blue-50 text-blue-700 font-medium h-11 transition-all group overflow-hidden relative">
                       <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all" />
@@ -917,60 +989,95 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle>{t("dashboard.createAssignment")}</DialogTitle>
-                      <DialogDescription>
-                        Assign new homework to a specific grade.
-                      </DialogDescription>
+                      <DialogDescription>Assign new homework to a specific grade.</DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="space-y-2">
                         <Label htmlFor="title">{t("dashboard.homeworkTitle")}</Label>
-                        <Input id="title" placeholder="e.g. Algebra Worksheet" />
+                        <Input id="title" placeholder="e.g. Algebra Worksheet" value={assignmentTitle} onChange={e => setAssignmentTitle(e.target.value)} />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="grade">{t("common.grade")}</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("common.grade")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {["Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11"].map(g => (
-                              <SelectItem key={g} value={g}>{g}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="subject">{t("common.subject")}</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("common.subject")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(user.subjectsTaught && user.subjectsTaught.length > 0
-                              ? user.subjectsTaught
-                              : ["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama", "Music", "Buddhism", "Test Subject"]
-                            ).map(s => (
-                              <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="grade">{t("common.grade")}</Label>
+                          <Select value={assignmentGrade} onValueChange={setAssignmentGrade}>
+                            <SelectTrigger><SelectValue placeholder={t("common.grade")} /></SelectTrigger>
+                            <SelectContent>
+                              {["Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11"].map(g => (
+                                <SelectItem key={g} value={g}>{g}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="subject">{t("common.subject")}</Label>
+                          <Select value={assignmentSubject} onValueChange={setAssignmentSubject}>
+                            <SelectTrigger><SelectValue placeholder={t("common.subject")} /></SelectTrigger>
+                            <SelectContent>
+                              {(user.subjectsTaught && user.subjectsTaught.length > 0
+                                ? user.subjectsTaught
+                                : ["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama", "Music", "Buddhism"]
+                              ).map(s => (
+                                <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="desc">{t("dashboard.instructions")}</Label>
-                        <Textarea id="desc" placeholder="Details about the homework..." />
+                        <Textarea id="desc" placeholder="Details about the homework..." value={assignmentDesc} onChange={e => setAssignmentDesc(e.target.value)} />
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button type="button">{t("dashboard.assignHomework")}</Button>
+                      <Button onClick={handleAssignHomework} disabled={!assignmentTitle || !assignmentGrade || !assignmentSubject || isSavingAssignment}>
+                        {isSavingAssignment ? <><Loader2 className="size-4 animate-spin mr-2" />Assigning...</> : t("dashboard.assignHomework")}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="outline" className="justify-start border-purple-200 hover:bg-purple-50 text-purple-700 font-medium h-11 transition-all group overflow-hidden relative">
-                  <div className="absolute inset-0 bg-purple-500/0 group-hover:bg-purple-500/5 transition-all" />
-                  <MessageSquare className="mr-2 size-4 group-hover:scale-110 transition-transform" />
-                  {t("dashboard.sendAnnouncement")}
-                </Button>
+                {/* Send Announcement Dialog */}
+                <Dialog open={isAnnounceDialogOpen} onOpenChange={setIsAnnounceDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="justify-start border-purple-200 hover:bg-purple-50 text-purple-700 font-medium h-11 transition-all group overflow-hidden relative">
+                      <div className="absolute inset-0 bg-purple-500/0 group-hover:bg-purple-500/5 transition-all" />
+                      <MessageSquare className="mr-2 size-4 group-hover:scale-110 transition-transform" />
+                      {t("dashboard.sendAnnouncement")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Send Announcement</DialogTitle>
+                      <DialogDescription>Post news to the student portal and school homepage.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="ann-title">Title</Label>
+                        <Input id="ann-title" placeholder="e.g. Sports Day Update" value={annTitle} onChange={e => setAnnTitle(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ann-content">Content</Label>
+                        <Textarea id="ann-content" placeholder="Important details for students..." value={annContent} onChange={e => setAnnContent(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ann-category">Category</Label>
+                        <Select value={annCategory} onValueChange={setAnnCategory}>
+                          <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="announcement">Announcement</SelectItem>
+                            <SelectItem value="special-event">Special Event</SelectItem>
+                            <SelectItem value="upcoming-event">Upcoming Event</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleSendAnnouncement} disabled={!annTitle || !annContent || isSavingAnn}>
+                        {isSavingAnn ? <><Loader2 className="size-4 animate-spin mr-2" />Sending...</> : "Send Now"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
 
                 <Button variant="outline" className="justify-start border-emerald-200 hover:bg-emerald-50 text-emerald-700 font-medium h-11 transition-all group overflow-hidden relative">
                   <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-all" />
@@ -982,7 +1089,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                   <Link href="/portal?update=profile">
                     <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 transition-all" />
                     <Settings className="mr-2 size-4 group-hover:scale-110 transition-transform" />
-                    Manage My Subjects
+                    {t("dashboard.manageSubjects")}
                   </Link>
                 </Button>
 
@@ -1000,6 +1107,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
     </div>
   )
 }
+
 
 // ─── Pending Approval ─────────────────────────────────────────────────────────
 export function PendingApprovalScreen({ user, onLogout, onBackToWebsite }: DashboardProps) {
@@ -1070,8 +1178,8 @@ export function PendingApprovalScreen({ user, onLogout, onBackToWebsite }: Dashb
               </ul>
             </div>
 
-            <Button 
-              className="w-full rounded-xl" 
+            <Button
+              className="w-full rounded-xl"
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
@@ -1093,7 +1201,7 @@ export function ProfileCompletionScreen({ user, onLogout }: { user: User; onLogo
   const [isUpdating, setIsUpdating] = useState(false)
 
   const toggleSubject = (s: string) => {
-    setSelectedSubjects(prev => 
+    setSelectedSubjects(prev =>
       prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]
     )
   }
@@ -1109,7 +1217,7 @@ export function ProfileCompletionScreen({ user, onLogout }: { user: User; onLogo
     setIsUpdating(false)
   }
 
-  const allSubjects = ['Sinhala','English','Science','Mathematics','Geography','ICT','Agri','Home Science','History','Drama','Music','Buddhism']
+  const allSubjects = ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Buddhism']
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -1145,8 +1253,8 @@ export function ProfileCompletionScreen({ user, onLogout }: { user: User; onLogo
                   onClick={() => toggleSubject(s)}
                   className={cn(
                     "px-3 py-2 rounded-xl border text-sm transition-all text-center",
-                    selectedSubjects.includes(s) 
-                      ? "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20" 
+                    selectedSubjects.includes(s)
+                      ? "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20"
                       : "bg-background border-border hover:border-primary/50"
                   )}
                 >
@@ -1154,8 +1262,8 @@ export function ProfileCompletionScreen({ user, onLogout }: { user: User; onLogo
                 </button>
               ))}
             </div>
-            
-            <Button 
+
+            <Button
               className="w-full h-12 rounded-xl text-lg font-medium"
               onClick={handleSave}
               disabled={isUpdating}

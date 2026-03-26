@@ -20,7 +20,8 @@ import {
   Users,
   ClipboardList,
   BookOpen,
-  Loader2
+  Loader2,
+  TrendingUp
 } from "lucide-react"
 
 const sidebarLinks = [
@@ -31,6 +32,7 @@ const sidebarLinks = [
   { href: "/admin/messages", label: "Messages", icon: Mail },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/valid-students", label: "Valid Students", icon: ClipboardList },
+  { href: "/admin/grade-promotion", label: "Grade Promotion", icon: TrendingUp },
   { href: "/admin/past-papers", label: "Past Papers", icon: BookOpen },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]

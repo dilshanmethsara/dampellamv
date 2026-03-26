@@ -45,7 +45,7 @@ export const translations = {
       pendingTime: "This typically takes 1-2 business days",
       pendingQuestions: "Questions? Contact",
       studentId: "Student ID",
-      studentIdHint: "Enter the Student ID provided by your school administration",
+      studentIdHint: "Enter the 4-digit Student ID provided by your school administration",
       whatsappNumber: "WhatsApp Number"
     },
     dashboard: {
@@ -163,7 +163,7 @@ export const translations = {
       pendingTime: "මෙය සාමාන්‍යයෙන් ව්‍යාපාරික දින 1-2 ක් ගත වේ",
       pendingQuestions: "ප්‍රශ්න තිබේද? සම්බන්ධ වන්න",
       studentId: "ශිෂ්‍ය හැඳුනුම්පත",
-      studentIdHint: "ඔබේ පාසල් පාලනය මගින් ලබා දුන් ශිෂ්‍ය හැඳුනුම්පත ඇතුළත් කරන්න",
+      studentIdHint: "පාසල් පාලනය මගින් ලබා දුන් ඉලක්කම් 4ක ශිෂ්‍ය හැඳුනුම්පත ඇතුළත් කරන්න",
       whatsappNumber: "WhatsApp අංකය"
     },
     dashboard: {

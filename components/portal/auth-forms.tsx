@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
-import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Check, Loader2, CheckCircle2, XCircle, GraduationCap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,14 @@ import { LanguageToggle } from "@/components/portal/language-toggle"
 import { cn } from "@/lib/utils"
 import { useAuth, type UserRole } from "@/lib/portal/auth-context"
 import { useI18n } from "@/lib/portal/i18n-context"
+import { StudentIdInput } from "@/components/portal/student-id-input"
+import { createClient } from "@/lib/supabase"
+
+interface ValidStudentRecord {
+  student_id: string
+  full_name: string
+  grade: string | null
+}
 
 const SUBJECTS = [
   "Sinhala",
@@ -236,9 +244,89 @@ function StudentSignupForm({
   t: (k: string) => string
 }) {
   const [showPassword, setShowPassword] = useState(false)
+  const [studentId, setStudentId] = useState("")
+  const [gradeClass, setGradeClass] = useState("")
+  const [fullName, setFullName] = useState("")
+
+  // Live ID validation state
+  const [idRecord, setIdRecord] = useState<ValidStudentRecord | null>(null)
+  const [idStatus, setIdStatus] = useState<"idle" | "loading" | "found" | "not_found">("idle")
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Whenever all 4 digits are entered, look up from DB
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+
+    if (studentId.length !== 4) {
+      setIdRecord(null)
+      setIdStatus("idle")
+      return
+    }
+
+    setIdStatus("loading")
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from("valid_students")
+          .select("student_id, full_name, grade")
+          .eq("student_id", studentId)
+          .single()
+
+        if (error || !data) {
+          setIdRecord(null)
+          setIdStatus("not_found")
+        } else {
+          setIdRecord(data)
+          setIdStatus("found")
+        }
+      } catch {
+        setIdRecord(null)
+        setIdStatus("not_found")
+      }
+    }, 400)
+  }, [studentId])
+
+  // Check if the entered name matches the record (fuzzy: case-insensitive includes)
+  const nameMatches = idRecord && fullName.trim().length > 2
+    ? idRecord.full_name.toLowerCase().includes(fullName.trim().toLowerCase()) ||
+      fullName.trim().toLowerCase().includes(idRecord.full_name.toLowerCase())
+    : null
+
+  // Check if grade matches
+  const gradeMatches = idRecord && gradeClass
+    ? idRecord.grade?.toLowerCase() === gradeClass.toLowerCase()
+    : null
+
+  const isIdVerified = idStatus === "found" && nameMatches !== false && gradeMatches !== false
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (studentId.length !== 4) {
+      toast.error("Please enter your 4-digit Student ID")
+      return
+    }
+    if (idStatus === "not_found") {
+      toast.error("This Student ID is not registered. Contact your school administrator.")
+      return
+    }
+    if (idStatus === "loading") {
+      toast.error("Please wait while we verify your ID...")
+      return
+    }
+    if (nameMatches === false) {
+      toast.error("Your name doesn't match our records for this Student ID.")
+      return
+    }
+    if (gradeMatches === false) {
+      toast.error("Your grade doesn't match our records for this Student ID.")
+      return
+    }
+    onSubmit(e)
+  }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="student-fullName">{t("auth.fullName")}</FieldLabel>
@@ -250,6 +338,8 @@ function StudentSignupForm({
             required
             autoComplete="name"
             className="h-11 rounded-xl"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
           />
         </Field>
 
@@ -306,7 +396,7 @@ function StudentSignupForm({
 
         <Field>
           <FieldLabel htmlFor="student-gradeClass">{t("auth.gradeClass")}</FieldLabel>
-          <Select name="gradeClass" required>
+          <Select name="gradeClass" required value={gradeClass} onValueChange={setGradeClass}>
             <SelectTrigger id="student-gradeClass" className="h-11 rounded-xl">
               <SelectValue placeholder={t("auth.gradeClass")} />
             </SelectTrigger>
@@ -321,20 +411,88 @@ function StudentSignupForm({
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="student-id">{t("auth.studentId")}</FieldLabel>
-          <Input
-            id="student-id"
-            name="studentId"
-            type="text"
-            placeholder="e.g. STU-2024-001"
-            required
-            className="h-11 rounded-xl font-mono tracking-wider"
+          <div className="flex justify-between items-center mb-1">
+            <FieldLabel htmlFor="student-id">{t("auth.studentId")}</FieldLabel>
+            <span className="text-[10px] font-medium text-primary/70 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+              4 Digits
+            </span>
+          </div>
+          <StudentIdInput
+            value={studentId}
+            onChange={setStudentId}
+            length={4}
+            disabled={isLoading}
+            status={idStatus}
           />
-          <p className="text-xs text-muted-foreground">{t("auth.studentIdHint")}</p>
+
+          {/* Lookup status feedback */}
+          <div className="mt-3 transition-all duration-300">
+            {idStatus === "loading" && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground justify-center py-2">
+                <Loader2 className="size-3.5 animate-spin" />
+                <span>Checking ID...</span>
+              </div>
+            )}
+
+            {idStatus === "not_found" && (
+              <div className="flex items-center gap-2 text-xs text-destructive justify-center py-2 bg-destructive/5 rounded-xl border border-destructive/20 px-3">
+                <XCircle className="size-3.5 shrink-0" />
+                <span>This ID is not in our system. Contact your school admin.</span>
+              </div>
+            )}
+
+            {idStatus === "found" && idRecord && (
+              <div className={cn(
+                "rounded-xl border px-4 py-3 text-sm transition-all duration-300",
+                nameMatches === false || gradeMatches === false
+                  ? "bg-destructive/5 border-destructive/20"
+                  : "bg-emerald-500/5 border-emerald-500/20"
+              )}>
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 p-1.5 rounded-lg bg-primary/10">
+                    <GraduationCap className="size-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{idRecord.full_name}</p>
+                    {idRecord.grade && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{idRecord.grade}</p>
+                    )}
+                    <div className="mt-2 space-y-1">
+                      {fullName.trim().length > 2 && (
+                        <div className={cn(
+                          "flex items-center gap-1.5 text-xs",
+                          nameMatches ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                        )}>
+                          {nameMatches ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}
+                          <span>{nameMatches ? "Name matches" : "Name doesn't match the record"}</span>
+                        </div>
+                      )}
+                      {gradeClass && (
+                        <div className={cn(
+                          "flex items-center gap-1.5 text-xs",
+                          gradeMatches ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                        )}>
+                          {gradeMatches ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}
+                          <span>{gradeMatches ? "Grade matches" : `Grade should be ${idRecord.grade ?? "unknown"}`}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {isIdVerified && (
+                    <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </Field>
       </FieldGroup>
 
-      <Button type="submit" className="w-full h-11 rounded-xl text-base font-semibold transition-all hover:shadow-lg active:scale-[0.98]" disabled={isLoading}>
+      <Button
+        type="submit"
+        className="w-full h-11 rounded-xl text-base font-semibold transition-all hover:shadow-lg active:scale-[0.98]"
+        disabled={isLoading || idStatus === "loading" || idStatus === "not_found"}
+      >
         {isLoading ? (
           <>
             <Spinner className="mr-2" />

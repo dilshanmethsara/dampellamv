@@ -177,12 +177,13 @@ export default function AdminValidStudentsPage() {
                 <Label htmlFor="student-id">Student ID *</Label>
                 <Input
                   id="student-id"
-                  placeholder="e.g. STU-2024-001"
+                  placeholder="e.g. 1234"
                   value={newId}
-                  onChange={(e) => setNewId(e.target.value)}
-                  className="h-11 rounded-xl"
+                  onChange={(e) => setNewId(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))}
+                  className="h-11 rounded-xl font-mono"
+                  maxLength={4}
                 />
-                <p className="text-xs text-muted-foreground">This is the ID the student will enter when signing up.</p>
+                <p className="text-xs text-muted-foreground">Enter a 4-digit numeric ID. This is what the student will use to sign up.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="student-name">Full Name *</Label>

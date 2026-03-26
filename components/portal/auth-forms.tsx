@@ -287,10 +287,11 @@ function StudentSignupForm({
     }, 400)
   }, [studentId])
 
-  // Check if the entered name matches the record (fuzzy: case-insensitive includes)
+  // Check if the entered name matches any significant part of the record (more flexible)
   const nameMatches = idRecord && fullName.trim().length > 2
-    ? idRecord.full_name.toLowerCase().includes(fullName.trim().toLowerCase()) ||
-      fullName.trim().toLowerCase().includes(idRecord.full_name.toLowerCase())
+    ? fullName.trim().toLowerCase().split(/\s+/).some(part => 
+        part.length > 2 && idRecord.full_name.toLowerCase().includes(part)
+      )
     : null
 
   // Check if grade matches

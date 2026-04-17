@@ -47,7 +47,9 @@ import {
   Lock,
   Microscope,
   Box,
-  Sparkles
+  Sparkles,
+  FileUp,
+  Wand2
 } from "lucide-react"
 import { useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -72,6 +74,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
 import { StudentAIChat } from "@/components/portal/student-ai-chat"
 import { ProSidebarLayout } from "@/components/portal/sidebar-layout"
 import { VirtualLabViewer } from "@/components/portal/virtual-lab-viewer"
@@ -830,50 +833,141 @@ function MarkItem({ mark, showGrade = true, showSubject = true }: { mark: any, s
 
 // ─── Quiz Module (Interactive MCQ) ──────────────────────────────────────────
 function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) => string; onQuizCreated?: () => void }) {
+  const { language: portalLang } = useI18n()
   const [open, setOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [grade, setGrade] = useState("")
   const [subject, setSubject] = useState("")
-  const [questions, setQuestions] = useState<any[]>([{ question_text: "", options: ["", "", "", ""], correct_option_index: 0, points: 1 }])
+  const [editorLang, setEditorLang] = useState<"en" | "si">("en")
+  const [questions, setQuestions] = useState<any[]>([{
+    question_text: "", question_text_si: "",
+    options: ["", "", "", ""], options_si: ["", "", "", ""],
+    correct_option_index: 0, points: 1
+  }])
 
-  const addQuestion = () => setQuestions([...questions, { question_text: "", options: ["", "", "", ""], correct_option_index: 0, points: 1 }])
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
+  const [aiFile, setAiFile] = useState<File | null>(null)
+  const [numAiQuestions, setNumAiQuestions] = useState(10)
+  const [showAiPanel, setShowAiPanel] = useState(false)
+
+  const handleAIGenerate = async () => {
+    if (!aiFile) {
+      const { toast } = await import('sonner')
+      toast.error("Please upload a PDF first.")
+      return
+    }
+    
+    setIsGeneratingAI(true)
+    try {
+      const reader = new FileReader()
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string
+          resolve(result.split(',')[1])
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(aiFile)
+      })
+      
+      const pdfBase64 = await base64Promise
+      
+      const response = await fetch('/api/quiz/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pdfBase64,
+          numQuestions: numAiQuestions,
+          subject,
+          grade,
+          language: editorLang
+        })
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || "AI Synthesis failed")
+      }
+      
+      // Map based on the language we requested
+      const mappedQuestions = data.questions.map((q: any) => ({
+        question_text: editorLang === "en" ? q.question_text : "",
+        question_text_si: editorLang === "si" ? q.question_text : "",
+        options: editorLang === "en" ? q.options : ["", "", "", ""],
+        options_si: editorLang === "si" ? q.options : ["", "", "", ""],
+        correct_option_index: q.correct_option_index,
+        points: q.points || 1
+      }))
+
+      setQuestions(mappedQuestions)
+      setShowAiPanel(false)
+      setAiFile(null)
+      
+      const { toast } = await import('sonner')
+      toast.success(`Generated ${data.questions.length} questions from context.`)
+    } catch (err: any) {
+      console.error(err)
+      const { toast } = await import('sonner')
+      toast.error(err.message || "Failed to process lesson context")
+    } finally {
+      setIsGeneratingAI(false)
+    }
+  }
+
+  const addQuestion = () => setQuestions([...questions, {
+    question_text: "", question_text_si: "",
+    options: ["", "", "", ""], options_si: ["", "", "", ""],
+    correct_option_index: 0, points: 1
+  }])
   const removeQuestion = (idx: number) => setQuestions(questions.filter((_, i) => i !== idx))
-  
+
   const updateQuestion = (idx: number, field: string, value: any) => {
     const newQuestions = [...questions]
     newQuestions[idx] = { ...newQuestions[idx], [field]: value }
     setQuestions(newQuestions)
   }
 
-  const updateOption = (qIdx: number, oIdx: number, value: string) => {
+  const updateOption = (qIdx: number, oIdx: number, value: string, lang: "en" | "si") => {
     const newQuestions = [...questions]
-    newQuestions[qIdx].options[oIdx] = value
+    if (lang === "si") {
+      const newOpts = [...newQuestions[qIdx].options_si]
+      newOpts[oIdx] = value
+      newQuestions[qIdx] = { ...newQuestions[qIdx], options_si: newOpts }
+    } else {
+      const newOpts = [...newQuestions[qIdx].options]
+      newOpts[oIdx] = value
+      newQuestions[qIdx] = { ...newQuestions[qIdx], options: newOpts }
+    }
     setQuestions(newQuestions)
   }
 
   const handleCreate = async () => {
-    if (!title || !grade || !subject || questions.some(q => !q.question_text)) {
+    const questionsValid = questions.every(q => {
+      const hasEn = q.question_text?.trim() && q.options.every(o => o.trim())
+      const hasSi = q.question_text_si?.trim() && q.options_si.every(o => o.trim())
+      return hasEn || hasSi
+    })
+
+    if (!title || !grade || !subject || !questionsValid) {
       const { toast } = await import('sonner')
-      toast.error("Please ensure all fields and questions are complete.")
+      toast.error("Validation Failed: Ensure Title, Grade, Subject are set, and every question is complete in at least one language.")
       return
     }
 
     setIsSaving(true)
     try {
       const quizRef = await addDoc(collection(db, 'quizzes'), {
-        title, 
-        description, 
-        grade, 
-        subject, 
+        title,
+        description,
+        grade,
+        subject,
         teacher_email: user.email.toLowerCase(),
+        has_sinhala: questions.some(q => q.question_text_si?.trim()),
         created_at: new Date().toISOString()
       })
 
-      // In Firestore, we might want to store questions as a subcollection or an array
-      // Given the previous SQL structure, subcollection is cleaner but array is simpler for now
-      // Let's use a subcollection 'questions' under each quiz
       const questionsRef = collection(db, 'quizzes', quizRef.id, 'questions')
       for (const q of questions) {
         await addDoc(questionsRef, q)
@@ -882,7 +976,8 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
       const { toast } = await import('sonner')
       toast.success("Academic assessment published.")
       setOpen(false)
-      setTitle(""); setDescription(""); setQuestions([{ question_text: "", options: ["", "", "", ""], correct_option_index: 0, points: 1 }])
+      setTitle(""); setDescription(""); setEditorLang("en")
+      setQuestions([{ question_text: "", question_text_si: "", options: ["", "", "", ""], options_si: ["", "", "", ""], correct_option_index: 0, points: 1 }])
       if (onQuizCreated) onQuizCreated()
     } catch (err) {
       console.error("Error creating quiz:", err)
@@ -900,13 +995,13 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="rounded-2xl h-11 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2">
-          <PlusCircle className="size-4" /> Build Assessment
+          <PlusCircle className="size-4" /> {t('dashboard.quiz.builder')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-8">
         <DialogHeader className="mb-8">
-          <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-2">Build Assessment</DialogTitle>
-          <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Configure assessment settings and define interactive MCQ patterns.</DialogDescription>
+          <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-2">{t('dashboard.quiz.builder')}</DialogTitle>
+          <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Configure assessment settings and define bilingual MCQ patterns.</DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto pr-4 space-y-10 py-4 custom-scrollbar">
           <div className="grid grid-cols-2 gap-6">
@@ -937,31 +1032,201 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
           <div className="space-y-8">
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
               <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-600">Defined Question Chain</h3>
-              <Button size="sm" variant="outline" onClick={addQuestion} className="rounded-xl h-9 px-4 font-black text-[9px] uppercase tracking-widest text-indigo-600 bg-indigo-50/50 dark:bg-indigo-500/5 border-none"><PlusCircle className="size-3.5 mr-2" /> Append Pattern</Button>
+              <div className="flex items-center gap-3">
+                {/* Bilingual Editor Language Toggle */}
+                <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditorLang("en")}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                      editorLang === "en" ? "bg-white dark:bg-zinc-700 text-indigo-600 shadow-sm" : "text-muted-foreground"
+                    )}
+                  >🇬🇧 EN</button>
+                  <button
+                    type="button"
+                    onClick={() => setEditorLang("si")}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                      editorLang === "si" ? "bg-white dark:bg-zinc-700 text-amber-600 shadow-sm" : "text-muted-foreground"
+                    )}
+                  >🇱🇰 සිං</button>
+                </div>
+                <Button size="sm" variant="outline" onClick={addQuestion} className="rounded-xl h-9 px-4 font-black text-[9px] uppercase tracking-widest text-indigo-600 bg-indigo-50/50 dark:bg-indigo-500/5 border-none"><PlusCircle className="size-3.5 mr-2" /> Append Pattern</Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setShowAiPanel(!showAiPanel)} 
+                  className={cn(
+                    "rounded-xl h-9 px-4 font-black text-[9px] uppercase tracking-widest border-none transition-all",
+                    showAiPanel ? "bg-indigo-600 text-white shadow-lg" : "bg-emerald-50/50 dark:bg-emerald-500/5 text-emerald-600"
+                  )}
+                >
+                  <Sparkles className="size-3.5 mr-2" /> Generate with AI
+                </Button>
+              </div>
             </div>
+
+            {/* AI Generation Panel */}
+            <AnimatePresence>
+              {showAiPanel && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-8 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-500/5 space-y-8">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                          <Wand2 className="size-4" /> AI Question Synthesis
+                        </h4>
+                        <p className="text-[10px] text-muted-foreground font-medium mt-1">Upload a lesson PDF to automatically generate assessment items.</p>
+                      </div>
+                      <Badge className="bg-emerald-600 text-white border-none px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
+                        Gemini 2.5 Flash
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-4">
+                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white px-1">Lesson Context (PDF)</Label>
+                        <div 
+                          className={cn(
+                            "relative aspect-video rounded-3xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-4 cursor-pointer group",
+                            aiFile ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/10" : "border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 hover:bg-emerald-50/30"
+                          )}
+                          onClick={() => document.getElementById('ai-pdf-upload')?.click()}
+                        >
+                          <input 
+                            id="ai-pdf-upload" 
+                            type="file" 
+                            accept="application/pdf" 
+                            className="hidden" 
+                            onChange={(e) => setAiFile(e.target.files?.[0] || null)}
+                          />
+                          {aiFile ? (
+                            <>
+                              <div className="size-12 rounded-2xl bg-emerald-500 flex items-center justify-center text-white">
+                                <FileText className="size-6" />
+                              </div>
+                              <div className="text-center px-6">
+                                <p className="text-sm font-bold text-emerald-600 truncate max-w-[200px]">{aiFile.name}</p>
+                                <p className="text-[10px] text-muted-foreground font-medium">Click to replace file</p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="size-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <FileUp className="size-6" />
+                              </div>
+                              <div className="text-center px-6">
+                                <p className="text-sm font-bold text-zinc-900 dark:text-white">Upload Lesson Materials</p>
+                                <p className="text-[10px] text-muted-foreground font-medium">Drag & drop or click to select PDF</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center px-1">
+                            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white">Question Count</Label>
+                            <span className="text-xs font-black text-emerald-600">{numAiQuestions} Items</span>
+                          </div>
+                          <Slider 
+                            value={[numAiQuestions]} 
+                            min={5} 
+                            max={20} 
+                            step={1} 
+                            onValueChange={(v) => setNumAiQuestions(v[0])}
+                            className="py-4"
+                          />
+                          <div className="flex justify-between text-[8px] font-black text-muted-foreground/50 uppercase tracking-widest">
+                            <span>5 Questions</span>
+                            <span>20 Questions</span>
+                          </div>
+                        </div>
+
+                        <div className="pt-2">
+                          <Button 
+                            className="w-full h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 transition-all gap-3"
+                            disabled={!aiFile || isGeneratingAI}
+                            onClick={handleAIGenerate}
+                          >
+                            {isGeneratingAI ? (
+                              <>
+                                <Loader2 className="size-4 animate-spin" />
+                                Processing Model...
+                              </>
+                            ) : (
+                              <>
+                                <Rocket className="size-4" />
+                                Execute AI Generation
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Language context hint */}
+            <div className={cn(
+              "flex items-center gap-2 px-4 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest",
+              editorLang === "si"
+                ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20"
+                : "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20"
+            )}>
+              <span>{editorLang === "si" ? "🇱🇰" : "🇬🇧"}</span>
+              <span>{editorLang === "si" ? "Entering Sinhala (සිංහල) — English fields are saved separately" : "Entering English — toggle above to also add Sinhala translation"}</span>
+            </div>
+
             <div className="space-y-8">
               {questions.map((q, qIdx) => (
                 <div key={qIdx} className="p-8 rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-6 relative group/card">
                   <div className="flex items-start justify-between gap-6">
                     <div className="flex-1 space-y-3">
-                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white px-1">Question {qIdx + 1}</Label>
-                      <Textarea placeholder="Define the problem statement..." value={q.question_text} onChange={e => updateQuestion(qIdx, 'question_text', e.target.value)} className="min-h-[100px] rounded-2xl bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-800 p-4 font-medium text-sm" />
+                      <div className="flex items-center gap-3">
+                        <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white px-1">Question {qIdx + 1}</Label>
+                        {q.question_text_si?.trim() && (
+                          <span className="text-[8px] font-black uppercase tracking-widest bg-amber-50 dark:bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full border border-amber-100 dark:border-amber-500/20">
+                            🇱🇰 {t('dashboard.quiz.sinhalaReady')} ✓
+                          </span>
+                        )}
+                      </div>
+                      <Textarea
+                        placeholder={editorLang === "si" ? "ප්‍රශ්නය සිංහලෙන් ලියන්න..." : "Define the problem statement..."}
+                        value={editorLang === "si" ? (q.question_text_si || "") : q.question_text}
+                        onChange={e => updateQuestion(qIdx, editorLang === "si" ? 'question_text_si' : 'question_text', e.target.value)}
+                        className="min-h-[100px] rounded-2xl bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-800 p-4 font-medium text-sm"
+                      />
                     </div>
                     {questions.length > 1 && (
                       <Button size="icon" variant="ghost" className="size-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 opacity-0 group-hover/card:opacity-100 transition-all" onClick={() => removeQuestion(qIdx)}><Trash className="size-4" /></Button>
                     )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    {q.options.map((opt: string, oIdx: number) => (
+                    {(editorLang === "si" ? q.options_si : q.options).map((opt: string, oIdx: number) => (
                       <div key={oIdx} className="relative flex items-center gap-3 bg-white dark:bg-zinc-800 p-2 pl-4 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                        <input 
-                          type="radio" 
-                          name={`correct-${qIdx}`} 
-                          checked={q.correct_option_index === oIdx} 
+                        <input
+                          type="radio"
+                          name={`correct-${qIdx}`}
+                          checked={q.correct_option_index === oIdx}
                           onChange={() => updateQuestion(qIdx, 'correct_option_index', oIdx)}
                           className="size-4 accent-indigo-600 cursor-pointer"
                         />
-                        <Input placeholder={`Option ${oIdx + 1}`} value={opt} onChange={e => updateOption(qIdx, oIdx, e.target.value)} className="h-10 border-none px-0 font-medium text-sm focus:ring-0" />
+                        <Input
+                          placeholder={editorLang === "si" ? `විකල්පය ${oIdx + 1}` : `Option ${oIdx + 1}`}
+                          value={opt}
+                          onChange={e => updateOption(qIdx, oIdx, e.target.value, editorLang)}
+                          className="h-10 border-none px-0 font-medium text-sm focus:ring-0"
+                        />
                       </div>
                     ))}
                   </div>
@@ -974,7 +1239,7 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
           <Button variant="ghost" className="rounded-xl font-black text-xs uppercase tracking-widest text-muted-foreground" onClick={() => setOpen(false)}>Discard</Button>
           <Button onClick={handleCreate} disabled={isSaving} className="rounded-xl px-10 h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-600/20">
             {isSaving ? <Loader2 className="animate-spin size-4 mr-3" /> : <ShieldCheck className="size-4 mr-3 text-indigo-200" />}
-            Publish to LMS
+            {t('dashboard.quiz.publish')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -983,6 +1248,9 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
 }
 
 function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: string) => string }) {
+  const { language } = useI18n()
+  // Returns the Sinhala version if available and language is 'si', else falls back to English
+  const getLang = (en: string, si?: string) => language === 'si' && si?.trim() ? si : en
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [questions, setQuestions] = useState<any[]>([])
@@ -1044,6 +1312,7 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
         score: currentScore,
         total_points: maxPoints,
         answers: answers,
+        language: language,
         created_at: new Date().toISOString()
       })
       setStep('result')
@@ -1064,13 +1333,19 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
       <DialogContent className="w-[92vw] sm:max-w-[700px] max-h-[90vh] flex flex-col rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-6 sm:p-8">
         <DialogHeader className="mb-8">
           <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-2">{quiz.title}</DialogTitle>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
              <Badge className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 border-none px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
                {quiz.subject}
              </Badge>
              <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/50 opacity-60">
                {quiz.grade}
              </span>
+             <Badge className={cn(
+               "border-none px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest",
+               language === 'si' ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+             )}>
+               {language === 'si' ? '🇱🇰 සිංහල' : '🇬🇧 English'}
+             </Badge>
           </div>
         </DialogHeader>
 
@@ -1092,41 +1367,55 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
 
           {step === 'active' && (
             <div className="space-y-12 pb-10">
-              {questions.map((q, idx) => (
-                <div key={q.id} className="p-6 sm:p-8 rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-6 sm:space-y-8">
-                  <div className="flex gap-4">
-                    <span className="text-2xl font-black text-indigo-600 opacity-20">0{idx + 1}</span>
-                    <p className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white leading-tight"> 
-                      {q.question_text}
-                    </p>
-                  </div>
-                  <div className="grid gap-3">
-                    {q.options.map((opt: string, oIdx: number) => (
-                      <button
-                        key={oIdx}
-                        onClick={() => setAnswers({ ...answers, [q.id]: oIdx })}
-                        className={cn(
-                          "group w-full text-left p-4 sm:p-6 rounded-2xl border transition-all duration-500 flex items-center gap-4",
-                          answers[q.id] === oIdx 
-                            ? "bg-indigo-600 border-indigo-600 text-white shadow-xl shadow-indigo-600/20" 
-                            : "bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-800 hover:border-indigo-600/50 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+              {questions.map((q, idx) => {
+                const questionText = getLang(q.question_text, q.question_text_si)
+                const hasSinhala = q.question_text_si?.trim()
+                return (
+                  <div key={q.id} className="p-6 sm:p-8 rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-6 sm:space-y-8">
+                    <div className="flex gap-4">
+                      <span className="text-2xl font-black text-indigo-600 opacity-20">0{idx + 1}</span>
+                      <div className="flex-1">
+                        <p className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white leading-tight">
+                          {questionText}
+                        </p>
+                        {language === 'si' && !hasSinhala && (
+                          <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-2 opacity-80">
+                            ⚠ {t('dashboard.quiz.fallbackNotice')}
+                          </p>
                         )}
-                      >
-                        <div className={cn(
-                          "size-8 rounded-xl flex items-center justify-center font-black text-xs transition-colors",
-                          answers[q.id] === oIdx ? "bg-white/20 text-white" : "bg-zinc-50 dark:bg-zinc-700 text-muted-foreground group-hover:text-indigo-600"
-                        )}>
-                          {String.fromCharCode(65 + oIdx)}
-                        </div>
-                        <span className="font-bold tracking-tight">{opt}</span>
-                      </button>
-                    ))}
+                      </div>
+                    </div>
+                    <div className="grid gap-3">
+                      {(q.options || []).map((opt: string, oIdx: number) => {
+                        const displayOpt = getLang(opt, q.options_si?.[oIdx])
+                        return (
+                          <button
+                            key={oIdx}
+                            onClick={() => setAnswers({ ...answers, [q.id]: oIdx })}
+                            className={cn(
+                              "group w-full text-left p-4 sm:p-6 rounded-2xl border transition-all duration-500 flex items-center gap-4",
+                              answers[q.id] === oIdx
+                                ? "bg-indigo-600 border-indigo-600 text-white shadow-xl shadow-indigo-600/20"
+                                : "bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-800 hover:border-indigo-600/50 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                            )}
+                          >
+                            <div className={cn(
+                              "size-8 rounded-xl flex items-center justify-center font-black text-xs transition-colors",
+                              answers[q.id] === oIdx ? "bg-white/20 text-white" : "bg-zinc-50 dark:bg-zinc-700 text-muted-foreground group-hover:text-indigo-600"
+                            )}>
+                              {String.fromCharCode(65 + oIdx)}
+                            </div>
+                            <span className="font-bold tracking-tight">{displayOpt}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
               <Button onClick={handleFinish} className="w-full h-16 rounded-[1.5rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg uppercase tracking-widest shadow-2xl shadow-indigo-600/30 transition-all" disabled={isSubmitting || Object.keys(answers).length < questions.length}>
                 {isSubmitting ? <Loader2 className="animate-spin size-5 mr-3" /> : <Rocket className="size-6 mr-3 text-indigo-300" />}
-                Finalize Assessment
+                {t('dashboard.quiz.submitQuiz')}
               </Button>
             </div>
           )}
@@ -1145,7 +1434,7 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
                    score/total >= 0.8 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" : 
                    score/total >= 0.5 ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10"
                 )}>
-                  {score/total >= 0.8 ? "PROTOCOL: EXCELLENT" : score/total >= 0.5 ? "PROTOCOL: SUCCESS" : "PROTOCOL: RETRY RECOMMENDED"}
+                  {score/total >= 0.8 ? t('dashboard.quiz.excellent') : score/total >= 0.5 ? t('dashboard.quiz.passed') : t('dashboard.quiz.retry')}
                 </div>
               </div>
               <div className="bg-zinc-50 dark:bg-zinc-800/50 p-8 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800 text-left space-y-4 max-w-sm mx-auto">
@@ -1222,28 +1511,48 @@ function QuizResultsDialog({ quiz, t }: { quiz: any; t: (k: string) => string })
             <EmptyState icon={InboxIcon} message="No Data" sub="Students haven't synchronized their attempts yet." />
           ) : (
             <div className="space-y-3">
-              {attempts.map(a => (
-                <div key={a.id} className="flex items-center justify-between p-3 rounded-xl border bg-muted/20">
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                      {a.student_name ? a.student_name.charAt(0) : '?'}
+              {attempts.map(a => {
+                const pct = a.total_points > 0 ? Math.round((a.score / a.total_points) * 100) : 0
+                return (
+                  <div key={a.id} className="p-4 rounded-2xl border bg-muted/20 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                          {a.student_name ? a.student_name.charAt(0) : '?'}
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm tracking-tight">{a.student_name || 'Anonymous'}</p>
+                          <p className="text-[10px] text-muted-foreground">{a.student_email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {a.language && (
+                          <span className={cn(
+                            "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
+                            a.language === 'si' ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                          )}>
+                            {a.language === 'si' ? '🇱🇰 සිං' : '🇬🇧 EN'}
+                          </span>
+                        )}
+                        <div className="text-right">
+                          <p className="font-bold text-lg leading-none">{a.score}<span className="text-xs text-muted-foreground">/{a.total_points}</span></p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-medium">{pct}%</p>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground italic bg-background px-2 py-1 rounded-md border">
+                          {new Date(a.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-sm tracking-tight">{a.student_name || 'Anonymous'}</p>
-                      <p className="text-[10px] text-muted-foreground">{a.student_email}</p>
+                    {/* Score progress bar */}
+                    <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                      <div
+                        className={cn("h-full rounded-full transition-all duration-700", pct >= 80 ? "bg-emerald-500" : pct >= 50 ? "bg-indigo-500" : "bg-rose-500")}
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right px-2">
-                       <p className="font-bold text-lg leading-none">{a.score}<span className="text-xs text-muted-foreground">/{a.total_points}</span></p>
-                       <p className="text-[10px] text-muted-foreground uppercase font-medium">Score</p>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground italic bg-background px-2 py-1 rounded-md border">
-                      {new Date(a.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
@@ -1320,9 +1629,14 @@ function QuizzesSection({ user, role, t }: { user: User; role: 'student' | 'teac
                   </div>
                   <div>
                       <p className="font-bold text-base text-zinc-900 dark:text-white tracking-tight">{q.title}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1.5 flex items-center gap-3">
+                      <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em] mt-1.5 flex items-center gap-3 flex-wrap">
                         <span className="opacity-60">{q.subject} • {q.grade}</span>
                         {role === 'teacher' && <span className="text-indigo-600"> {q.quiz_attempts?.[0]?.count || 0} Attempts</span>}
+                        {q.has_sinhala && (
+                          <span className="text-amber-600 font-black flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-[8px]">
+                            🇱🇰 සිංහල
+                          </span>
+                        )}
                         {role === 'student' && q.quiz_attempts?.[0]?.count > 0 && (
                           <span className="text-emerald-500 font-black flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10">
                             <CheckCircle className="size-3" /> COMPLETED

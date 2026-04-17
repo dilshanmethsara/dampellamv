@@ -220,8 +220,8 @@ export function AuthForms({ role, initialTab = "login", onBack, onSuccess }: Aut
                       className={cn(
                         "rounded-2xl py-2.5 font-bold text-[10px] uppercase tracking-[0.2em] transition-all z-10",
                         activeTab === "login" 
-                          ? "bg-primary text-primary-foreground shadow-sm" 
-                          : "text-muted-foreground hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
+                          ? "!bg-primary !text-primary-foreground shadow-sm" 
+                          : "!text-muted-foreground hover:!text-foreground hover:bg-black/5 dark:hover:bg-white/5"
                       )}
                     >
                       {t("common.signIn")}
@@ -231,8 +231,8 @@ export function AuthForms({ role, initialTab = "login", onBack, onSuccess }: Aut
                       className={cn(
                         "rounded-2xl py-2.5 font-bold text-[10px] uppercase tracking-[0.2em] transition-all z-10",
                         activeTab === "signup" 
-                          ? "bg-primary text-primary-foreground shadow-sm" 
-                          : "text-muted-foreground hover:text-primary hover:bg-black/5 dark:hover:bg-white/5"
+                          ? "!bg-primary !text-primary-foreground shadow-sm" 
+                          : "!text-muted-foreground hover:!text-foreground hover:bg-black/5 dark:hover:bg-white/5"
                       )}
                     >
                       {t("common.signUp")}

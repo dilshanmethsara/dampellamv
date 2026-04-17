@@ -101,7 +101,21 @@ export const translations = {
       score: "Score / Marks",
       saveMarks: "Save Marks",
       recentMarks: "Recent Marks",
-      submittedMarks: "Submitted Marks History"
+      submittedMarks: "Submitted Marks History",
+      quiz: {
+        builder: "Build Assessment",
+        addQuestion: "Add Question",
+        publish: "Publish to LMS",
+        startQuiz: "Begin Assessment",
+        submitQuiz: "Finalize Assessment",
+        score: "Your Score",
+        excellent: "Excellent Work!",
+        passed: "Assessment Passed",
+        retry: "Keep Practicing",
+        sinhalaReady: "Sinhala Ready",
+        fallbackNotice: "English only (no Sinhala translation)",
+        languageLabel: "Language"
+      }
     },
     subjects: {
       "Sinhala": "Sinhala",
@@ -221,7 +235,21 @@ export const translations = {
       score: "ලකුණු",
       saveMarks: "ලකුණු සුරකින්න",
       recentMarks: "මෑත ලකුණු",
-      submittedMarks: "ඇතුළත් කළ ලකුණු ඉතිහාසය"
+      submittedMarks: "ඇතුළත් කළ ලකුණු ඉතිහාසය",
+      quiz: {
+        builder: "ප්‍රශ්නාවලිය සාදන්න",
+        addQuestion: "ප්‍රශ්නයක් එකතු කරන්න",
+        publish: "LMS වෙත ප්‍රකාශ කරන්න",
+        startQuiz: "තක්සේරුව ආරම්භ කරන්න",
+        submitQuiz: "තක්සේරුව සම්පූර්ණ කරන්න",
+        score: "ඔබේ ලකුණු",
+        excellent: "විශිෂ්ට කාර්යය!",
+        passed: "තක්සේරුව සමත් විය",
+        retry: "නැවත උත්සාහ කරන්න",
+        sinhalaReady: "සිංහල සූදානම්",
+        fallbackNotice: "ඉංග්‍රීසි පමණි (සිංහල පරිවර්තනයක් නැත)",
+        languageLabel: "භාෂාව"
+      }
     },
     subjects: {
       "Sinhala": "සිංහල",

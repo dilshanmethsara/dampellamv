@@ -93,18 +93,29 @@ function startCollectionListener(collectionName, callback) {
     let isInitialLoad = true;
 
     ref.onSnapshot(snapshot => {
+        const changes = snapshot.docChanges();
+        
         if (isInitialLoad) {
-            console.log(`[${collectionName}] Initial load complete. Ignored ${snapshot.size} existing items.`);
+            console.log(`[${collectionName}] Initial load complete. Tracking ${snapshot.size} items.`);
             isInitialLoad = false;
             return;
         }
 
-        snapshot.docChanges().forEach(change => {
-            const data = change.doc.data();
-            console.log(`[${collectionName}] Entry ${change.type}:`, data.phoneNumber || data.title || 'No ID');
-            callback(data, change.type);
+        if (changes.length > 0) {
+            console.log(`[${collectionName}] Pulse: ${changes.length} change(s) detected.`);
+        }
+
+        changes.forEach(change => {
+            try {
+                const data = change.doc.data();
+                const title = data ? (data.title || data.phoneNumber || 'Unknown') : 'No Data';
+                console.log(`[${collectionName}] Processing ${change.type}: ${title}`);
+                callback(data, change.type);
+            } catch (innerErr) {
+                console.error(`[${collectionName}] Change processing error:`, innerErr.message);
+            }
         });
-    }, err => console.error(`[${collectionName}] listener error:`, err));
+    }, err => console.error(`[${collectionName}] LISTENER CRITICAL ERROR:`, err));
 }
 
 // Fetch teacher name from profiles collection

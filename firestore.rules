@@ -1,0 +1,91 @@
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      // Basic helpers
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      
+      function profileExists() {
+        return isSignedIn() && exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
+      }
+      
+      function getProfile() {
+        return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data;
+      }
+
+      function isAdmin() {
+        return profileExists() && (
+          getProfile().role == "admin" || getProfile().role == "Admin" ||
+          getProfile().role_class == "admin" || getProfile().role_class == "Admin"
+        );
+      }
+      
+      function isTeacher() {
+        return profileExists() && (
+          getProfile().role == "teacher" || getProfile().role == "Teacher" ||
+          getProfile().role_class == "teacher" || getProfile().role_class == "Teacher"
+        );
+      }
+
+      // Profiles - UNIVERSAL SEARCH ENABLED
+      match /profiles/{userId} {
+        // Users can always read/write their own
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+        
+        // Allow searching for student profiles specifically
+        allow list, read: if isSignedIn() && (
+          isAdmin() || 
+          isTeacher() || 
+          resource.data.role == "student"
+        );
+        
+        // Admins can do everything
+        allow write: if isAdmin();
+      }
+
+      // Global Content
+      match /school_settings/{id} { allow read: if true; allow write: if isAdmin(); }
+      match /announcements/{id} { allow read: if true; allow write: if isAdmin() || isTeacher(); }
+      match /events/{id} { allow read: if true; allow write: if isAdmin(); }
+      match /valid_students/{id} { allow read: if true; allow write: if isAdmin(); }
+      
+      // Educational Data
+      match /past_papers/{id} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+      match /assignments/{id} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+      match /quizzes/{quizId} {
+        allow read: if isSignedIn();
+        allow write: if isAdmin() || isTeacher();
+        
+        match /questions/{questionId} {
+          allow read: if isSignedIn();
+          allow write: if isAdmin() || isTeacher();
+        }
+      }
+
+      match /marks/{id} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+      match /assignment_submissions/{id} { allow read, write: if isSignedIn(); }
+      match /quiz_attempts/{attemptId} { allow read, write: if isSignedIn(); }
+
+      // Communications
+      match /internal_messages/{id} { allow read, write: if isSignedIn(); }
+      match /notifications/{id} {
+        allow read: if isSignedIn() && (
+          request.auth.uid == resource.data.userId || 
+          request.auth.token.email.lower() == resource.data.user_email ||
+          isAdmin()
+        );
+        allow write: if isSignedIn();
+      }
+
+      // Verification Data
+      match /phone_verifications/{uid} {
+        allow read, write: if isSignedIn() && request.auth.uid == uid;
+        allow read: if isAdmin();
+      }
+      
+      match /signup_verifications/{phoneNumber} {
+        allow read, write: if true;
+      }
+    }
+  }

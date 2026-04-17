@@ -1,0 +1,23 @@
+# Environment variables
+.env*.local
+
+# Bundles & AI Artifacts
+dampella.txt
+dampellafront_ai_studio.zip
+dampellafront_bundle.md
+.agents/
+.windsurf/
+.gemini/
+scratch/
+backups/
+
+# Project Folders to Exclude from GitHub
+.git_corrupted/
+bot/
+
+# Common ignores
+node_modules/
+.next/
+.DS_Store
+backup/
+*.tsbuildinfo

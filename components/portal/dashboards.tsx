@@ -2266,10 +2266,10 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
             <>
               {/* Stats Bento Grid */}
               <AnimatedContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard title={t("dashboard.enrolledClasses")} value="12" icon={BookOpen} trend="+2 this term" colorClass="bg-blue-500/10 text-blue-600" />
-            <StatCard title={t("dashboard.assignmentsDue")} value={assignments.length.toString()} icon={FileText} trend="3 pending" colorClass="bg-purple-500/10 text-purple-600" />
-            <StatCard title={t("dashboard.averageGrade")} value="88%" icon={TrendingUp} trend="Top 5%" colorClass="bg-amber-500/10 text-amber-600" />
-            <StatCard title={t("dashboard.attendance")} value="94%" icon={Calendar} trend="On track" colorClass="bg-emerald-500/10 text-emerald-600" />
+            <StatCard title={t("dashboard.enrolledClasses")} value="12" icon={BookOpen} trend="+2 this term" colorClass="bg-blue-500/10 text-blue-600" isComingSoon={true} />
+            <StatCard title={t("dashboard.assignmentsDue")} value={assignments.length.toString()} icon={FileText} trend="3 pending" colorClass="bg-purple-500/10 text-purple-600" isComingSoon={true} />
+            <StatCard title={t("dashboard.averageGrade")} value="88%" icon={TrendingUp} trend="Top 5%" colorClass="bg-amber-500/10 text-amber-600" isComingSoon={true} />
+            <StatCard title={t("dashboard.attendance")} value="94%" icon={Calendar} trend="On track" colorClass="bg-emerald-500/10 text-emerald-600" isComingSoon={true} />
           </AnimatedContainer>
 
           <div className="grid gap-8 lg:grid-cols-12">

@@ -19,6 +19,12 @@ const baseUrl = 'https://dampellamv.vercel.app'
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
+  applicationName: 'MR/ Dampella M.V',
+  appleWebApp: {
+    title: 'MR/ Dampella M.V',
+    statusBarStyle: 'default',
+    capable: true,
+  },
   title: {
     default: 'MR/ Dampella M.V | Dampella Maha Vidyalaya - Official Website',
     template: '%s | MR/ Dampella M.V',
@@ -118,6 +124,18 @@ export default function RootLayout({
           <PwaRegister />
         </Providers>
         <Analytics />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "MR/ Dampella M.V",
+              "alternateName": ["Dampella Maha Vidyalaya", "Dampella M.V"],
+              "url": baseUrl
+            })
+          }}
+        />
       </body>
     </html>
   )

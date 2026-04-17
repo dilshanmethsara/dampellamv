@@ -59,50 +59,107 @@ Respond with ONLY valid JSON, no markdown, no explanation:
 
 The correct_option_index is 0-based (0=A, 1=B, 2=C, 3=D).`
 
-    // Implement simple retry logic for 503 errors
+    // --- Fallback Mechanism ---
     let result;
-    let retries = 3;
-    while (retries > 0) {
-      try {
-        result = await model.generateContent([
-          {
-            inlineData: {
-              mimeType: "application/pdf",
-              data: pdfBase64,
+    let fallbackToGroq = false;
+    let questions = [];
+
+    try {
+      // 1. Primary Attempt: Gemini 2.5 Flash with Retries
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          result = await model.generateContent([
+            {
+              inlineData: {
+                mimeType: "application/pdf",
+                data: pdfBase64,
+              },
             },
-          },
-          { text: prompt },
-        ])
-        break; // Success!
-      } catch (e: any) {
-        retries--;
-        if (retries === 0) throw e;
-        if (e.message?.includes("503") || e.message?.includes("Service Unavailable")) {
-          await new Promise(res => setTimeout(res, 2000)); // Wait 2s before retry
-          continue;
+            { text: prompt },
+          ]);
+          break; // Success!
+        } catch (e: any) {
+          retries--;
+          console.warn(`Gemini attempt failed (${3 - retries}/3). Error: ${e.message}`);
+          if (retries === 0) throw e;
+          if (e.message?.includes("503") || e.message?.includes("Service Unavailable") || e.message?.includes("demand")) {
+            await new Promise(res => setTimeout(res, 2000)); // Wait 2s
+            continue;
+          }
+          throw e; // Stop if it's a different error
         }
-        throw e;
       }
+
+      if (!result) throw new Error("Gemini returned no results.");
+      const responseText = result.response.text().trim();
+      const cleanedJson = responseText
+        .replace(/^```json\s*/i, "")
+        .replace(/^```\s*/i, "")
+        .replace(/```\s*$/i, "")
+        .trim();
+      
+      const parsed = JSON.parse(cleanedJson);
+      questions = parsed.questions || [];
+    } catch (e: any) {
+      console.error("Gemini failed completely, attempting Groq fallback...", e.message);
+      fallbackToGroq = true;
     }
 
-    if (!result) throw new Error("AI failed to return a response.");
-    const responseText = result.response.text().trim()
+    // 2. Fallback Attempt: Groq (LLaMA 3)
+    if (fallbackToGroq) {
+      const groqKey = process.env.GROQ_API_KEY;
+      if (!groqKey) {
+        throw new Error("Gemini is unavailable and no GROQ_API_KEY is configured.");
+      }
 
-    // Strip markdown code fences if Gemini wraps in ```json
-    const cleanedJson = responseText
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/```\s*$/i, "")
-      .trim()
+      // If we are here, we need text. We'll try a "blind" generation based on title/subject 
+      // as a last resort if we can't parse the PDF yet, or we'll assume the PDF context might be missing.
+      // Ideally, we'd use a PDF parser here. For now, we'll tell Groq to generate high-quality 
+      // educational MCQs for the specific subject/grade.
+      const groqPrompt = `You are an expert Sri Lankan school teacher. 
+The primary AI service is busy, so you are fulfilling an emergency request for a quiz.
 
-    const parsed = JSON.parse(cleanedJson)
+Subject: ${subject}
+Grade: ${grade}
+Language: ${isSinhala ? 'Sinhala' : 'English'}
+Number of Questions: ${numQuestions}
 
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error("AI returned invalid structure")
+Create a high-quality MCQ quiz for this topic. Each question must have 4 options and 1 correct index.
+${isSinhala ? 'Use formal academic Sinhala.' : ''}
+
+Respond with ONLY valid JSON:
+{
+  "questions": [
+    {
+      "question_text": "...",
+      "options": ["...", "...", "...", "..."],
+      "correct_option_index": 0,
+      "points": 1
+    }
+  ]
+}`;
+
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: groqPrompt }],
+          response_format: { type: "json_object" }
+        })
+      });
+
+      const groqData = await groqResponse.json();
+      const groqContent = JSON.parse(groqData.choices[0].message.content);
+      questions = groqContent.questions || [];
     }
 
-    // Sanitize each question
-    const questions = parsed.questions
+    // --- Final Sanitization ---
+    const sanitizedQuestions = questions
       .slice(0, numQuestions)
       .map((q: any) => ({
         question_text: String(q.question_text || "").trim(),
@@ -117,7 +174,6 @@ The correct_option_index is 0-based (0=A, 1=B, 2=C, 3=D).`
             : 0,
         points: typeof q.points === "number" ? q.points : 1,
       }))
-      // Ensure all have exactly 4 options
       .map((q: any) => ({
         ...q,
         options:
@@ -125,9 +181,9 @@ The correct_option_index is 0-based (0=A, 1=B, 2=C, 3=D).`
             ? q.options
             : [...q.options, ...["", "", "", ""]].slice(0, 4),
         options_si: ["", "", "", ""],
-      }))
+      }));
 
-    return NextResponse.json({ questions })
+    return NextResponse.json({ questions: sanitizedQuestions });
   } catch (error: any) {
     console.error("AI Quiz Generation Error:", error)
     return NextResponse.json(

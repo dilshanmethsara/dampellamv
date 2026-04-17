@@ -57,7 +57,8 @@ Respond with ONLY valid JSON, no markdown, no explanation:
   ]
 }
 
-The correct_option_index is 0-based (0=A, 1=B, 2=C, 3=D).`
+The correct_option_index is 0-based (0=A, 1=B, 2=C, 3=D). 
+CRITICAL: Every question MUST have exactly 4 non-empty options. If you don't have enough options, create plausible distractors.`
 
     // --- Fallback Mechanism ---
     let result;
@@ -125,7 +126,7 @@ Grade: ${grade}
 Language: ${isSinhala ? 'Sinhala' : 'English'}
 Number of Questions: ${numQuestions}
 
-Create a high-quality MCQ quiz for this topic. Each question must have 4 options and 1 correct index.
+Create a high-quality MCQ quiz for this topic. Each question must have exactly 4 unique options and 1 correct index.
 ${isSinhala ? 'Use formal academic Sinhala.' : ''}
 
 Respond with ONLY valid JSON:
@@ -165,8 +166,8 @@ Respond with ONLY valid JSON:
         question_text: String(q.question_text || "").trim(),
         question_text_si: "",
         options: Array.isArray(q.options)
-          ? q.options.slice(0, 4).map((o: any) => String(o).trim())
-          : ["", "", "", ""],
+          ? q.options.slice(0, 4).map((o: any) => String(o).trim() || "(None)")
+          : ["(None)", "(None)", "(None)", "(None)"],
         options_si: ["", "", "", ""],
         correct_option_index:
           typeof q.correct_option_index === "number"
@@ -179,7 +180,7 @@ Respond with ONLY valid JSON:
         options:
           q.options.length === 4
             ? q.options
-            : [...q.options, ...["", "", "", ""]].slice(0, 4),
+            : [...q.options, ...["(None)", "(None)", "(None)", "(None)"]].slice(0, 4),
         options_si: ["", "", "", ""],
       }));
 

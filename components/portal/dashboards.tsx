@@ -895,10 +895,10 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
       // We always populate question_text and options as the primary/fallback fields,
       // and also populate the _si fields if the user requested Sinhala.
       const mappedQuestions = data.questions.map((q: any) => ({
-        question_text: q.question_text || "",
-        question_text_si: editorLang === "si" ? (q.question_text || "") : "",
-        options: Array.isArray(q.options) ? q.options : ["", "", "", ""],
-        options_si: editorLang === "si" ? (Array.isArray(q.options) ? q.options : ["", "", "", ""]) : ["", "", "", ""],
+        question_text: q.question_text || "(Empty Question)",
+        question_text_si: editorLang === "si" ? (q.question_text || "(Empty Question)") : "",
+        options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ["(None)", "(None)", "(None)", "(None)"],
+        options_si: editorLang === "si" ? (Array.isArray(q.options) && q.options.length === 4 ? q.options : ["(None)", "(None)", "(None)", "(None)"]) : ["", "", "", ""],
         correct_option_index: q.correct_option_index,
         points: q.points || 1
       }))

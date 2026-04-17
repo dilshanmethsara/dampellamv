@@ -998,13 +998,13 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
           <PlusCircle className="size-4" /> {t('dashboard.quiz.builder')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-8">
+      <DialogContent className="w-[95vw] sm:max-w-[800px] max-h-[90vh] flex flex-col rounded-[1.5rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-5 sm:p-8">
         <DialogHeader className="mb-8">
           <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-2">{t('dashboard.quiz.builder')}</DialogTitle>
           <DialogDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Configure assessment settings and define bilingual MCQ patterns.</DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto pr-4 space-y-10 py-4 custom-scrollbar">
-          <div className="grid grid-cols-2 gap-6">
+        <div className="flex-1 overflow-y-auto pr-0 sm:pr-4 space-y-8 sm:space-y-10 py-4 custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-3">
               <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900 dark:text-white px-1">Internal Title</Label>
               <Input placeholder="Ex. Unit 4: Vector Analysis" value={title} onChange={e => setTitle(e.target.value)} className="h-14 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800 px-6 font-bold text-sm" />
@@ -1030,9 +1030,9 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
           </div>
 
           <div className="space-y-8">
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 gap-4">
               <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-600">Defined Question Chain</h3>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {/* Bilingual Editor Language Toggle */}
                 <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
                   <button
@@ -1076,7 +1076,7 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-8 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-500/5 space-y-8">
+                  <div className="p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-500/5 space-y-6 sm:space-y-8">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-sm font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
@@ -1189,7 +1189,7 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
 
             <div className="space-y-8">
               {questions.map((q, qIdx) => (
-                <div key={qIdx} className="p-8 rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-6 relative group/card">
+                <div key={qIdx} className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-5 sm:space-y-6 relative group/card">
                   <div className="flex items-start justify-between gap-6">
                     <div className="flex-1 space-y-3">
                       <div className="flex items-center gap-3">
@@ -1211,7 +1211,7 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
                       <Button size="icon" variant="ghost" className="size-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 opacity-0 group-hover/card:opacity-100 transition-all" onClick={() => removeQuestion(qIdx)}><Trash className="size-4" /></Button>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {(editorLang === "si" ? q.options_si : q.options).map((opt: string, oIdx: number) => (
                       <div key={oIdx} className="relative flex items-center gap-3 bg-white dark:bg-zinc-800 p-2 pl-4 rounded-xl border border-zinc-100 dark:border-zinc-800">
                         <input

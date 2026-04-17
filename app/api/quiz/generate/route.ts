@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
     const model = genAI.getGenerativeModel(
       { model: "gemini-1.5-pro" },
-      { apiVersion: "v1" }
+      { apiVersion: "v1beta" }
     )
 
     const isSinhala = language === "si"

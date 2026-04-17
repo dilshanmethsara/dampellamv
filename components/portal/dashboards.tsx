@@ -291,25 +291,38 @@ function TeacherAssignmentsReview({ user, t }: { user: User; t: (k: string) => s
   const [assignments, setAssignments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const assignmentsRef = collection(db, 'assignments')
-    const q = query(
-      assignmentsRef, 
-      where('teacher_email', '==', user.email.toLowerCase()),
-      orderBy('created_at', 'desc'),
-      limit(10)
-    )
-    getDocs(q).then((querySnapshot) => {
+  const loadAssignments = async () => {
+    setLoading(true)
+    try {
+      const assignmentsRef = collection(db, 'assignments')
+      const q = query(
+        assignmentsRef, 
+        where('teacher_email', '==', user.email.toLowerCase()),
+        orderBy('created_at', 'desc')
+      )
+      const querySnapshot = await getDocs(q)
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
       setAssignments(data)
+    } finally {
       setLoading(false)
-    }).catch(async err => {
-      console.error("Error fetching assignments:", err)
-      setLoading(false)
+    }
+  }
+
+  useEffect(() => { loadAssignments() }, [user.email])
+
+  const handleDeleteAssignment = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!confirm("Are you sure you want to delete this assignment? Students will no longer be able to see it.")) return
+    
+    try {
       const { toast } = await import('sonner')
-      toast.error(`Assignments Error: ${err.message}`)
-    })
-  }, [user.email])
+      await deleteDoc(doc(db, 'assignments', id))
+      setAssignments(prev => prev.filter(a => a.id !== id))
+      toast.success("Assignment deleted permanently.")
+    } catch (err) {
+      console.error("Delete error:", err)
+    }
+  }
 
   return (
     <PremiumCard className="p-0 border-none overflow-hidden">
@@ -327,7 +340,7 @@ function TeacherAssignmentsReview({ user, t }: { user: User; t: (k: string) => s
         ) : (
           <div className="space-y-4">
             {assignments.map(a => (
-              <TeacherAssignmentItem key={a.id} assignment={a} t={t} />
+              <TeacherAssignmentItem key={a.id} assignment={a} t={t} onDelete={() => setAssignments(prev => prev.filter(item => item.id !== a.id))} />
             ))}
           </div>
         )}
@@ -336,7 +349,7 @@ function TeacherAssignmentsReview({ user, t }: { user: User; t: (k: string) => s
   )
 }
 
-function TeacherAssignmentItem({ assignment, t }: { assignment: any; t: (k: string) => string }) {
+function TeacherAssignmentItem({ assignment, t, onDelete }: { assignment: any; t: (k: string) => string; onDelete: () => void }) {
   const [open, setOpen] = useState(false)
   const [submissions, setSubmissions] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -383,13 +396,23 @@ function TeacherAssignmentItem({ assignment, t }: { assignment: any; t: (k: stri
               </p>
             </div>
           </div>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="rounded-xl h-9 px-4 font-black text-[10px] uppercase tracking-widest text-indigo-600 border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
-          >
-            Review Work
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-10 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+              onClick={(e) => { e.stopPropagation(); if(confirm("Delete this assignment?")) { deleteDoc(doc(db, 'assignments', assignment.id)); onDelete(); } }}
+            >
+              <Trash className="size-4" />
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="rounded-xl h-9 px-4 font-black text-[10px] uppercase tracking-widest text-indigo-600 border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
+            >
+              Review Work
+            </Button>
+          </div>
         </div>
       </DialogTrigger>
       <DialogContent className="w-[95vw] sm:max-w-[800px] max-h-[90vh] flex flex-col rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-6 sm:p-8">
@@ -1606,6 +1629,20 @@ function QuizzesSection({ user, role, t }: { user: User; role: 'student' | 'teac
     }
   }
 
+  const handleDeleteQuiz = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!confirm("Are you sure you want to delete this quiz? Students will lose access to it immediately.")) return
+    
+    try {
+      const { toast } = await import('sonner')
+      await deleteDoc(doc(db, 'quizzes', id))
+      setQuizzes(prev => prev.filter(q => q.id !== id))
+      toast.success("Quiz deleted successfully.")
+    } catch (err) {
+      console.error("Quiz delete error:", err)
+    }
+  }
+
   useEffect(() => { loadData() }, [user.gradeClass, user.email, role])
 
   return (
@@ -1647,7 +1684,17 @@ function QuizzesSection({ user, role, t }: { user: User; role: 'student' | 'teac
                       </p>
                   </div>
                 </div>
-                {role === 'student' ? (
+                {role === 'teacher' ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-12 rounded-2xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    onClick={(e) => handleDeleteQuiz(q.id, e)}
+                  >
+                    <Trash className="size-5" />
+                  </Button>
+                ) : (
+                  role === 'student' ? (
                   <QuizTakeDialog quiz={q} user={user} t={t} />
                 ) : (
                   <div className="flex items-center gap-2">
@@ -2326,16 +2373,42 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                       />
                     ) : (
                       <div className="space-y-4">
-                        {announcements.map(ann => (
-                          <motion.div 
-                            key={ann.id} 
-                            whileHover={{ scale: 1.02 }}
-                            className="p-6 rounded-[2.5rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-2xl transition-all duration-500 cursor-default"
-                          >
-                            <p className="font-bold text-sm text-zinc-900 dark:text-white leading-tight mb-3 uppercase tracking-tight">{ann.title}</p>
-                            <p className="text-[10px] font-bold text-muted-foreground/60 leading-relaxed uppercase tracking-widest">"{ann.summary || ann.content}"</p>
-                          </motion.div>
-                        ))}
+                        {announcements.map(ann => {
+                          const isOwner = ann.teacher_email === user.email || user.role === 'admin';
+                          
+                          const handleDeleteAnnouncement = async (id: string, e: React.MouseEvent) => {
+                            e.stopPropagation()
+                            if (!confirm("Delete this announcement?")) return
+                            try {
+                              const { toast } = await import('sonner')
+                              await deleteDoc(doc(db, 'announcements', id))
+                              setAnnouncements(prev => prev.filter(a => a.id !== id))
+                              toast.success("Announcement removed.")
+                            } catch (err) {
+                              console.error("Ann delete error:", err)
+                            }
+                          }
+
+                          return (
+                            <motion.div 
+                              key={ann.id} 
+                              whileHover={{ scale: 1.02 }}
+                              className="p-6 rounded-[2.5rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-2xl transition-all duration-500 cursor-default relative group"
+                            >
+                              <p className="font-bold text-sm text-zinc-900 dark:text-white leading-tight mb-3 uppercase tracking-tight pr-8">{ann.title}</p>
+                              <p className="text-[10px] font-bold text-muted-foreground/60 leading-relaxed uppercase tracking-widest">"{ann.summary || ann.content}"</p>
+                              
+                              {isOwner && (
+                                <button 
+                                  onClick={(e) => handleDeleteAnnouncement(ann.id, e)}
+                                  className="absolute top-4 right-4 p-2 text-zinc-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                >
+                                  <Trash className="size-4" />
+                                </button>
+                              )}
+                            </motion.div>
+                          );
+                        })}
                       </div>
                     )}
                 </PremiumCard>

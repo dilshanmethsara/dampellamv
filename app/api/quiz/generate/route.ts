@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     const model = genAI.getGenerativeModel(
-      { model: "gemini-2.5-flash" },
+      { model: "gemini-1.5-flash" },
       { apiVersion: "v1" }
     )
 
@@ -59,16 +59,33 @@ Respond with ONLY valid JSON, no markdown, no explanation:
 
 The correct_option_index is 0-based (0=A, 1=B, 2=C, 3=D).`
 
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          mimeType: "application/pdf",
-          data: pdfBase64,
-        },
-      },
-      { text: prompt },
-    ])
+    // Implement simple retry logic for 503 errors
+    let result;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        result = await model.generateContent([
+          {
+            inlineData: {
+              mimeType: "application/pdf",
+              data: pdfBase64,
+            },
+          },
+          { text: prompt },
+        ])
+        break; // Success!
+      } catch (e: any) {
+        retries--;
+        if (retries === 0) throw e;
+        if (e.message?.includes("503") || e.message?.includes("Service Unavailable")) {
+          await new Promise(res => setTimeout(res, 2000)); // Wait 2s before retry
+          continue;
+        }
+        throw e;
+      }
+    }
 
+    if (!result) throw new Error("AI failed to return a response.");
     const responseText = result.response.text().trim()
 
     // Strip markdown code fences if Gemini wraps in ```json

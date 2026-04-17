@@ -1695,17 +1695,20 @@ function QuizzesSection({ user, role, t }: { user: User; role: 'student' | 'teac
                   </Button>
                 ) : (
                   role === 'student' ? (
-                  <QuizTakeDialog quiz={q} user={user} t={t} />
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <QuizResultsDialog quiz={q} t={t} />
-                    <Button size="icon" variant="ghost" className="size-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all" onClick={async () => {
-                      if (confirm("Are you sure you want to delete this quiz?")) {
-                        await deleteDoc(doc(db, 'quizzes', q.id))
-                        loadData()
-                      }
-                    }}><Trash className="size-4" /></Button>
-                  </div>
+                    <QuizTakeDialog quiz={q} user={user} t={t} />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <QuizResultsDialog quiz={q} t={t} />
+                      <Button size="icon" variant="ghost" className="size-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all" onClick={async () => {
+                        if (confirm("Are you sure you want to delete this quiz?")) {
+                          await deleteDoc(doc(db, 'quizzes', q.id))
+                          loadData()
+                        }
+                      }}>
+                        <Trash className="size-4" />
+                      </Button>
+                    </div>
+                  )
                 )}
               </div>
             ))}

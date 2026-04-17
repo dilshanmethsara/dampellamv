@@ -1330,7 +1330,7 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
       <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="rounded-xl h-9 px-4 font-black text-[10px] uppercase tracking-widest text-indigo-600 border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all">Begin Assessment</Button>
       </DialogTrigger>
-      <DialogContent className="w-[92vw] sm:max-w-[700px] max-h-[90vh] flex flex-col rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-6 sm:p-8">
+      <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] flex flex-col rounded-[1.5rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-5 sm:p-8">
         <DialogHeader className="mb-8">
           <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-2">{quiz.title}</DialogTitle>
           <div className="flex items-center gap-3 flex-wrap">
@@ -1371,7 +1371,7 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
                 const questionText = getLang(q.question_text, q.question_text_si)
                 const hasSinhala = q.question_text_si?.trim()
                 return (
-                  <div key={q.id} className="p-6 sm:p-8 rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-6 sm:space-y-8">
+                  <div key={q.id} className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-zinc-50 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/20 space-y-6 sm:space-y-8">
                     <div className="flex gap-4">
                       <span className="text-2xl font-black text-indigo-600 opacity-20">0{idx + 1}</span>
                       <div className="flex-1">
@@ -1425,8 +1425,8 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
               <div className="space-y-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Performance Certification</p>
                 <div className="relative inline-block">
-                    <div className="text-[8rem] font-black text-zinc-900 dark:text-white leading-none tracking-tighter">
-                      {score}<span className="text-muted-foreground text-4xl font-black">/{total}</span>
+                    <div className="text-[6rem] sm:text-[8rem] font-black text-zinc-900 dark:text-white leading-none tracking-tighter">
+                      {score}<span className="text-muted-foreground text-2xl sm:text-4xl font-black">/{total}</span>
                     </div>
                 </div>
                 <div className={cn(
@@ -1491,7 +1491,7 @@ function QuizResultsDialog({ quiz, t }: { quiz: any; t: (k: string) => string })
       <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="rounded-xl h-9 px-4 font-black text-[10px] uppercase tracking-widest text-emerald-600 border-emerald-100 dark:border-emerald-500/20 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all">Review Results</Button>
       </DialogTrigger>
-      <DialogContent className="w-[92vw] sm:max-w-[700px] max-h-[85vh] flex flex-col rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-6 sm:p-8">
+      <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[85vh] flex flex-col rounded-[1.5rem] sm:rounded-[2.5rem] border-none shadow-aura bg-white dark:bg-zinc-900 p-5 sm:p-8">
         <DialogHeader className="mb-8">
           <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-2">Performance Ledger</DialogTitle>
           <div className="flex items-center gap-3">

@@ -40,6 +40,7 @@ const SUBJECTS = [
   "History",
   "Drama",
   "Music",
+  "Civic Education",
   "Buddhism",
   "Test Subject",
 ]

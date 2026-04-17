@@ -115,7 +115,7 @@ interface DashboardProps {
 const EMOJIS = ["👋", "🌟", "🚀", "✨", "🎉", "🔥", "💪", "😎", "🎓", "📚"]
 
 // ─── Stat Card Component ─────────────────────────────────────────────────────
-function StatCard({ title, value, icon: Icon, trend, colorClass = "bg-indigo-50 dark:bg-zinc-800 text-indigo-600" }: { title: string, value: string, icon: React.ComponentType<{ className?: string }>, trend: string, colorClass?: string }) {
+function StatCard({ title, value, icon: Icon, trend, colorClass = "bg-indigo-50 dark:bg-zinc-800 text-indigo-600", isComingSoon = false }: { title: string, value: string, icon: React.ComponentType<{ className?: string }>, trend: string, colorClass?: string, isComingSoon?: boolean }) {
   return (
     <PremiumCard className="relative group overflow-hidden cursor-default p-6 sm:p-8" variants={childVariants}>
       <div className="flex flex-row items-center justify-between gap-4 mb-6">
@@ -125,12 +125,12 @@ function StatCard({ title, value, icon: Icon, trend, colorClass = "bg-indigo-50 
         <div className="text-right">
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-1">{title}</p>
           <div className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-white leading-none">
-            {value}
+            {isComingSoon ? <span className="text-[10px] bg-indigo-600/10 text-indigo-600 px-3 py-1 rounded-full uppercase tracking-tighter">Coming Soon</span> : value}
           </div>
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className={cn("flex items-center gap-2 transition-opacity", isComingSoon && "opacity-20 grayscale")}>
         <div className="h-[2px] w-8 bg-indigo-500 rounded-full" />
         <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600/70">{trend}</span>
       </div>
@@ -2846,10 +2846,10 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
             <>
               {/* Stats Bento Grid */}
               <AnimatedContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard title={t("dashboard.activeClasses")} value="8" icon={BookOpen} trend="Steady" colorClass="bg-blue-500/10 text-blue-600" />
-            <StatCard title={t("dashboard.totalStudents")} value="124" icon={Users} trend="+12% enrollment" colorClass="bg-purple-500/10 text-purple-600" />
-            <StatCard title={t("dashboard.assignments")} value="24" icon={FileText} trend="8 to grade" colorClass="bg-amber-500/10 text-amber-600" />
-            <StatCard title={t("dashboard.classAverage")} value="76%" icon={BarChart3} trend="Improving" colorClass="bg-emerald-500/10 text-emerald-600" />
+            <StatCard title={t("dashboard.activeClasses")} value="8" icon={BookOpen} trend="Steady" colorClass="bg-blue-500/10 text-blue-600" isComingSoon={true} />
+            <StatCard title={t("dashboard.totalStudents")} value="124" icon={Users} trend="+12% enrollment" colorClass="bg-purple-500/10 text-purple-600" isComingSoon={true} />
+            <StatCard title={t("dashboard.assignments")} value="24" icon={FileText} trend="8 to grade" colorClass="bg-amber-500/10 text-amber-600" isComingSoon={true} />
+            <StatCard title={t("dashboard.classAverage")} value="76%" icon={BarChart3} trend="Improving" colorClass="bg-emerald-500/10 text-emerald-600" isComingSoon={true} />
           </AnimatedContainer>
 
           <div className="grid gap-8 lg:grid-cols-12">

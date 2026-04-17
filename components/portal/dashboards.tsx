@@ -1014,7 +1014,7 @@ function QuizCreator({ user, t, onQuizCreated }: { user: User; t: (k: string) =>
   }
 
   const grades = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12", "Grade 13"]
-  const subjects = ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Buddhism']
+  const subjects = ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Civic Education', 'Buddhism']
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -2692,7 +2692,7 @@ function EnterMarksDialog({ user, t }: { user: any; t: (k: string) => string }) 
                 <SelectContent className="rounded-2xl border-zinc-100 dark:border-zinc-800 shadow-aura">
                   {(user.subjectsTaught && user.subjectsTaught.length > 0
                     ? user.subjectsTaught
-                    : ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Buddhism']
+                    : ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Civic Education', 'Buddhism']
                   ).map((s: string) => (
                     <SelectItem key={s} value={s} className="rounded-xl font-bold py-2.5">{t(`subjects.${s}`)}</SelectItem>
                   ))}
@@ -2979,7 +2979,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: DashboardP
                                     <SelectContent>
                                       {(user.subjectsTaught && user.subjectsTaught.length > 0
                                         ? user.subjectsTaught
-                                        : ["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama", "Music", "Buddhism"]
+                                        : ["Sinhala", "English", "Science", "Mathematics", "Geography", "ICT", "Agri", "Home Science", "History", "Drama", "Music", "Civic Education", "Buddhism"]
                                       ).map(s => (
                                         <SelectItem key={s} value={s}>{t(`subjects.${s}`)}</SelectItem>
                                       ))}
@@ -3306,7 +3306,7 @@ export function ProfileCompletionScreen({ user, onLogout }: { user: User; onLogo
     }
   }
 
-  const allSubjects = ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Buddhism']
+  const allSubjects = ['Sinhala', 'English', 'Science', 'Mathematics', 'Geography', 'ICT', 'Agri', 'Home Science', 'History', 'Drama', 'Music', 'Civic Education', 'Buddhism']
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col relative overflow-hidden bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-50/20 via-transparent to-transparent">

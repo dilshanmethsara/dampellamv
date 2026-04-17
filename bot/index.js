@@ -149,7 +149,7 @@ function getSubjectEmoji(subject) {
         'Music': '🎶',
         'Drama': '🎭',
         'Home Science': '🏠',
-        'Civics': '⚖️',
+        'Civic Education': '⚖️',
         'General Knowledge': '💡'
     };
     return map[subject] || '📚';

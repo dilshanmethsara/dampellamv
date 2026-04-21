@@ -16,15 +16,19 @@
 
       function isAdmin() {
         return profileExists() && (
-          getProfile().role == "admin" || getProfile().role == "Admin" ||
-          getProfile().role_class == "admin" || getProfile().role_class == "Admin"
+          getProfile().role.lower() == "admin" || 
+          getProfile().role_class.lower() == "admin"
         );
       }
       
       function isTeacher() {
         return profileExists() && (
-          getProfile().role == "teacher" || getProfile().role == "Teacher" ||
-          getProfile().role_class == "teacher" || getProfile().role_class == "Teacher"
+          getProfile().role.lower() == "teacher" || 
+          getProfile().role.lower() == "faculty" ||
+          getProfile().role.lower() == "staff" ||
+          getProfile().role_class.lower() == "teacher" ||
+          getProfile().role_class.lower() == "faculty" ||
+          getProfile().role_class.lower() == "staff"
         );
       }
 
@@ -66,6 +70,9 @@
       match /marks/{id} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
       match /assignment_submissions/{id} { allow read, write: if isSignedIn(); }
       match /quiz_attempts/{attemptId} { allow read, write: if isSignedIn(); }
+      match /quiz_submissions/{submissionId} { 
+        allow read, write: if isSignedIn(); 
+      }
 
       // Communications
       match /internal_messages/{id} { allow read, write: if isSignedIn(); }
@@ -86,6 +93,31 @@
       
       match /signup_verifications/{phoneNumber} {
         allow read, write: if true;
+      }
+      
+      // AI Chat History
+      match /chat_history/{sessionId} {
+        allow read, write: if isSignedIn() && (
+          request.auth.uid == resource.data.uid || 
+          isAdmin()
+        );
+        allow create: if isSignedIn();
+      }
+
+      // Manual Grading Portal
+      match /manual_grades/{gradeId} {
+        allow read: if isSignedIn() && (
+          isTeacher() || 
+          isAdmin() || 
+          request.auth.uid == resource.data.studentId
+        );
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+
+      // Past Papers Library
+      match /past_papers/{paperId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
       }
     }
   }

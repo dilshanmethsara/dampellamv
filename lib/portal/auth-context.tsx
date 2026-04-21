@@ -27,6 +27,7 @@ import { toast } from "sonner"
 export type UserRole = "student" | "teacher" | "admin" | null
 
 export interface User {
+  uid: string
   email: string
   fullName: string
   role: string
@@ -70,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isRecovery, setIsRecovery] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  // Minimum time to hold the loading screen (set by login, 0 = no minimum)
+  const minLoadUntilRef = React.useRef<number>(0)
   
   // Load session on mount
   React.useEffect(() => {
@@ -113,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (docSnap.exists()) {
         const profile = docSnap.data()
         const userData = {
+          uid: profile.id || uid,
           email: profile.email,
           fullName: profile.fullName || profile.full_name,
           role: profile.role,
@@ -132,6 +136,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Error fetching/creating profile:", err)
     } finally {
+      // Enforce minimum loading duration if set by login()
+      const remaining = minLoadUntilRef.current - Date.now()
+      if (remaining > 0) {
+        await new Promise(resolve => setTimeout(resolve, remaining))
+      }
+      minLoadUntilRef.current = 0
       setIsLoading(false)
     }
   }
@@ -146,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const login = async (email: string, pass: string, expectedRole: UserRole): Promise<boolean> => {
+    minLoadUntilRef.current = Date.now() + 8000  // hold loading screen for at least 8s
     setIsLoading(true)
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), pass)
@@ -189,6 +200,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = async (userData: any): Promise<boolean> => {
     setIsLoading(true)
     try {
+      // Guard: email must not be null/empty
+      if (!userData.email || typeof userData.email !== 'string') {
+        toast.error("Please enter a valid email address.")
+        setIsLoading(false)
+        return false
+      }
+
+      // Guard: password must not be null/empty
+      if (!userData.password || typeof userData.password !== 'string' || userData.password.length < 6) {
+        toast.error("Password must be at least 6 characters.")
+        setIsLoading(false)
+        return false
+      }
+
       // For students, validate their ID against the whitelist
       if (userData.role === 'student') {
         const studentId = userData.studentId?.trim().toUpperCase()

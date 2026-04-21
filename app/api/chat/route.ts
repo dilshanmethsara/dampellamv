@@ -6,23 +6,31 @@ import { NextResponse } from "next/server"
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "")
 
 const SYSTEM_PROMPT = `
-You are the official AI Assistant for MR/ Dampella Maha Vidyalaya (Dampella M.V), a prestigious government school in the Southern Province, Sri Lanka.
-Your name is "Dampella LMS Assistant".
+You are the "Atelier Tutor," a sophisticated AI Academic Mentor for students at MR/ Dampella Maha Vidyalaya. 
+Your persona is defined by the "Intellectual Atelier" design system: scholarly, high-fidelity, and focused on deep analytical inquiry.
 
 Your goals:
-1. Help students navigate the Learning Management System (LMS).
-2. Provide information about school activities, exams, and clubs.
-3. Encourage students in their studies with a friendly, professional, and supportive tone.
-4. If asked about facts not related to the school, answer politely but try to bring the conversation back to their studies or school life.
+1. Provide rigorous academic guidance that goes beyond simple answers. 
+2. Use a professional, scholarly, and supportive tone.
+3. Structure your responses with clear headings, key principles, and (where relevant) academic citations or pedagogical context.
+4. Encourage critical thinking by asking deepening questions at the end of your responses.
+5. If students ask about non-academic topics, politely steer them back to their "Intellectual Inquiry" or scholarly growth.
 
-School Context:
-- Name: MR/ Dampella Maha Vidyalaya
+Context:
+- School: MR/ Dampella Maha Vidyalaya
 - Motto: "Knowledge is Power, Education is the Key"
-- Location: Dampella, Matara District, Southern Province.
-- Focus: Academic excellence, sports, and cultural heritage.
+- Atmosphere: An "Atelier" (workshop) for the mind, where every inquiry is a step toward mastery.
 
-Current User Context:
-- You are talking to a student logged into the portal.
+Formatting Guidelines:
+- Use Markdown for structure.
+- If you provide a deep analysis, try to follow a structure similar to:
+  ### [Subject Title]
+  [Brief high-level explanation]
+  **Key Principles:**
+  - [Principle Name]: [Description]
+  ...
+  **Citations/Context:**
+  [Relevant academic references or background]
 `
 
 export async function POST(req: Request) {
@@ -38,38 +46,94 @@ export async function POST(req: Request) {
 
     // Get the latest message from the history
     const lastMessage = messages[messages.length - 1]
-    
-    // Prepare the model - using gemini-2.5-flash on v1 API
+
+    // Prepare the model - using gemini-1.5-flash with v1beta for stability
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash"
-    }, { apiVersion: "v1" })
+      model: "gemini-1.5-flash"
+    }, { apiVersion: "v1beta" })
 
     // Prepare chat history
-    // For gemini-pro, we'll prepend the system prompt to the first user message if history is empty
     let history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.text }],
     }))
 
-    // Ensure history starts with user for gemini-pro as well
     if (history.length > 0 && history[0].role === "model") {
       history = history.slice(1)
     }
 
-    const chat = model.startChat({
-      history: history,
-    })
+    const finalPrompt = lastMessage.text
+    const fullPrompt = history.length === 0 
+      ? `${SYSTEM_PROMPT}\n\nStudent: ${finalPrompt}`
+      : finalPrompt
 
-    // Prepend system prompt to the message if it's the first one to give context to the new model
-    const finalPrompt = history.length === 0 
-      ? `${SYSTEM_PROMPT}\n\nStudent: ${lastMessage.text}`
-      : lastMessage.text
+    // --- Logical Flow with Fallback ---
+    let responseText = "";
+    let fallbackToGroq = false;
 
-    const result = await chat.sendMessage(finalPrompt)
-    const response = await result.response
-    const text = response.text()
+    // 1. Primary Attempt: Gemini with Retries
+    try {
+      const chat = model.startChat({ history: history })
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          const result = await chat.sendMessage(fullPrompt);
+          responseText = result.response.text();
+          break; 
+        } catch (e: any) {
+          retries--;
+          const is503 = e.message?.includes("503") || e.message?.includes("Service Unavailable") || e.message?.includes("demand") || e.message?.includes("404");
+          if (is503 && retries > 0) {
+            await new Promise(res => setTimeout(res, 1500));
+            continue;
+          }
+          throw e;
+        }
+      }
+    } catch (e: any) {
+      console.warn("Gemini service unavailable for Tutor, falling back to Groq...", e.message);
+      fallbackToGroq = true;
+    }
 
-    return NextResponse.json({ text })
+    // 2. Fallback Attempt: Groq (LLaMA 3)
+    if (fallbackToGroq || !responseText) {
+      const groqKey = process.env.GROQ_API_KEY;
+      if (!groqKey) {
+        throw new Error("AI services are currently busy. Please try again in a few moments.");
+      }
+
+      // Map chat history to Groq format
+      const groqMessages = [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...messages.map((m: any) => ({
+          role: m.role === "user" || m.role === "student" ? "user" : "assistant",
+          content: m.text || m.content
+        }))
+      ];
+
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: groqMessages,
+          temperature: 0.7,
+          max_tokens: 1024
+        })
+      });
+
+      const groqData = await groqResponse.json();
+      if (groqData.choices?.[0]?.message?.content) {
+        responseText = groqData.choices[0].message.content;
+      } else {
+        throw new Error("AI Mentor is navigating high volume. Please try again later.");
+      }
+    }
+
+    return NextResponse.json({ text: responseText })
   } catch (error: any) {
     console.error("Gemini API Error Detail:", error)
     return NextResponse.json(

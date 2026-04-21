@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Inter, Plus_Jakarta_Sans, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Providers } from '@/components/providers'
 import { PwaRegister } from '@/components/pwa-register'
@@ -8,6 +8,11 @@ import './globals.css'
 const inter = Inter({ 
   subsets: ["latin"],
   variable: '--font-inter',
+})
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: '--font-jakarta',
 })
 
 const playfair = Playfair_Display({ 
@@ -117,7 +122,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} dark`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${jakarta.variable} ${playfair.variable} dark`} suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+      </head>
       <body className="font-sans antialiased overflow-x-hidden">
         <Providers>
           {children}

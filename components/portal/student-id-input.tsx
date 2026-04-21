@@ -63,25 +63,23 @@ export function StudentIdInput({
     inputRefs.current[focusIndex]?.focus()
   }
 
-  // Status-based border color for the boxes
-  const statusBoxClass =
-    status === "found"
-      ? "border-emerald-500/60 bg-emerald-500/5"
-      : status === "not_found"
-      ? "border-destructive/60 bg-destructive/5"
-      : status === "loading"
-      ? "border-primary/30 animate-pulse"
-      : value.length > 0
-      ? "border-primary/50 bg-primary/5"
-      : ""
+  // Status-based styles
+  const getStatusClass = () => {
+    switch (status) {
+      case "found": return "bg-emerald-500/10 text-emerald-600 shadow-xl shadow-emerald-500/5"
+      case "not_found": return "bg-red-500/10 text-red-600"
+      case "loading": return "bg-primary/5 animate-pulse"
+      default: return "bg-surface-container-high"
+    }
+  }
 
   return (
     <div
-      className="flex gap-3 justify-center items-center py-2"
+      className="flex gap-4 justify-between items-center py-2"
       onPaste={handlePaste}
     >
       {Array.from({ length }).map((_, i) => (
-        <div key={i} className="relative group">
+        <div key={i} className="relative group flex-1">
           <input
             ref={(el) => { inputRefs.current[i] = el }}
             type="text"
@@ -93,20 +91,13 @@ export function StudentIdInput({
             onKeyDown={(e) => handleKeyDown(e, i)}
             disabled={disabled}
             className={cn(
-              "sleek-input w-12 h-14 text-center text-2xl font-bold transition-all duration-300",
-              "focus:outline-none focus:ring-2 focus:ring-primary/50",
-              "text-foreground placeholder:text-muted-foreground/30",
-              "group-hover:border-primary/20",
-              value[i] ? statusBoxClass : ""
+              "w-full h-20 rounded-2xl text-center text-3xl font-bold transition-all duration-300 border-none",
+              "focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/10 focus:shadow-xl",
+              "text-primary placeholder:text-muted-foreground/10",
+              getStatusClass()
             )}
             placeholder="•"
           />
-          <div className={cn(
-            "absolute -inset-0.5 rounded-xl blur opacity-0 transition-opacity duration-300 pointer-events-none",
-            status === "found" ? "bg-emerald-500/20 group-focus-within:opacity-100" :
-            status === "not_found" ? "bg-destructive/20 opacity-30" :
-            "bg-primary/20 group-focus-within:opacity-100"
-          )} />
         </div>
       ))}
       <input type="hidden" name="studentId" value={value} />

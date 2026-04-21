@@ -15,18 +15,19 @@ export const PremiumCard = React.forwardRef<HTMLDivElement, PremiumCardProps>(
     return (
       <motion.div
         ref={ref}
-        whileHover={{ y: -1 }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
+        whileHover={{ y: -5, scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className={cn(
-          "sleek-card relative overflow-hidden p-8",
+          "glass-card relative overflow-hidden rounded-[2rem] p-6 border border-white/10",
           glow && "after:absolute after:inset-0 after:bg-primary/5 after:blur-3xl after:-z-10",
           className
         )}
         {...props}
       >
-        <div className="relative z-10">
-          {children}
-        </div>
+        {/* Subtle Shimmer Overlay */}
+        <div className="shimmer absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity" />
+        
+        {children}
       </motion.div>
     )
   }

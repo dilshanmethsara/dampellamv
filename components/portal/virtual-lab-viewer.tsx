@@ -26,11 +26,11 @@ export function VirtualLabViewer({ modelId, title, description, subject }: Virtu
 
   return (
     <div className={cn(
-      "relative rounded-[2.5rem] overflow-hidden bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 shadow-aura transition-all duration-700",
-      fullscreen ? "fixed inset-4 z-[100] m-0" : "aspect-video w-full"
+      "relative rounded-[2.5rem] overflow-hidden bg-surface-low dark:bg-slate-900 shadow-aura transition-all duration-700 border-none",
+      fullscreen ? "fixed inset-8 z-[100] m-0" : "aspect-video w-full shadow-2xl"
     )}>
       {/* 3D Embed Scene */}
-      <div className="absolute inset-0 z-0 bg-zinc-100 dark:bg-zinc-900">
+      <div className="absolute inset-0 z-0 bg-surface dark:bg-slate-900">
         {embedUrl ? (
           <>
             <AnimatePresence>
@@ -38,10 +38,13 @@ export function VirtualLabViewer({ modelId, title, description, subject }: Virtu
                 <motion.div 
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950"
+                  className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-surface dark:bg-slate-900"
                 >
-                  <Loader2 className="size-10 animate-spin text-indigo-600 mb-4" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">
+                  <div className="relative">
+                    <div className="absolute inset-0 blur-2xl bg-primary/20 animate-pulse" />
+                    <Loader2 className="size-12 animate-spin text-primary relative z-10" />
+                  </div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mt-6 animate-pulse">
                     Initializing Reality Engine...
                   </p>
                 </motion.div>
@@ -56,10 +59,12 @@ export function VirtualLabViewer({ modelId, title, description, subject }: Virtu
             />
           </>
         ) : (
-          <div className="size-full flex flex-col items-center justify-center p-8 text-center">
-            <Microscope className="size-16 text-indigo-600/20 mb-6" />
-            <h3 className="text-xl font-black uppercase tracking-tight text-zinc-900 dark:text-white mb-2">Discovery Pending</h3>
-            <p className="text-xs text-muted-foreground max-w-xs font-medium leading-relaxed">
+          <div className="size-full flex flex-col items-center justify-center p-8 text-center bg-surface-low dark:bg-slate-900">
+            <div className="size-24 rounded-[2rem] bg-white dark:bg-slate-800 flex items-center justify-center mb-6 shadow-sm">
+                <Microscope className="size-10 text-primary/40" />
+            </div>
+            <h3 className="text-3xl font-black uppercase tracking-tighter text-zinc-900 dark:text-white mb-2 leading-none">Discovery Pending</h3>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 max-w-xs leading-relaxed">
               Select a lab module from the library to initiate the 3D exploration.
             </p>
           </div>
@@ -67,35 +72,33 @@ export function VirtualLabViewer({ modelId, title, description, subject }: Virtu
       </div>
 
       {/* UI Overlay: Top Bar */}
-      <div className="absolute top-0 left-0 right-0 p-6 flex items-start justify-between z-10 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 p-8 flex items-start justify-between z-10 pointer-events-none">
         <div className="pointer-events-auto">
-          <Badge className="mb-2 bg-indigo-600 text-white border-none px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20">
+          <Badge className="mb-3 bg-primary text-white border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20">
             {subject || "Virtual Lab"}
           </Badge>
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900 dark:text-white drop-shadow-md">{title}</h2>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/80 max-w-xs leading-relaxed mt-1">
+          <h2 className="text-3xl font-black tracking-tighter text-zinc-900 dark:text-white drop-shadow-md uppercase leading-[0.9]">{title}</h2>
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-sm leading-relaxed mt-2">
             {description || "Interact with the 3D model below to explore science in depth."}
           </p>
         </div>
         
-        <div className="flex gap-2 pointer-events-auto">
+        <div className="flex gap-4 pointer-events-auto">
           <Button 
             size="icon" 
-            variant="secondary" 
-            className="rounded-full size-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-100 dark:border-zinc-800 shadow-sm hover:scale-110 transition-all"
+            className="rounded-[1.25rem] size-14 bg-white/40 dark:bg-black/40 backdrop-blur-3xl border-none shadow-aura hover:scale-110 active:scale-95 transition-all text-foreground"
             onClick={() => setFullscreen(!fullscreen)}
           >
-            {fullscreen ? <X size={16} /> : <Maximize2 size={16} />}
+            {fullscreen ? <X size={20} /> : <Maximize2 size={20} />}
           </Button>
           {modelId && (
             <Button 
               size="icon" 
-              variant="secondary" 
-              className="rounded-full size-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-100 dark:border-zinc-800 shadow-sm hover:scale-110 transition-all"
+              className="rounded-[1.25rem] size-14 bg-white/40 dark:bg-black/40 backdrop-blur-3xl border-none shadow-aura hover:scale-110 active:scale-95 transition-all text-foreground"
               asChild
             >
               <a href={`https://sketchfab.com/models/${modelId}`} target="_blank" rel="noopener noreferrer">
-                <ExternalLink size={16} className="text-zinc-600 dark:text-zinc-400" />
+                <ExternalLink size={20} />
               </a>
             </Button>
           )}
@@ -103,10 +106,10 @@ export function VirtualLabViewer({ modelId, title, description, subject }: Virtu
       </div>
 
       {/* Aesthetic Accents */}
-      <div className="absolute bottom-6 left-6 z-10 pointer-events-none hidden sm:block">
-        <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
-          <Activity className="size-3 text-emerald-500 animate-pulse" />
-          <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white opacity-60">Professional 3D Discovery Engine</span>
+      <div className="absolute bottom-8 left-8 z-10 pointer-events-none hidden sm:block">
+        <div className="flex items-center gap-4 px-6 py-3 rounded-[1.25rem] bg-black/40 backdrop-blur-3xl border border-white/10 shadow-aura">
+          <Activity className="size-4 text-emerald-400 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Professional Discovery Engine</span>
         </div>
       </div>
     </div>

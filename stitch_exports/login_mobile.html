@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dampella LMS - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface": "#f8f9ff",
+                "primary": "#1a146b",
+                "on-surface-variant": "#474651",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#3323cc",
+                "inverse-surface": "#233144",
+                "surface-container-highest": "#d5e3fc",
+                "error-container": "#ffdad6",
+                "on-background": "#0d1c2e",
+                "surface-dim": "#ccdbf3",
+                "surface-bright": "#f8f9ff",
+                "secondary-fixed": "#e2dfff",
+                "tertiary-container": "#00423c",
+                "on-tertiary-fixed": "#00201d",
+                "tertiary-fixed": "#89f5e7",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed-dim": "#c3c0ff",
+                "primary-fixed": "#e2dfff",
+                "on-tertiary-fixed-variant": "#005049",
+                "on-primary-container": "#9c9af4",
+                "surface-container-low": "#eff4ff",
+                "on-error": "#ffffff",
+                "inverse-on-surface": "#eaf1ff",
+                "surface-tint": "#5654a8",
+                "primary-container": "#312e81",
+                "outline-variant": "#c8c5d3",
+                "on-primary-fixed": "#100563",
+                "secondary-fixed-dim": "#c3c0ff",
+                "secondary-container": "#645efb",
+                "on-tertiary": "#ffffff",
+                "secondary": "#4b41e1",
+                "on-primary-fixed-variant": "#3e3c8f",
+                "on-tertiary-container": "#44b5a8",
+                "on-secondary-container": "#fffbff",
+                "surface-container-high": "#dce9ff",
+                "inverse-primary": "#c3c0ff",
+                "tertiary": "#002a26",
+                "tertiary-fixed-dim": "#6bd8cb",
+                "on-primary": "#ffffff",
+                "error": "#ba1a1a",
+                "outline": "#777682",
+                "surface-variant": "#d5e3fc",
+                "surface-container": "#e6eeff",
+                "on-secondary": "#ffffff",
+                "on-surface": "#0d1c2e",
+                "on-secondary-fixed": "#0f0069",
+                "background": "#f8f9ff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+      }
+      .organic-blob {
+        position: absolute;
+        filter: blur(80px);
+        z-index: -1;
+        opacity: 0.4;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+<!-- Hero Section: The Intellectual Atelier Branding -->
+<header class="relative overflow-hidden pt-12 pb-16 px-6 bg-primary text-on-primary">
+<div class="organic-blob bg-tertiary-fixed w-64 h-64 -top-20 -left-20 rounded-full"></div>
+<div class="organic-blob bg-secondary-container w-72 h-72 -bottom-20 -right-10 rounded-full"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-4xl text-tertiary-fixed" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<h1 class="font-headline font-extrabold text-3xl tracking-tighter uppercase">Dampella</h1>
+</div>
+<h2 class="font-headline text-xl font-medium tracking-tight mb-3 text-secondary-fixed">Cultivating the Intellectual Atelier</h2>
+<p class="font-body text-sm text-on-primary-container leading-relaxed max-w-xs opacity-80">
+                Enter your private sanctuary of focused creation and curated knowledge.
+            </p>
+</div>
+<!-- Decorative Image Element -->
+<div class="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
+<img class="w-full h-full object-cover" data-alt="abstract architectural sketch of a modern university hall with high ceilings and dramatic lighting shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyZhJq--J0-Ghp-OUzxmb5cE1BiFqhng3FNEeNUyuSzIN3nzcrukLJNN15oS6Zfx0wNgT6Bt0kSo2czOeUBKrc_bVvgb9d9CaXsGjpKa8wVPtiCh7UmOvJCwADSomx6mAocqP09YOUN_0OzLNMUm2j-DxZvyuKOgR4DHWsnNXF3l8157suL397RA1wRUPC_6IcrSP4e3bfDe4IdXmQQCcDp0baLPaIzzehFW2SIoW3HOehmuyRiWcqwLWryunRWxzFsITpwFgTfCI"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow -mt-8 relative z-20 px-6 pb-12">
+<div class="bg-surface-container-lowest rounded-[2.5rem] shadow-[0_8px_30px_rgba(26,20,107,0.06)] p-8">
+<!-- Role Selection -->
+<section class="mb-10">
+<label class="font-headline text-[10px] font-bold tracking-[0.15em] uppercase text-outline mb-4 block text-center">Identify Your Intent</label>
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center justify-center p-4 rounded-xl bg-primary-container text-on-primary-container transition-all duration-300 ring-2 ring-primary">
+<span class="material-symbols-outlined mb-2" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-headline text-xs font-bold">Student</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all duration-300">
+<span class="material-symbols-outlined mb-2" data-icon="co_present">co_present</span>
+<span class="font-headline text-xs font-bold">Teacher</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-all duration-300">
+<span class="material-symbols-outlined mb-2" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-headline text-xs font-bold">Admin</span>
+</button>
+</div>
+</section>
+<!-- LoginForm -->
+<form class="space-y-6">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-headline text-xs font-bold text-primary ml-1" for="email">Universal Identifier</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-secondary transition-colors" data-icon="alternate_email">alternate_email</span>
+</div>
+<input class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border-none rounded-xl font-body text-sm focus:ring-2 focus:ring-secondary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline/60" id="email" placeholder="your.name@atelier.edu" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center px-1">
+<label class="font-headline text-xs font-bold text-primary" for="access-key">Access Key</label>
+<a class="font-label text-[10px] font-bold text-secondary uppercase tracking-wider hover:text-primary transition-colors" href="#">Forgot Key?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-secondary transition-colors" data-icon="lock">lock</span>
+</div>
+<input class="block w-full pl-12 pr-12 py-4 bg-surface-container-high border-none rounded-xl font-body text-sm focus:ring-2 focus:ring-secondary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline/60" id="access-key" placeholder="••••••••••••" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline" type="button">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Sign In Button -->
+<button class="w-full py-4 mt-4 bg-gradient-to-br from-primary to-primary-container text-white font-headline font-bold rounded-xl shadow-[0_10px_25px_-5px_rgba(26,20,107,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(26,20,107,0.4)] active:scale-[0.98] transition-all flex justify-center items-center gap-2" type="submit">
+                    Sign In
+                    <span class="material-symbols-outlined text-lg" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<!-- Bottom Actions -->
+<div class="mt-10 text-center space-y-4">
+<div class="flex items-center justify-center gap-4 text-outline/30">
+<div class="h-[1px] w-12 bg-current"></div>
+<span class="font-label text-[10px] uppercase tracking-widest font-bold">New Scholar</span>
+<div class="h-[1px] w-12 bg-current"></div>
+</div>
+<a class="inline-flex items-center gap-2 font-headline text-sm font-bold text-tertiary hover:text-on-tertiary-container transition-colors group" href="#">
+                    Request Atelier Access
+                    <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1" data-icon="east">east</span>
+</a>
+</div>
+</div>
+</main>
+<!-- Footer Meta -->
+<footer class="mt-auto py-8 text-center px-6">
+<p class="font-label text-[10px] text-outline/50 tracking-widest uppercase mb-2">Version 4.2.0 • Deep Intelligence</p>
+<div class="flex justify-center gap-6">
+<a class="font-label text-[10px] font-bold text-outline hover:text-primary uppercase tracking-widest" href="#">Privacy</a>
+<a class="font-label text-[10px] font-bold text-outline hover:text-primary uppercase tracking-widest" href="#">Terms</a>
+<a class="font-label text-[10px] font-bold text-outline hover:text-primary uppercase tracking-widest" href="#">Support</a>
+</div>
+</footer>
+<!-- Bottom Navigation Suppressed as per Task-Focused/Transactional Suppression Rule -->
+</body></html>

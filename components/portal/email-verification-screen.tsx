@@ -40,99 +40,107 @@ export function EmailVerificationScreen({ user, onLogout, onContinue }: EmailVer
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden font-sans">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-0 right-0 p-24 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
-        <Mail size={400} className="text-zinc-900 dark:text-white rotate-12" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-8 relative overflow-hidden">
+      {/* Background patterns */}
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(99,102,241,0.1) 1px, transparent 0)', backgroundSize: '30px 30px' }} />
+      
+      {/* Abstract editorial decoration */}
+      <div className="absolute top-0 right-0 p-32 opacity-5 pointer-events-none rotate-12">
+        <Mail size={500} className="text-primary" />
       </div>
-      <div className="absolute bottom-0 left-0 p-24 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
-        <ShieldCheck size={300} className="text-zinc-900 dark:text-white -rotate-12" />
+      <div className="absolute bottom-0 left-0 p-32 opacity-5 pointer-events-none -rotate-12">
+        <ShieldCheck size={400} className="text-primary" />
       </div>
 
-      <AnimatedContainer className="max-w-2xl w-full">
-        <PremiumCard className="p-10 md:p-16 text-center border-none shadow-aura bg-white dark:bg-zinc-900 overflow-hidden relative" variants={childVariants}>
+      <AnimatedContainer className="max-w-2xl w-full relative z-10">
+        <div className="p-16 text-center rounded-[3.5rem] bg-white dark:bg-zinc-950 shadow-aura border-none relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+          
           {/* Header Icon */}
-          <div className="relative mb-12 flex justify-center">
-            <div className="size-24 rounded-[2.5rem] bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shadow-sm relative z-10">
-              <Mail className="size-10 text-indigo-600 animate-pulse" />
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="relative mb-16 flex justify-center"
+          >
+            <div className="size-28 rounded-[2.5rem] bg-indigo-50 dark:bg-slate-900 flex items-center justify-center shadow-aura relative z-10">
+              <Mail className="size-12 text-indigo-600 animate-pulse" />
             </div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-40 bg-indigo-500/5 blur-3xl rounded-full" />
-          </div>
+          </motion.div>
 
           {/* Content */}
-          <div className="space-y-6 mb-12">
-            <Badge className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 border-none px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-              Security Protocol • Phase 1
+          <div className="space-y-8 mb-16">
+            <Badge className="bg-indigo-500/10 text-indigo-500 border-none px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em]">
+              Security Protocol • Node Verification
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-white leading-tight">
-              One last step, <br/><span className="text-indigo-600">{user.fullName.split(" ")[0]}</span>
+            <h1 className="text-5xl font-black tracking-tighter text-on-surface leading-[0.85] uppercase">
+              Identity Synchronization<br/>
+              <span className="text-indigo-600/30">Required.</span>
             </h1>
-            <p className="text-muted-foreground text-lg font-bold leading-relaxed max-w-md mx-auto opacity-70">
-              We've sent a verification link to <span className="text-zinc-900 dark:text-white underline decoration-indigo-500/30 underline-offset-4">{user.email}</span>. Please click it to secure your account.
+            <p className="text-muted-foreground/60 text-lg font-black leading-relaxed max-w-sm mx-auto uppercase tracking-tight">
+              A validation vector has been dispatched to <span className="text-on-surface underline decoration-indigo-500/20 underline-offset-8">{user.email}</span>.
             </p>
           </div>
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12 text-left">
-            <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-               <div className="flex items-center gap-3 mb-2">
-                 <CheckCircle className="size-4 text-emerald-500" />
-                 <span className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white">Account Security</span>
+          {/* Features Tonal Hub */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-16 text-left">
+            <div className="p-8 rounded-[2rem] bg-surface-low dark:bg-slate-900 border-none shadow-sm">
+               <div className="flex items-center gap-4 mb-4">
+                 <ShieldCheck className="size-5 text-indigo-500" />
+                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface">Vault Security</span>
                </div>
-               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed tracking-wider opacity-60">Prevents unauthorized access to your academic data.</p>
+               <p className="text-[10px] font-black text-muted-foreground/30 uppercase leading-relaxed tracking-widest">Ensuring institutional grade encryption for all academic records.</p>
             </div>
-            <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-               <div className="flex items-center gap-3 mb-2">
-                 <CheckCircle className="size-4 text-emerald-500" />
-                 <span className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white">Email alerts</span>
+            <div className="p-8 rounded-[2rem] bg-surface-low dark:bg-slate-900 border-none shadow-sm">
+               <div className="flex items-center gap-4 mb-4">
+                 <RefreshCcw className="size-5 text-indigo-500" />
+                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface">Data Stream</span>
                </div>
-               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed tracking-wider opacity-60">Receive instant updates about your grades and assignments.</p>
+               <p className="text-[10px] font-black text-muted-foreground/30 uppercase leading-relaxed tracking-widest">Enabling real-time academic relays and grade synchronization.</p>
             </div>
           </div>
+
           {/* Actions */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             <Button 
               onClick={handleCheck} 
               disabled={checking}
-              className="h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/20 transition-all gap-3"
+              className="h-20 rounded-[2rem] bg-indigo-600 hover:bg-slate-900 text-white font-black text-xs uppercase tracking-[0.4em] shadow-aura transition-all gap-4"
             >
-              {checking ? <RefreshCcw className="size-5 animate-spin" /> : <ShieldCheck className="size-5" />}
-              I've Clicked the Link
+              {checking ? <RefreshCcw className="size-6 animate-spin" /> : <ShieldCheck className="size-6 opacity-30" />}
+              Acknowledge Verification
             </Button>
             
-            <div className="flex gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 onClick={handleResend}
                 disabled={resending || sentCount >= 3}
-                className="flex-1 h-14 rounded-2xl border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-indigo-600 font-black text-xs uppercase tracking-widest gap-2"
+                className="h-16 rounded-[1.75rem] bg-surface-low dark:bg-slate-900 text-indigo-600 font-black text-[11px] uppercase tracking-[0.3em] gap-3 hover:bg-white dark:hover:bg-slate-800 transition-all border-none"
               >
-                {resending ? <RefreshCcw className="size-4 animate-spin" /> : <Send className="size-4" />}
-                {sentCount > 0 ? `Resend (${sentCount}/3)` : "Resend Link"}
+                {resending ? <RefreshCcw className="size-4 animate-spin" /> : <Send className="size-4 opacity-30" />}
+                {sentCount > 0 ? `Retry (${sentCount}/3)` : "Retry Dispatch"}
               </Button>
               <Button 
-                variant="outline" 
+                variant="ghost" 
                 onClick={onLogout}
-                className="flex-1 h-14 rounded-2xl border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-muted-foreground font-black text-xs uppercase tracking-widest gap-2"
+                className="h-16 rounded-[1.75rem] bg-surface-low dark:bg-slate-900 text-muted-foreground/30 font-black text-[11px] uppercase tracking-[0.3em] gap-3 hover:bg-white dark:hover:bg-slate-800 transition-all border-none"
               >
-                <LogOut className="size-4" /> Sign Out
+                <LogOut className="size-4 opacity-30" /> Terminate
               </Button>
             </div>
 
-            <Button 
-                variant="ghost" 
+            <button 
                 onClick={onContinue}
-                className="w-full h-12 rounded-2xl text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/5 font-black text-xs uppercase tracking-widest gap-2 opacity-60 hover:opacity-100 transition-opacity"
+                className="w-full py-4 text-indigo-600/40 hover:text-indigo-600 font-black text-[10px] uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4"
               >
-                Continue to Dashboard anyway <ArrowRight className="size-4" />
-            </Button>
+                Bypass Security Protocol <ArrowRight className="size-4" />
+            </button>
           </div>
 
-          {/* Footer Info */}
-          <p className="mt-10 text-[9px] font-bold uppercase tracking-[0.3em] text-muted-foreground/40">
-            Dampella LMS Security Cluster • Real-time Protection
+          <p className="mt-16 text-[9px] font-black uppercase tracking-[0.5em] text-muted-foreground/10">
+            Nexus Intelligence Framework • Terminal {user.studentId || user.teacherId || 'X'}
           </p>
-        </PremiumCard>
+        </div>
       </AnimatedContainer>
     </div>
   )

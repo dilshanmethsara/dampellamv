@@ -135,15 +135,15 @@ export function StudentAIChat({ user }: { user: any }) {
               <div className="relative h-24 flex items-center justify-between px-6 overflow-hidden">
                 <div className="absolute inset-0 bg-primary/10 -z-10" />
                 <div className="absolute -top-1/2 -left-1/4 w-full h-full bg-primary/20 blur-[60px] rounded-full animate-pulse" />
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-inner group">
-                    <Stars className="size-6 text-primary group-hover:rotate-12 transition-transform" />
+                <div className="flex items-center gap-5">
+                  <div className="size-14 rounded-[1.25rem] bg-white dark:bg-slate-700 flex items-center justify-center shadow-lg group">
+                    <Sparkles className="size-7 text-primary group-hover:rotate-12 transition-transform" />
                   </div>
                   <div>
-                    <h3 className="font-black text-lg tracking-tighter uppercase text-white drop-shadow-md">AI Archivist</h3>
-                    <div className="flex items-center gap-2">
+                    <h3 className="font-black text-2xl tracking-tighter uppercase text-white leading-none">AI Archivist</h3>
+                    <div className="flex items-center gap-2 mt-1">
                        <div className="size-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
-                       <span className="text-[10px] font-black tracking-widest text-primary-foreground/60 uppercase">Dampella Intelligence Active</span>
+                       <span className="text-[9px] font-black tracking-widest text-white/40 uppercase">Intelligence Protocol Active</span>
                     </div>
                   </div>
                 </div>
@@ -178,16 +178,16 @@ export function StudentAIChat({ user }: { user: any }) {
                           )}
                         >
                           <div className={cn(
-                            "size-8 rounded-xl flex items-center justify-center shrink-0 border border-white/5 shadow-sm",
-                            msg.role === "user" ? "bg-primary text-white" : "bg-white/10 backdrop-blur-md text-primary"
+                            "size-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
+                            msg.role === "user" ? "bg-primary text-white" : "bg-white dark:bg-slate-700 text-primary"
                           )}>
-                            {msg.role === "user" ? <User className="size-4" /> : <Zap className="size-4" />}
+                            {msg.role === "user" ? <User className="size-5" /> : <Bot className="size-5" />}
                           </div>
                           <div className={cn(
-                            "p-4 rounded-3xl text-sm leading-relaxed shadow-xl",
+                            "p-5 rounded-[2rem] text-[13px] leading-relaxed shadow-aura",
                             msg.role === "user" 
-                              ? "bg-foreground text-background font-bold rounded-tr-none border-none" 
-                              : "bg-background/60 backdrop-blur-xl border border-white/10 text-foreground rounded-tl-none ring-1 ring-white/5"
+                              ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-tr-none" 
+                              : "bg-surface-low dark:bg-slate-800/80 backdrop-blur-xl text-foreground rounded-tl-none font-medium"
                           )}>
                             {msg.text}
                           </div>

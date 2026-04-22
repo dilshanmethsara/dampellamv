@@ -1983,7 +1983,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
         </button>
 
         {/* Header */}
-        <header className="px-6 lg:px-10 py-6 bg-white/50 backdrop-blur-md sticky lg:static top-0 z-40 flex items-center justify-between border-b border-slate-100/50">
+        <header className="px-4 lg:px-10 py-4 lg:py-6 bg-white/50 backdrop-blur-md lg:static top-0 z-40 flex items-center justify-between border-b border-slate-100/50">
           <div className="flex-1 max-w-xs md:max-w-md relative group">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors text-lg">search</span>
             <input 
@@ -2052,7 +2052,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
               <div className="xl:col-span-8 space-y-8 lg:space-y-10">
                  
                   {/* Welcome Hero */}
-                  <section className="bg-indigo-900 rounded-[2.5rem] p-8 lg:p-12 text-white relative overflow-hidden group shadow-2xl shadow-indigo-100">
+                  <section className="bg-indigo-900 rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-12 text-white relative overflow-hidden group shadow-2xl shadow-indigo-100">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
                     <div className="relative z-10 space-y-6">
                        <div className="space-y-2">
@@ -2170,7 +2170,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
               <div className="xl:col-span-4 space-y-8 lg:space-y-10">
                  
                  {/* Overall GPA */}
-                 <section className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-white flex flex-col justify-between h-[160px] relative overflow-hidden group">
+                 <section className="p-6 lg:p-8 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-white flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group">
                     <div className="relative z-10 flex justify-between items-start">
                        <div>
                           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Overall GPA</p>
@@ -2186,7 +2186,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
                  </section>
 
                  {/* Attendance */}
-                 <section className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-white flex flex-col justify-between h-[160px] relative overflow-hidden group">
+                 <section className="p-6 lg:p-8 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-white flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group">
                     <div className="relative z-10 flex justify-between items-start">
                        <div>
                           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Attendance Rate</p>
@@ -2392,25 +2392,6 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
         </main>
       </div>
 
-       {/* Mobile Bottom Navigation */}
-       <div className="lg:hidden h-20 bg-white border-t border-slate-100 px-6 flex items-center justify-between shrink-0 sticky bottom-0 z-50">
-        {navItems.map((item) => (
-          <button 
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
-              "flex flex-col items-center gap-1 transition-all",
-              activeTab === item.id ? "text-indigo-900 scale-110" : "text-slate-300"
-            )}
-          >
-            <span className={cn(
-              "material-symbols-outlined text-2xl",
-              activeTab === item.id && "font-variation-fill"
-            )}>{item.icon}</span>
-            <span className="text-[8px] font-black uppercase tracking-widest">{item.name.split(' ')[0]}</span>
-          </button>
-        ))}
-      </div>
 
     </div>
   );

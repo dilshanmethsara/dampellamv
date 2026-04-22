@@ -119,5 +119,10 @@
         allow read: if isSignedIn();
         allow write: if isSignedIn() && (isTeacher() || isAdmin());
       }
+
+      // Recycle Bin / Deleted Items
+      match /deleted_items/{itemId} {
+        allow read, write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
     }
   }

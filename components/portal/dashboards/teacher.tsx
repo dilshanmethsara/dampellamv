@@ -459,8 +459,9 @@ function AIQuestionStudio({ user }: { user: User }) {
       try {
         await moveToBin("quizzes", quizId, quiz, user.uid);
         alert("Assessment moved to bin.");
-      } catch (e) {
-        alert("Failed to move to bin.");
+      } catch (e: any) {
+        console.error("Quiz delete error:", e);
+        alert("Failed to move to bin: " + (e.message || "Unknown error"));
       }
     }
   };
@@ -2143,8 +2144,9 @@ function TeacherPastPaperUpload({ user }: { user: any }) {
       try {
         await moveToBin("past_papers", paperId, paper, user.uid);
         alert("Past paper moved to bin.");
-      } catch (e) {
-        alert("Failed to move to bin.");
+      } catch (e: any) {
+        console.error("Paper delete error:", e);
+        alert("Failed to move to bin: " + (e.message || "Unknown error"));
       }
     }
   };
@@ -2496,8 +2498,9 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
       try {
         await moveToBin("assignments", assignId, assign, user.uid);
         alert("Assignment moved to bin.");
-      } catch (e) {
-        alert("Failed to move to bin.");
+      } catch (e: any) {
+        console.error("Assignment delete error:", e);
+        alert("Failed to move to bin: " + (e.message || "Unknown error"));
       }
     }
   };

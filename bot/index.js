@@ -66,6 +66,7 @@ client.on('ready', () => {
     startCollectionListener('quizzes', sendQuizToWhatsApp);
     startCollectionListener('phone_verifications', sendOTPToWhatsApp);
     startCollectionListener('signup_verifications', sendSignupOTPToWhatsApp);
+    startCollectionListener('approval_notifications', sendTeacherApprovalToWhatsApp);
 });
 
 // Handle disconnection
@@ -313,6 +314,40 @@ Enter this code on the signup page to proceed with account creation.
         .then(() => console.log(`[Signup-OTP] Code successfully sent to ${number}`))
         .catch(err => console.error(`[Signup-OTP] Failed to send to ${number}:`, err));
 }
+
+// 6. Teacher Approval Notifications
+async function sendTeacherApprovalToWhatsApp(data) {
+    if (!data.whatsapp_number || !data.full_name) return;
+
+    // Format number for WhatsApp
+    let number = data.whatsapp_number.replace(/\D/g, '');
+    if (number.startsWith('0')) {
+        number = '94' + number.substring(1);
+    }
+    if (!number.startsWith('94')) {
+        number = '94' + number;
+    }
+    const recipient = `${number}@c.us`;
+
+    const message = `
+*🎓 Dampella LMS Activation*
+--------------------------------
+Congratulations, *${data.full_name}*!
+
+Your teacher account has been *APPROVED* by the administrator. 
+
+You can now log in to the portal and start managing your classes, assignments, and quizzes.
+
+🔗 *Portal Login:* https://dampellamv.vercel.app/portal
+--------------------------------
+    `.trim();
+
+    console.log(`[Approval] Sending activation alert to ${recipient}...`);
+    client.sendMessage(recipient, message)
+        .then(() => console.log(`[Approval] Activation alert successfully sent to ${number}`))
+        .catch(err => console.error(`[Approval] Failed to send to ${number}:`, err));
+}
+
 
 console.log('Starting WhatsApp Client...');
 client.initialize().catch(err => {

@@ -27,14 +27,16 @@ import { Badge } from "@/components/ui/badge"
 import { cn, formatDate } from "@/lib/utils"
 import { db } from "@/lib/firebase"
 import { 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
+  collection,
+  getDocs,
+  query,
+  where,
   orderBy, 
   doc, 
   updateDoc, 
-  deleteDoc 
+  deleteDoc,
+  addDoc,
+  serverTimestamp
 } from "firebase/firestore"
 import { toast } from "sonner"
 
@@ -118,8 +120,26 @@ export default function AdminUsersPage() {
       const docRef = doc(db, "profiles", id)
       await updateDoc(docRef, { approvalStatus: newStatus })
       
+      
       setProfiles(profiles.map(p => p.id === id ? { ...p, approval_status: newStatus } : p))
       toast.success(`User marked as ${newStatus}`)
+
+      // If it's a teacher being approved, trigger WhatsApp notification
+      const userProfile = profiles.find(p => p.id === id)
+      if (userProfile && userProfile.role === 'teacher' && newStatus === 'approved' && userProfile.whatsapp_number) {
+        try {
+          await addDoc(collection(db, "approval_notifications"), {
+            userId: id,
+            full_name: userProfile.full_name,
+            whatsapp_number: userProfile.whatsapp_number,
+            status: 'approved',
+            createdAt: serverTimestamp()
+          })
+          console.log("Approval notification triggered for", userProfile.full_name)
+        } catch (notifyErr) {
+          console.error("Failed to trigger approval notification:", notifyErr)
+        }
+      }
     } catch (error) {
       console.error("Error updating user status:", error)
       toast.error("Failed to update status")

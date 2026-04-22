@@ -2488,7 +2488,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         }}
         className={cn(
           "bg-white border-r border-slate-100 flex flex-col shrink-0 transition-transform lg:transition-none duration-300 ease-in-out",
-          "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0"
+          "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0 overflow-y-auto custom-scrollbar"
         )}
       >
         {/* Sidebar Close Button */}

@@ -225,6 +225,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           toast.error("Invalid Student ID. Please check your ID and try again.")
           return false
         }
+
+        const studentData = querySnapshot.docs[0].data()
+        const officialGrade = studentData.grade?.toString()
+        
+        if (officialGrade && userData.gradeClass !== officialGrade) {
+          toast.error(`ID ${studentId} is registered for Grade ${officialGrade}. Your selection must match this.`)
+          return false
+        }
       }
 
       const userCredential = await createUserWithEmailAndPassword(

@@ -694,7 +694,7 @@ function StudentSignupForm({
 
                 <div className="space-y-2">
                   <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] px-1">WhatsApp Number</label>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <div className="relative group flex-1">
                       <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted-foreground/30 group-focus-within:text-secondary transition-colors">
                         <span className="material-symbols-outlined text-lg">phone_iphone</span>
@@ -722,7 +722,7 @@ function StudentSignupForm({
                         type="button"
                         onClick={handleSendOTP}
                         disabled={isSendingCode || countdown > 0 || !whatsappNumber}
-                        className="h-14 px-6 rounded-2xl bg-secondary text-secondary-foreground font-black text-[10px] uppercase tracking-wider transition-all disabled:opacity-50"
+                        className="h-14 px-6 rounded-2xl bg-secondary text-secondary-foreground font-black text-[10px] uppercase tracking-wider transition-all disabled:opacity-50 w-full sm:w-auto"
                       >
                         {isSendingCode ? <Loader2 className="size-4 animate-spin" /> : countdown > 0 ? `${countdown}s` : "Send OTP"}
                       </button>
@@ -1315,7 +1315,7 @@ function TeacherSignupForm({
                   <label className="block text-[10px] font-bold tracking-[0.05em] text-on-surface-variant font-label uppercase">WhatsApp Matrix</label>
                   <div className="flex gap-3">
                     <div className="relative group">
-                      <div className="flex items-center justify-center gap-2 bg-surface-container-high px-4 h-14 rounded-xl cursor-default transition-all">
+                      <div className="flex items-center justify-center gap-2 bg-surface-container-high px-3 sm:px-4 h-14 rounded-xl cursor-default transition-all">
                         <span className="text-lg">🇱🇰</span>
                         <span className="font-semibold text-on-surface">+94</span>
                       </div>

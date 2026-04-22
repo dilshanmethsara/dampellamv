@@ -20,6 +20,33 @@ interface TeacherDashboardProps {
   onBackToWebsite: () => void
 }
 
+// --- Recycle Bin Helper ---
+const moveToBin = async (collectionName: string, docId: string, itemData: any, userId: string) => {
+  try {
+    // 1. Prepare data for bin (removing Firestore specific metadata if necessary, but preserving the rest)
+    const binData = {
+      ...itemData,
+      originalCollection: collectionName,
+      originalId: docId,
+      deletedAt: serverTimestamp(),
+      deletedBy: userId,
+      type: collectionName === 'quizzes' ? 'MCQ assessment' : 
+            collectionName === 'assignments' ? 'Assignment' : 
+            'Past Paper'
+    };
+    
+    // 2. Add to deleted_items
+    await addDoc(collection(db, "deleted_items"), binData);
+    
+    // 3. Remove from original
+    await deleteDoc(doc(db, collectionName, docId));
+    return true;
+  } catch (err) {
+    console.error("Move to bin error:", err);
+    throw err;
+  }
+};
+
 // --- Assignment Creation Form Component ---
 
 function AssignmentForm({ user }: { user: User }) {
@@ -425,8 +452,16 @@ function AIQuestionStudio({ user }: { user: User }) {
   }, [user]);
 
   const handleDeleteQuiz = async (quizId: string) => {
-    if (confirm("Are you sure you want to delete this assessment?")) {
-      await deleteDoc(doc(db, "quizzes", quizId));
+    const quiz = myQuizzes.find(q => q.id === quizId);
+    if (!quiz) return;
+
+    if (confirm("Move this assessment to the Recycle Bin? You can restore it later.")) {
+      try {
+        await moveToBin("quizzes", quizId, quiz, user.uid);
+        alert("Assessment moved to bin.");
+      } catch (e) {
+        alert("Failed to move to bin.");
+      }
     }
   };
 
@@ -2100,6 +2135,20 @@ function TeacherPastPaperUpload({ user }: { user: any }) {
     return () => unsub();
   }, [user]);
 
+  const handleDeletePastPaper = async (paperId: string) => {
+    const paper = teacherPapers.find(p => p.id === paperId);
+    if (!paper) return;
+
+    if (confirm("Move this past paper to the Recycle Bin?")) {
+      try {
+        await moveToBin("past_papers", paperId, paper, user.uid);
+        alert("Past paper moved to bin.");
+      } catch (e) {
+        alert("Failed to move to bin.");
+      }
+    }
+  };
+
   const handlePublish = async () => {
     if (!formData.title) return alert("Please enter a title");
     if (!attachmentFile) return alert("Please attach a PDF file");
@@ -2304,6 +2353,13 @@ function TeacherPastPaperUpload({ user }: { user: any }) {
                       <button onClick={() => window.open(paper.url, '_blank')} className="mt-2 px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">
                         Open PDF
                       </button>
+                      <button 
+                        onClick={() => handleDeletePastPaper(paper.id)}
+                        className="mt-2 ml-2 p-1.5 text-slate-200 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                        title="Delete Paper"
+                      >
+                         <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -2312,6 +2368,101 @@ function TeacherPastPaperUpload({ user }: { user: any }) {
           ) : (
             <p className="text-sm text-slate-500">No past papers uploaded yet.</p>
           )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// --- Recycle Bin View Component ---
+function RecycleBinView({ user }: { user: User }) {
+  const [deletedItems, setDeletedItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "deleted_items"),
+      where("deletedBy", "==", user.uid),
+      orderBy("deletedAt", "desc")
+    );
+
+    const unsub = onSnapshot(q, (snapshot) => {
+      setDeletedItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setIsLoading(false);
+    });
+
+    return () => unsub();
+  }, [user]);
+
+  const handleRestore = async (item: any) => {
+    try {
+      const { originalCollection, originalId, deletedAt, deletedBy, type, id, ...rest } = item;
+      // Restore to original collection
+      await setDoc(doc(db, originalCollection, originalId), rest);
+      // Remove from bin
+      await deleteDoc(doc(db, "deleted_items", item.id));
+      alert(`${type} restored successfully!`);
+    } catch (err) {
+      console.error("Restore error:", err);
+      alert("Failed to restore item.");
+    }
+  };
+
+  const handlePermanentDelete = async (itemId: string) => {
+    if (confirm("Permanently delete this item? This action cannot be undone.")) {
+      try {
+        await deleteDoc(doc(db, "deleted_items", itemId));
+        alert("Item permanently deleted.");
+      } catch (err) {
+        alert("Failed to delete permanently.");
+      }
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div className="space-y-2">
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Recycle Bin</h2>
+        <p className="text-[13px] font-semibold text-slate-500">Deleted items are stored here. You can restore them or remove them permanently.</p>
+      </div>
+
+      <div className="bg-white rounded-[2.5rem] border border-white shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50/50">
+                <th className="px-8 py-6">Resource Name</th>
+                <th className="px-8 py-6">Type</th>
+                <th className="px-8 py-6">Deleted At</th>
+                <th className="px-8 py-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {deletedItems.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-8 py-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Your bin is empty</td>
+                </tr>
+              ) : deletedItems.map((item) => (
+                <tr key={item.id} className="group hover:bg-slate-50/50 transition-all">
+                  <td className="px-8 py-5">
+                    <p className="text-[13px] font-extrabold text-slate-900">{item.title}</p>
+                    <p className="text-[10px] font-bold text-slate-400 mt-0.5">{item.subject}</p>
+                  </td>
+                  <td className="px-8 py-5">
+                    <Badge className="bg-indigo-50 text-primary border-none text-[8px] font-black tracking-widest">{item.type}</Badge>
+                  </td>
+                  <td className="px-8 py-5">
+                    <p className="text-[11px] font-bold text-slate-500">{item.deletedAt?.toDate ? item.deletedAt.toDate().toLocaleString() : 'Just now'}</p>
+                  </td>
+                  <td className="px-8 py-5 text-right space-x-2">
+                    <button onClick={() => handleRestore(item)} className="px-4 py-2 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-500 hover:text-white transition-all">Restore</button>
+                    <button onClick={() => handlePermanentDelete(item.id)} className="px-4 py-2 bg-rose-50 text-rose-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-500 hover:text-white transition-all">Purge</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </motion.div>
@@ -2336,6 +2487,20 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedQuizForReview, setSelectedQuizForReview] = useState<any>(null);
+
+  const handleDeleteAssignment = async (assignId: string) => {
+    const assign = activeAssignments.find(a => a.id === assignId);
+    if (!assign) return;
+
+    if (confirm("Move this assignment to the Recycle Bin?")) {
+      try {
+        await moveToBin("assignments", assignId, assign, user.uid);
+        alert("Assignment moved to bin.");
+      } catch (e) {
+        alert("Failed to move to bin.");
+      }
+    }
+  };
 
   // --- Real-time Data Listeners ---
   useEffect(() => {
@@ -2439,6 +2604,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     { name: 'Students', icon: 'group', id: 'Students' },
     { name: 'Resources', icon: 'folder', id: 'Resources' },
     { name: 'Notifications', icon: 'notifications', id: 'Notifications' },
+    { name: 'Recycle Bin', icon: 'delete', id: 'Bin' },
     { name: 'Settings', icon: 'settings', id: 'Settings' },
   ];
 
@@ -2761,6 +2927,13 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
                                   <span className="material-symbols-outlined text-[18px] font-variation-fill">attachment</span>
                                </a>
                             )}
+                            <button 
+                              onClick={() => handleDeleteAssignment(item.id)}
+                              className="hidden sm:flex w-8 h-8 rounded-lg bg-rose-50 text-rose-400 items-center justify-center hover:bg-rose-500 hover:text-white transition-all shrink-0"
+                              title="Delete Assignment"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
                             <button className="hidden sm:flex w-8 h-8 rounded-lg bg-slate-50 text-slate-400 items-center justify-center hover:bg-primary hover:text-white transition-all shrink-0">
                               <span className="material-symbols-outlined text-lg">edit</span>
                             </button>
@@ -2912,6 +3085,10 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
 
           {activeTab === 'Resources' && (
              <TeacherPastPaperUpload user={user} />
+          )}
+
+          {activeTab === 'Bin' && (
+             <RecycleBinView user={user} />
           )}
 
           {activeTab === 'Settings' && (

@@ -200,13 +200,13 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
         </div>
       )}
       {activeTab !== "login" && (
-        <div className="flex-grow flex flex-col relative px-6 items-center justify-center py-12">
+        <div className="flex-grow flex flex-col relative px-0 sm:px-6 items-center justify-center py-8 md:py-12">
           {/* Background Decorators */}
           <div className="fixed -top-24 -left-24 w-96 h-96 bg-primary-fixed-dim/20 rounded-full blur-3xl pointer-events-none"></div>
           <div className="fixed top-1/2 -right-48 w-[32rem] h-[32rem] bg-tertiary-fixed/10 rounded-full blur-[100px] pointer-events-none"></div>
 
           {/* Secure Gateway Header */}
-          <div className="w-full max-w-7xl mx-auto flex justify-between items-center mb-12 relative z-50">
+          <div className="w-full max-w-7xl mx-auto flex justify-between items-center mb-12 relative z-50 px-6 sm:px-0">
             <div className="text-xl font-bold text-primary tracking-tighter font-headline cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setActiveTab("login")}>
               Dampella LMS
             </div>
@@ -217,8 +217,8 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
             </div>
           </div>
 
-          <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl relative z-10">
-            <div className="lg:col-span-5 space-y-6 lg:pr-12 order-2 lg:order-1">
+          <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center max-w-7xl relative z-10">
+            <div className="lg:col-span-5 space-y-6 lg:pr-12 order-2 lg:order-1 px-6 sm:px-0">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-tertiary text-xs font-bold tracking-wider font-headline">
                 SECURE VERIFICATION
               </div>
@@ -240,11 +240,11 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
               </div>
             </div>
 
-            <div className="lg:col-span-7 flex justify-end order-1 lg:order-2">
+            <div className="lg:col-span-7 flex justify-end order-1 lg:order-2 w-full">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full glass-panel p-8 lg:p-12 rounded-[2.5rem] shadow-2xl shadow-indigo-900/5 relative !bg-surface-container-lowest"
+                className="w-full glass-panel p-6 sm:p-8 lg:p-12 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl shadow-indigo-900/5 relative !bg-surface-container-lowest"
               >
                 <div className="md:hidden flex flex-col gap-2 mb-8">
                   <div className="flex justify-between items-center text-xs font-bold text-on-surface-variant">
@@ -256,7 +256,7 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
                   </div>
                 </div>
 
-                <div className="max-h-[60vh] overflow-y-auto no-scrollbar pb-8 pr-2">
+                <div className="max-h-[85vh] lg:max-h-[60vh] overflow-y-auto no-scrollbar pb-8 pr-2">
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.div
                       key={`${activeTab}-${role}`}

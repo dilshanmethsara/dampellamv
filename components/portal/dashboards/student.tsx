@@ -606,7 +606,7 @@ function QuizResultModal({ data, onExit, onReview }: { data: any, onExit: () => 
   const masteryColor = data.percentage >= 80 ? "text-emerald-400" : data.percentage >= 50 ? "text-amber-400" : "text-rose-400";
   
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-10">
+    <div className="fixed inset-0 z-[200] flex flex-col lg:items-center lg:justify-center p-4 lg:p-10 overflow-y-auto custom-scrollbar">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -617,10 +617,10 @@ function QuizResultModal({ data, onExit, onReview }: { data: any, onExit: () => 
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row max-w-4xl w-full"
+        className="relative bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row max-w-4xl w-full my-auto"
       >
         {/* Left Side: Score Indicator (Indigo) */}
-        <div className="lg:w-[40%] bg-indigo-950 p-10 lg:p-12 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div className="lg:w-[40%] bg-indigo-950 p-8 lg:p-12 flex flex-col items-center justify-center text-center relative overflow-hidden shrink-0">
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 to-transparent pointer-events-none" />
           
           <div className="relative z-10 space-y-8 w-full">
@@ -629,19 +629,30 @@ function QuizResultModal({ data, onExit, onReview }: { data: any, onExit: () => 
               <h3 className="text-2xl font-black text-white">Assessment Complete</h3>
             </div>
             
-            <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
+            <div className="relative w-36 h-36 lg:w-48 lg:h-48 mx-auto flex items-center justify-center">
               <svg className="w-full h-full -rotate-90">
-                <circle cx="96" cy="96" r="88" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
+                <circle cx="72" cy="72" r="66" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="10" className="lg:hidden" />
+                <circle cx="96" cy="96" r="88" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" className="hidden lg:block" />
+                
+                {/* Mobile Path */}
+                <motion.circle 
+                  cx="72" cy="72" r="66" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round"
+                  className={cn("transition-all duration-1000 lg:hidden", masteryColor)}
+                  initial={{ strokeDasharray: "0 415" }}
+                  animate={{ strokeDasharray: `${(data.percentage / 100) * 415} 415` }}
+                />
+                
+                {/* Desktop Path */}
                 <motion.circle 
                   cx="96" cy="96" r="88" fill="none" stroke="currentColor" strokeWidth="12" strokeLinecap="round"
-                  className={cn("transition-all duration-1000", masteryColor)}
+                  className={cn("transition-all duration-1000 hidden lg:block", masteryColor)}
                   initial={{ strokeDasharray: "0 553" }}
                   animate={{ strokeDasharray: `${(data.percentage / 100) * 553} 553` }}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center space-y-0.5">
-                <span className="text-3xl font-black text-white tracking-tighter">{data.score}/{data.total}</span>
-                <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Points</span>
+                <span className="text-2xl lg:text-3xl font-black text-white tracking-tighter">{data.score}/{data.total}</span>
+                <span className="text-[9px] lg:text-[10px] font-bold text-indigo-300 uppercase tracking-widest">Points</span>
               </div>
             </div>
             
@@ -660,7 +671,7 @@ function QuizResultModal({ data, onExit, onReview }: { data: any, onExit: () => 
         </div>
         
         {/* Right Side: Summary (White) */}
-        <div className="lg:w-[60%] p-10 lg:p-14 space-y-10">
+        <div className="lg:w-[60%] p-8 lg:p-14 space-y-8 lg:space-y-10">
           <div className="space-y-2">
             <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Performance Summary</h4>
             <div className="h-1 w-10 bg-indigo-600 rounded-full" />

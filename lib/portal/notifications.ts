@@ -40,7 +40,7 @@ export async function notifyGrade(grade: string, data: Omit<NotificationData, 'u
     const studentsQuery = query(
       collection(db, "profiles"),
       where("role", "==", "student"),
-      where("grade", "==", grade)
+      where("gradeClass", "==", grade)
     );
     
     const snapshot = await getDocs(studentsQuery);

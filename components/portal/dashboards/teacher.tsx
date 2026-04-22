@@ -6,7 +6,7 @@ import { cn, getInitials, getNameColor } from '@/lib/utils';
 import { User, useAuth } from '@/lib/portal/auth-context';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit, addDoc, serverTimestamp, doc, getDocs, deleteDoc, writeBatch, setDoc, updateDoc } from 'firebase/firestore';
-import { createNotification } from "@/lib/portal/notifications";
+import { createNotification, notifyGrade, notifyAllStudents } from "@/lib/portal/notifications";
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import { Calendar } from "@/components/ui/calendar";
@@ -122,6 +122,18 @@ function AssignmentForm({ user }: { user: User }) {
       });
 
       alert("Assignment Published Successfully!");
+
+      // Trigger Student Notifications
+      await notifyGrade(grade, {
+        senderId: user.uid,
+        senderName: user.fullName || 'Faculty',
+        title: 'New Assignment Published',
+        message: `A new assignment "${formData.title}" has been posted for ${formData.subject}.`,
+        type: 'assignment',
+        icon: 'assignment',
+        link: 'Assignments'
+      });
+
       setFormData({ title: '', subject: user.subjectsTaught?.[0] || 'General', instructions: '', points: 100 });
       setSelectedDate(undefined);
       setAttachmentFile(null);
@@ -527,6 +539,17 @@ function AIQuestionStudio({ user }: { user: User }) {
         isPublished: true
       });
       alert("Quiz saved to library!");
+
+      // Trigger Student Notifications
+      await notifyGrade(config.grade, {
+        senderId: user.uid,
+        senderName: user.fullName || 'Faculty',
+        title: 'New Quiz Published',
+        message: `A new assessment "${config.title || 'Untitled Quiz'}" is available in the Quiz Lab.`,
+        type: 'quiz',
+        icon: 'quiz',
+        link: 'QuizLab'
+      });
     } catch (e) {
       console.error("Error saving quiz:", e);
     }

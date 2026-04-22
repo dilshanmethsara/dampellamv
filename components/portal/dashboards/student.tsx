@@ -1873,8 +1873,12 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
 
       {/* Sidebar Container */}
       <motion.aside 
-        initial={{ x: -260 }}
-        animate={{ x: isSidebarOpen ? 0 : -260 }}
+        initial={false}
+        animate={{ 
+          x: typeof window !== 'undefined' && window.innerWidth < 1024 
+            ? (isSidebarOpen ? 0 : -260) 
+            : 0 
+        }}
         className={cn(
           "bg-primary text-white border-r border-white/5 flex flex-col shrink-0 transition-transform lg:transition-none duration-300 ease-in-out",
           "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0 overflow-y-auto custom-scrollbar shadow-2xl shadow-primary/20"

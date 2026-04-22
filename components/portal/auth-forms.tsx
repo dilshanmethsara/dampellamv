@@ -218,7 +218,7 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
           </div>
 
           <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl relative z-10">
-            <div className="lg:col-span-5 space-y-6 lg:pr-12">
+            <div className="lg:col-span-5 space-y-6 lg:pr-12 order-2 lg:order-1">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-tertiary text-xs font-bold tracking-wider font-headline">
                 SECURE VERIFICATION
               </div>
@@ -240,7 +240,7 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
               </div>
             </div>
 
-            <div className="lg:col-span-7 flex justify-end">
+            <div className="lg:col-span-7 flex justify-end order-1 lg:order-2">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -2837,7 +2837,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
                 <div className="shrink-0 flex items-center gap-2">
                   <div className="px-3 py-1.5 lg:px-4 lg:py-2 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center gap-2">
                     <span className="text-[8px] lg:text-[9px] font-black tracking-widest uppercase text-slate-400">Term</span>
-                    <span className="text-[11px] lg:text-xs font-extrabold text-primary">Fall 2024</span>
+                    <span className="text-[11px] lg:text-xs font-black text-primary font-jakarta">TERM 2026</span>
                   </div>
                 </div>
               </section>

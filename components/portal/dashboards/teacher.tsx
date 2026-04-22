@@ -2656,8 +2656,8 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
             : 0 
         }}
         className={cn(
-          "bg-white border-r border-slate-100 flex flex-col shrink-0 transition-transform lg:transition-none duration-300 ease-in-out",
-          "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0 overflow-y-auto custom-scrollbar"
+          "bg-primary text-white border-r border-white/5 flex flex-col shrink-0 transition-transform lg:transition-none duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0 overflow-y-auto custom-scrollbar shadow-2xl shadow-primary/20"
         )}
       >
         {/* Sidebar Close Button */}
@@ -2673,18 +2673,17 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         {/* Logo */}
         <div className="p-8 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white border border-white/10">
               <span className="material-symbols-outlined text-xl">school</span>
             </div>
             <div>
-              <h1 className="font-extrabold text-sm tracking-tight text-slate-900 leading-none">Dampella LMS</h1>
-              <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Teacher Portal</p>
+              <h1 className="font-extrabold text-sm tracking-tight text-white leading-none">Dampella LMS</h1>
+              <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mt-0.5 font-jakarta">Zenith Edition</p>
             </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1 mt-4">
+        <nav className="flex-1 px-4 space-y-1.5 mt-4">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -2693,23 +2692,23 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
                 if (window.innerWidth < 1024) setIsSidebarOpen(false);
               }}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group",
+                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
                 activeTab === item.id 
-                  ? "bg-indigo-50 text-primary" 
-                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                  ? "bg-white/10 text-white shadow-inner" 
+                  : "text-white/40 hover:text-white hover:bg-white/5"
               )}
             >
               <span className={cn(
                 "material-symbols-outlined text-[20px] transition-colors",
-                activeTab === item.id ? "text-primary" : "text-slate-300 group-hover:text-slate-400"
+                activeTab === item.id ? "text-indigo-400" : "text-white/20 group-hover:text-white/40"
               )}>
                 {item.icon}
               </span>
-              <span className="text-xs font-bold tracking-tight">{item.name}</span>
+              <span className="text-xs font-bold tracking-tight uppercase tracking-widest font-jakarta">{item.name}</span>
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="active-nav-indicator"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"
+                  className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"
                 />
               )}
             </button>
@@ -2717,14 +2716,16 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         </nav>
 
         {/* Bottom Nav */}
-        <div className="px-4 py-8 space-y-1">
+        <div className="px-4 py-8 space-y-1 border-t border-white/5">
           <button 
             onClick={() => setActiveTab('Assignments')}
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl bg-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all mb-4"
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl bg-white text-primary shadow-xl shadow-black/10 hover:shadow-white/10 active:scale-[0.98] transition-all mb-4"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            <span className="text-xs font-black uppercase tracking-wider">New Assignment</span>
+            <span className="material-symbols-outlined text-[20px] font-black">add</span>
+            <span className="text-xs font-black uppercase tracking-wider">New Content</span>
           </button>
+          
+          {/* ... Other buttons kept as-is but with text-white/40 classes ... */}
 
           {bottomNavItems.map((item) => (
              <button
@@ -2827,10 +2828,10 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
             <>
               {/* Hero Summary */}
               <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                <div className="space-y-2">
-                  <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">Morning, {user.fullName.split(' ')[0]}.</h2>
-                  <p className="text-[12px] lg:text-[13px] font-semibold text-slate-500">
-                    You have <span className="text-primary font-bold">{stats.pendingSubmissions} new submissions</span> to review.
+                <div className="space-y-1">
+                  <h2 className="text-3xl lg:text-4xl font-black tracking-tighter text-slate-900 font-jakarta">Morning, {user.fullName.split(' ')[0]}.</h2>
+                  <p className="text-[13px] lg:text-[14px] font-bold text-slate-500 uppercase tracking-wide">
+                    You have <span className="text-primary font-black">{stats.pendingSubmissions} new submissions</span> to review.
                   </p>
                 </div>
                 <div className="shrink-0 flex items-center gap-2">
@@ -2854,25 +2855,30 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className={cn("p-5 lg:p-6 rounded-[1.75rem] lg:rounded-[2rem] flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group hover:scale-[1.01] transition-all", stat.color)}
+                    className={cn(
+                      "p-5 lg:p-6 rounded-[2rem] flex flex-col justify-between h-[145px] lg:h-[165px] relative overflow-hidden group hover:scale-[1.02] transition-all border",
+                      stat.isDark 
+                        ? "bg-primary text-white border-white/5 shadow-xl shadow-primary/20" 
+                        : "bg-white text-slate-900 border-slate-200 shadow-sm"
+                    )}
                   >
                     <div className="relative z-10 flex justify-between items-start">
                       <div className="space-y-0.5 lg:space-y-1">
-                        <p className={cn("text-[8px] lg:text-[9px] font-black tracking-widest uppercase", stat.isDark ? "text-white/60" : "text-slate-400")}>{stat.label}</p>
-                        <h3 className="text-3xl lg:text-4xl font-black tracking-tight">{stat.value}</h3>
+                        <p className={cn("text-[8px] lg:text-[9px] font-black tracking-widest uppercase font-jakarta", stat.isDark ? "text-white/60" : "text-slate-400")}>{stat.label}</p>
+                        <h3 className="text-3xl lg:text-4xl font-black tracking-tighter tabular-nums">{stat.value}</h3>
                       </div>
                       {stat.trend && (
-                        <div className="bg-white/40 backdrop-blur-md px-2 py-1 rounded-lg text-[8px] lg:text-[9px] font-bold">
+                        <div className="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg text-[8px] lg:text-[9px] font-black border border-emerald-100">
                           {stat.trend}
                         </div>
                       )}
                     </div>
                     <div className="relative z-10">
-                      <div className={cn("w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center", stat.isDark ? "bg-white/10" : "bg-white shadow-sm")}>
+                      <div className={cn("w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center border", stat.isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-100 shadow-sm")}>
                           <span className={cn("material-symbols-outlined text-lg lg:text-xl", stat.iconColor)}>{stat.icon}</span>
                       </div>
                     </div>
-                    <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
                   </motion.div>
                 ))}
               </section>
@@ -3043,14 +3049,14 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
                         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 blur-3xl -mr-10 -mt-10 group-hover:bg-secondary/40 transition-all pointer-events-none"></div>
                         
                         <div className="relative z-10 space-y-4 lg:space-y-6">
-                          <div className="w-fit px-2 py-0.5 lg:px-3 lg:py-1 bg-white/10 backdrop-blur-md rounded lg:rounded-lg text-[8px] lg:text-[9px] font-black tracking-widest uppercase text-indigo-200">Curated Resource</div>
-                          <h3 className="text-lg lg:text-xl font-extrabold text-white leading-tight font-headline">Advanced <br />Pedagogy <br />Workshop</h3>
-                          <p className="text-[10px] lg:text-[11px] font-medium text-indigo-300/80 leading-relaxed">Explore new methodologies for digital classroom engagement.</p>
+                          <div className="w-fit px-2 py-0.5 lg:px-3 lg:py-1 bg-amber-400 text-indigo-950 rounded lg:rounded-lg text-[8px] lg:text-[9px] font-black tracking-widest uppercase">Coming Soon</div>
+                          <h3 className="text-xl lg:text-2xl font-black text-white leading-tight font-jakarta uppercase tracking-tight">Online <br />Classes</h3>
+                          <p className="text-[10px] lg:text-[11px] font-bold text-indigo-300 leading-relaxed uppercase tracking-wide">Sync your curriculum with live virtual sessions.</p>
                           
-                          <div className="flex items-center justify-between pt-1">
-                              <button className="px-4 py-2 lg:px-6 lg:py-2.5 bg-white text-indigo-950 text-[9px] lg:text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all">Join Session</button>
-                              <div className="hidden sm:flex w-9 h-9 lg:w-10 lg:h-10 rounded-full bg-primary items-center justify-center text-white cursor-pointer hover:rotate-12 transition-transform shadow-lg">
-                                <span className="material-symbols-outlined text-lg">add</span>
+                          <div className="flex items-center justify-between pt-1 opacity-50 cursor-not-allowed">
+                              <button disabled className="px-4 py-2 lg:px-6 lg:py-2.5 bg-white/10 text-white/50 text-[9px] lg:text-[10px] font-black uppercase tracking-widest rounded-xl">Opening Soon</button>
+                              <div className="hidden sm:flex w-9 h-9 lg:w-10 lg:h-10 rounded-full bg-white/5 items-center justify-center text-white cursor-not-allowed transition-transform border border-white/10">
+                                <span className="material-symbols-outlined text-lg">schedule</span>
                               </div>
                           </div>
                         </div>

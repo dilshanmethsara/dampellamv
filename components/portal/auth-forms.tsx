@@ -218,7 +218,7 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
           </div>
 
           <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center max-w-7xl relative z-10">
-            <div className="lg:col-span-5 space-y-6 lg:pr-12 order-2 lg:order-1 px-6 sm:px-0">
+            <div className="hidden lg:block lg:col-span-5 space-y-6 lg:pr-12 order-2 lg:order-1 px-6 sm:px-0">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-tertiary text-xs font-bold tracking-wider font-headline">
                 SECURE VERIFICATION
               </div>

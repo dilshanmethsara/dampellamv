@@ -1873,42 +1873,38 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
 
       {/* Sidebar Container */}
       <motion.aside 
-        initial={false}
-        animate={{ 
-          x: typeof window !== 'undefined' && window.innerWidth < 1024 
-            ? (isSidebarOpen ? 0 : -256) 
-            : 0 
-        }}
+        initial={{ x: -260 }}
+        animate={{ x: isSidebarOpen ? 0 : -260 }}
         className={cn(
-          "bg-white border-r border-slate-100 flex flex-col shrink-0 transition-transform lg:transition-none duration-300 ease-in-out",
-          "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0 overflow-y-auto custom-scrollbar"
+          "bg-primary text-white border-r border-white/5 flex flex-col shrink-0 transition-transform lg:transition-none duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 w-64 z-[70] lg:static lg:w-64 lg:translate-x-0 overflow-y-auto custom-scrollbar shadow-2xl shadow-primary/20"
         )}
       >
         {/* Sidebar Close Button */}
         <div className="lg:hidden absolute top-4 right-4">
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-primary transition-all"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white transition-all"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        {/* Logo */}
+        {/* Logo Section */}
         <div className="p-8 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-900 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/10 shadow-lg">
               <span className="material-symbols-outlined text-xl">architecture</span>
             </div>
             <div>
-              <h1 className="font-extrabold text-sm tracking-tight text-slate-900 leading-none">Dampella</h1>
-              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dampella LMS</p>
+              <h1 className="font-extrabold text-sm tracking-tight text-white leading-none">Dampella</h1>
+              <p className="text-[8px] font-black text-indigo-300 uppercase tracking-widest mt-1 font-jakarta">Zenith Edition</p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1 mt-6">
+        <nav className="flex-1 px-4 space-y-1.5 mt-6">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -1917,23 +1913,23 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
                 if (window.innerWidth < 1024) setIsSidebarOpen(false);
               }}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group",
+                "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative",
                 activeTab === item.id 
-                  ? "bg-indigo-50 text-indigo-700" 
-                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                  ? "bg-white/10 text-white shadow-inner" 
+                  : "text-white/40 hover:text-white hover:bg-white/5"
               )}
             >
               <span className={cn(
                 "material-symbols-outlined text-[20px] transition-colors",
-                activeTab === item.id ? "text-indigo-700 font-variation-fill" : "text-slate-300 group-hover:text-slate-400"
+                activeTab === item.id ? "text-indigo-400 font-variation-fill" : "text-white/20 group-hover:text-white/40"
               )}>
                 {item.icon}
               </span>
-              <span className="text-[12px] font-bold tracking-tight">{item.name}</span>
+              <span className="text-[11px] font-black uppercase tracking-widest text-inherit font-jakarta">{item.name}</span>
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="active-nav-indicator"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600"
+                  className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"
                 />
               )}
             </button>
@@ -1942,9 +1938,9 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
 
         {/* Global Support Action */}
         <div className="px-5 mt-4">
-           <button className="w-full h-12 bg-indigo-900 text-white rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-indigo-900/20 hover:scale-[1.02] transition-all group overflow-hidden">
-              <span className="material-symbols-outlined text-[20px]">support_agent</span>
-              <span className="text-[11px] font-black uppercase tracking-widest">Request Support</span>
+           <button className="w-full h-12 bg-white text-primary rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-black/10 hover:scale-[1.02] transition-all group overflow-hidden">
+              <span className="material-symbols-outlined text-[20px] font-black">support_agent</span>
+              <span className="text-[11px] font-black uppercase tracking-widest">Support</span>
            </button>
         </div>
 
@@ -1959,17 +1955,17 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
         </div>
 
         {/* Bottom Actions */}
-        <div className="px-4 py-6 border-t border-slate-50 space-y-1">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all group">
-            <span className="material-symbols-outlined text-[20px] text-slate-300 group-hover:text-indigo-600">help</span>
-            <span className="text-[12px] font-bold">Help Center</span>
+        <div className="px-4 py-6 border-t border-white/5 space-y-1">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all group">
+            <span className="material-symbols-outlined text-[20px] text-white/20 group-hover:text-white/40">help</span>
+            <span className="text-[11px] font-black uppercase tracking-widest">Help</span>
           </button>
           <button 
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-error hover:bg-error/5 transition-all group border border-transparent hover:border-error/10"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/30 hover:text-error hover:bg-error/10 transition-all group border border-transparent"
           >
-            <span className="material-symbols-outlined text-[20px] text-slate-300 group-hover:text-error/60">logout</span>
-            <span className="text-[12px] font-bold">Logout</span>
+            <span className="material-symbols-outlined text-[20px] text-white/20 group-hover:text-error/60">logout</span>
+            <span className="text-[11px] font-black uppercase tracking-widest">Logout</span>
           </button>
         </div>
       </motion.aside>
@@ -2052,13 +2048,13 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
               <div className="xl:col-span-8 space-y-8 lg:space-y-10">
                  
                   {/* Welcome Hero */}
-                  <section className="bg-indigo-900 rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-12 text-white relative overflow-hidden group shadow-2xl shadow-indigo-100">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
-                    <div className="relative z-10 space-y-6">
-                       <div className="space-y-2">
-                          <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight">Welcome back, {user?.fullName?.split(' ')[0] || 'Student'}.</h2>
-                          <p className="text-indigo-200/80 text-[13px] lg:text-[15px] font-medium max-w-sm">
-                             You have <span className="text-white font-bold">{activeAssignments.length} assignments</span> due this week. Your current academic trajectory is excellent.
+                  <section className="bg-primary rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-12 text-white relative overflow-hidden group shadow-2xl shadow-primary/20 border border-white/5">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -mr-40 -mt-40 blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                    <div className="relative z-10 space-y-8">
+                       <div className="space-y-3">
+                          <h2 className="text-4xl lg:text-5xl font-black tracking-tighter font-jakarta">Welcome back, {user?.fullName?.split(' ')[0] || 'Student'}.</h2>
+                          <p className="text-indigo-200/80 text-[14px] lg:text-[16px] font-bold max-w-sm uppercase tracking-wide">
+                             You have <span className="text-white font-black">{activeAssignments.length} assignments</span> due this week.
                           </p>
                        </div>
                        <div className="flex flex-wrap items-center gap-4">
@@ -2082,8 +2078,10 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
                  <section className="space-y-6">
                     <div className="flex items-center justify-between">
                        <div className="flex items-center gap-3">
-                          <span className="material-symbols-outlined text-indigo-300 text-xl">assignment_turned_in</span>
-                          <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">Active Assignments</h3>
+                          <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary border border-primary/10">
+                            <span className="material-symbols-outlined text-[20px] font-black">assignment_turned_in</span>
+                          </div>
+                          <h3 className="text-xl font-black text-slate-900 tracking-tight font-jakarta uppercase tracking-wider">Mission Objectives</h3>
                        </div>
                        <button 
                         onClick={() => setActiveTab('Assignments')}
@@ -2095,14 +2093,14 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
 
                     <div className="space-y-4">
                        {activeAssignments.length > 0 ? activeAssignments.slice(0, 3).map((task, i) => (
-                         <div key={i} className="bg-white p-6 rounded-[2rem] flex items-center justify-between shadow-sm hover:shadow-md transition-all border border-white">
+                         <div key={i} className="bg-white p-6 rounded-[2rem] flex items-center justify-between shadow-sm hover:shadow-zenith transition-all border border-slate-200/60 group">
                             <div className="flex items-center gap-6 text-left">
-                               <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-indigo-50 text-indigo-600")}>
+                               <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white transition-all border border-slate-100")}>
                                   <span className="material-symbols-outlined text-2xl">{task.icon || 'menu_book'}</span>
                                </div>
                                <div>
-                                                                     <div className="flex items-center gap-2">
-                                      <h4 className="text-[14px] font-extrabold text-slate-900">{task.title || task.name}</h4>
+                                  <div className="flex items-center gap-2">
+                                     <h4 className="text-[15px] font-black text-slate-900 font-jakarta group-hover:text-primary transition-colors">{task.title || task.name}</h4>
                                       {task.attachmentUrl && (
                                         <span className="material-symbols-outlined text-[14px] text-indigo-400 font-variation-fill">attachment</span>
                                       )}
@@ -2170,56 +2168,58 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
               <div className="xl:col-span-4 space-y-8 lg:space-y-10">
                  
                  {/* Overall GPA */}
-                 <section className="p-6 lg:p-8 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-white flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group">
+                 <section className="p-6 lg:p-8 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group hover:shadow-zenith transition-all">
                     <div className="relative z-10 flex justify-between items-start">
                        <div>
-                          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Overall GPA</p>
-                          <h3 className="text-4xl font-black text-slate-900 mt-2 tracking-tight">{stats.gpa.toFixed(2)}</h3>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none font-jakarta">Overall GPA</p>
+                          <h3 className="text-4xl lg:text-5xl font-black text-slate-900 mt-2 tracking-tighter tabular-nums">{stats.gpa.toFixed(2)}</h3>
                        </div>
-                       <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                          <span className="material-symbols-outlined">trending_up</span>
+                       <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-primary shadow-sm">
+                          <span className="material-symbols-outlined font-black">trending_up</span>
                        </div>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden mt-4">
-                       <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${(stats.gpa / 4) * 100}%` }} />
+                    <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden mt-4 border border-slate-100">
+                       <div className="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(26,20,107,0.3)] transition-all duration-1000" style={{ width: `${(stats.gpa / 4) * 100}%` }} />
                     </div>
                  </section>
 
                  {/* Attendance */}
-                 <section className="p-6 lg:p-8 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-white flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group">
+                 <section className="p-6 lg:p-8 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col justify-between h-[140px] lg:h-[160px] relative overflow-hidden group hover:shadow-zenith transition-all">
                     <div className="relative z-10 flex justify-between items-start">
                        <div>
-                          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Attendance Rate</p>
-                          <h3 className="text-4xl font-black text-slate-900 mt-2 tracking-tight">{stats.attendance}%</h3>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none font-jakarta">Attendance Rate</p>
+                          <h3 className="text-4xl lg:text-5xl font-black text-slate-900 mt-2 tracking-tighter tabular-nums">{stats.attendance}%</h3>
                        </div>
-                       <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                          <span className="material-symbols-outlined">verified_user</span>
+                       <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-emerald-600 shadow-sm">
+                          <span className="material-symbols-outlined font-black">verified_user</span>
                        </div>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden mt-4">
-                       <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${stats.attendance}%` }} />
+                    <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden mt-4 border border-slate-100">
+                       <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)] transition-all duration-1000" style={{ width: `${stats.attendance}%` }} />
                     </div>
                  </section>
 
                  {/* My Marks */}
                  <section className="space-y-6">
                     <div className="flex items-center gap-3">
-                       <span className="material-symbols-outlined text-indigo-300 text-xl">analytics</span>
-                       <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">My Marks</h3>
+                       <div className="w-7 h-7 rounded-lg bg-primary/5 flex items-center justify-center text-primary border border-primary/10">
+                          <span className="material-symbols-outlined text-[18px] font-black">analytics</span>
+                       </div>
+                       <h3 className="text-lg font-black text-slate-900 tracking-tight font-jakarta uppercase">Performance Radar</h3>
                     </div>
-                    <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white space-y-7 text-left">
+                    <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-200/60 space-y-7 text-left hover:shadow-zenith transition-all">
                         {academicRecords.length > 0 ? academicRecords.slice(0, 4).map((record, i) => (
                           <div key={i} className="flex items-center justify-between group">
                              <div className="space-y-1">
-                                <h4 className="text-[12px] font-black text-slate-900 leading-none">{record.subject}</h4>
-                                <p className="text-[10px] font-bold text-slate-400 tracking-tight lowercase">by {record.teacherId || 'Faculty'}</p>
+                                <h4 className="text-[13px] font-black text-slate-900 leading-none font-jakarta group-hover:text-primary transition-colors">{record.subject}</h4>
+                                <p className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mt-1">Faculty: {record.teacherId || 'STAFF'}</p>
                              </div>
-                             <span className="text-lg font-black text-indigo-600">
+                             <span className="text-xl font-black text-primary tabular-nums">
                                 {record.mark}
                              </span>
                           </div>
                         )) : (
-                          <p className="text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest py-4">No results published yet</p>
+                          <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-widest py-4">Status: Pending Deployment</p>
                         )}
                      </div>
                  </section>

@@ -67,7 +67,7 @@ export function StatsSection() {
   ]
 
   return (
-    <section className="py-24 relative z-10 -mt-20">
+    <section className="py-24 relative z-10 -mt-12 sm:-mt-20">
       <div className="container mx-auto px-4">
         <motion.div 
           variants={container}

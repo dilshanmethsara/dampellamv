@@ -1706,6 +1706,15 @@ function StudentPastPapersView({ papers }: { papers: any[] }) {
 export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDashboardProps) {
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Add dynamic time greeting
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+  const greeting = getTimeGreeting();
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
 
   const navItems = [
@@ -2056,7 +2065,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
                     <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -mr-40 -mt-40 blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-700" />
                     <div className="relative z-10 space-y-8">
                        <div className="space-y-3">
-                          <h2 className="text-4xl lg:text-5xl font-black tracking-tighter font-jakarta">Welcome back, {user?.fullName?.split(' ')[0] || 'Student'}.</h2>
+                          <h2 className="text-4xl lg:text-5xl font-black tracking-tighter font-jakarta">{greeting}, {user?.fullName?.split(' ')[0] || 'Student'}.</h2>
                           <p className="text-indigo-200/80 text-[14px] lg:text-[16px] font-bold max-w-sm uppercase tracking-wide">
                              You have <span className="text-white font-black">{activeAssignments.length} assignments</span> due this week.
                           </p>

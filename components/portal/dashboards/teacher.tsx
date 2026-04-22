@@ -2474,6 +2474,16 @@ function RecycleBinView({ user }: { user: User }) {
 export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDashboardProps) {
   const [activeTab, setActiveTab] = useState('Overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Add dynamic time greeting
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Evening';
+  };
+  const greeting = getTimeGreeting();
+
   const [stats, setStats] = useState({
     avgGpa: 0,
     attendance: 0,
@@ -2829,7 +2839,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
               {/* Hero Summary */}
               <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div className="space-y-1">
-                  <h2 className="text-3xl lg:text-4xl font-black tracking-tighter text-slate-900 font-jakarta">Morning, {user.fullName.split(' ')[0]}.</h2>
+                  <h2 className="text-3xl lg:text-4xl font-black tracking-tighter text-slate-900 font-jakarta">{greeting}, {user.fullName.split(' ')[0]}.</h2>
                   <p className="text-[13px] lg:text-[14px] font-bold text-slate-500 uppercase tracking-wide">
                     You have <span className="text-primary font-black">{stats.pendingSubmissions} new submissions</span> to review.
                   </p>

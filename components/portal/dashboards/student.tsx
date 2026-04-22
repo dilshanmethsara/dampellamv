@@ -606,27 +606,27 @@ function QuizResultModal({ data, onExit, onReview }: { data: any, onExit: () => 
   const masteryColor = data.percentage >= 80 ? "text-emerald-400" : data.percentage >= 50 ? "text-amber-400" : "text-rose-400";
   
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col lg:items-center lg:justify-center p-4 lg:p-10 overflow-y-auto custom-scrollbar">
+    <div className="fixed inset-0 z-[200] flex flex-col items-center lg:justify-center overflow-y-auto custom-scrollbar bg-slate-900/80 backdrop-blur-md p-0 lg:p-10">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-xl"
+        className="fixed inset-0 pointer-events-none"
         onClick={onExit}
       />
       
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row max-w-4xl w-full my-auto"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white rounded-t-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row max-w-4xl w-full mt-12 lg:my-auto shrink-0"
       >
         {/* Left Side: Score Indicator (Indigo) */}
-        <div className="lg:w-[40%] bg-indigo-950 p-8 lg:p-12 flex flex-col items-center justify-center text-center relative overflow-hidden shrink-0">
+        <div className="lg:w-[40%] bg-primary p-6 lg:p-12 flex flex-col items-center justify-center text-center relative overflow-hidden shrink-0">
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 to-transparent pointer-events-none" />
           
           <div className="relative z-10 space-y-8 w-full">
             <div className="space-y-1">
-              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Quiz Result</p>
-              <h3 className="text-2xl font-black text-white">Assessment Complete</h3>
+              <p className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.3em]">Evaluation Complete</p>
+              <h3 className="text-xl lg:text-2xl font-black text-white font-jakarta uppercase tracking-tight">Performance Score</h3>
             </div>
             
             <div className="relative w-36 h-36 lg:w-48 lg:h-48 mx-auto flex items-center justify-center">
@@ -671,7 +671,7 @@ function QuizResultModal({ data, onExit, onReview }: { data: any, onExit: () => 
         </div>
         
         {/* Right Side: Summary (White) */}
-        <div className="lg:w-[60%] p-8 lg:p-14 space-y-8 lg:space-y-10">
+        <div className="lg:w-[60%] p-6 lg:p-14 space-y-6 lg:space-y-10 bg-white">
           <div className="space-y-2">
             <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Performance Summary</h4>
             <div className="h-1 w-10 bg-indigo-600 rounded-full" />

@@ -47,6 +47,7 @@
   --font-headline: "Plus Jakarta Sans", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-label: "Inter", sans-serif;
+  --font-serif: var(--font-playfair), serif;
 
   --color-surface: #f8f9ff;
   --color-primary: #1a146b;

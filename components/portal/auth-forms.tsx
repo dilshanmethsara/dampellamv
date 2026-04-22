@@ -619,7 +619,7 @@ function StudentSignupForm({
   return (
     <div className="space-y-8">
       {/* Premium Step Indicator */}
-      <div className="flex items-center justify-between mb-12 px-4 max-w-sm overflow-visible">
+      <div className="flex items-center justify-between mb-12 px-4 max-w-md overflow-visible">
         {[1, 2, 3].map((s) => {
           const isActive = step === s
           const isCompleted = step > s
@@ -627,7 +627,7 @@ function StudentSignupForm({
             <div key={s} className="flex items-center flex-1 last:flex-none">
               <div 
                 className={cn(
-                  "w-10 h-10 min-w-[40px] aspect-square shrink-0 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-500 relative z-10",
+                  "!w-10 !h-10 flex-none aspect-square rounded-full flex items-center justify-center font-bold text-xs transition-all duration-500 relative z-10",
                   isActive || isCompleted 
                     ? "bg-primary text-white shadow-xl shadow-primary/20 scale-110" 
                     : "bg-surface-container-high text-on-surface-variant/40"
@@ -1236,7 +1236,7 @@ function TeacherSignupForm({
   return (
     <div className="space-y-8">
       {/* Premium Step Indicator */}
-      <div className="flex items-center justify-between mb-12 px-4 max-w-sm overflow-visible">
+      <div className="flex items-center justify-between mb-12 px-4 max-w-md overflow-visible">
         {[1, 2, 3].map((s) => {
           const isActive = step === s
           const isCompleted = step > s
@@ -1244,7 +1244,7 @@ function TeacherSignupForm({
             <div key={s} className="flex items-center flex-1 last:flex-none">
               <div 
                 className={cn(
-                  "w-10 h-10 min-w-[40px] aspect-square shrink-0 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-500 relative z-10",
+                  "!w-10 !h-10 flex-none aspect-square rounded-full flex items-center justify-center font-bold text-xs transition-all duration-500 relative z-10",
                   isActive || isCompleted 
                     ? "bg-primary text-white shadow-xl shadow-primary/20 scale-110" 
                     : "bg-surface-container-high text-on-surface-variant/40"

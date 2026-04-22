@@ -81,7 +81,7 @@ export function HeroSection() {
             className="text-4xl sm:text-7xl md:text-8xl font-black tracking-tight mb-4 sm:mb-6"
           >
             <span className="block text-foreground font-serif italic font-medium leading-relaxed">Welcome to</span>
-            <span className="block text-gradient pb-2">
+            <span className="block font-serif font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/90 to-secondary pb-2">
               {settings?.name || "MR/ Dampella M.V"}
             </span>
           </motion.h1>

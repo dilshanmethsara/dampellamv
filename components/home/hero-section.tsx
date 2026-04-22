@@ -51,7 +51,7 @@ export function HeroSection() {
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-[0.03]" />
 
-      <div className="container mx-auto px-4 relative z-10 pt-20">
+      <div className="container mx-auto px-4 relative z-10 pt-28 sm:pt-32">
         <motion.div 
           className="max-w-5xl mx-auto text-center"
           variants={staggerContainer}
@@ -59,7 +59,7 @@ export function HeroSection() {
           animate="visible"
         >
           {/* Badge */}
-          <motion.div variants={fadeIn} className="flex justify-center mb-8">
+          <motion.div variants={fadeIn} className="flex justify-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-md">
               <Sparkles className="h-4 w-4 text-primary animate-pulse" />
               <span className="text-sm font-medium tracking-wide text-foreground/80">
@@ -69,8 +69,8 @@ export function HeroSection() {
           </motion.div>
 
           {/* Logo */}
-          <motion.div variants={fadeIn} className="flex justify-center mb-8">
-            <div className="relative h-24 w-24 rounded-3xl overflow-hidden ring-4 ring-background shadow-2xl shadow-primary/20 bg-white">
+          <motion.div variants={fadeIn} className="flex justify-center mb-6 sm:mb-8">
+            <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-3xl overflow-hidden ring-4 ring-background shadow-2xl shadow-primary/20 bg-white">
               <Image src="/dmvlogo.jpg" alt="School Logo" fill className="object-contain p-2" priority />
             </div>
           </motion.div>
@@ -78,7 +78,7 @@ export function HeroSection() {
           {/* Main Heading */}
           <motion.h1 
             variants={fadeIn}
-            className="text-6xl sm:text-7xl md:text-8xl font-black tracking-tight mb-6"
+            className="text-4xl sm:text-7xl md:text-8xl font-black tracking-tight mb-4 sm:mb-6"
           >
             <span className="block text-foreground">Welcome to</span>
             <span className="block text-gradient pb-2">
@@ -89,16 +89,16 @@ export function HeroSection() {
           <h2 className="sr-only">Dampella Maha Vidyalaya</h2>
 
           {/* Motto */}
-          <motion.div variants={fadeIn} className="flex items-center justify-center gap-6 mb-12">
-            <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-r from-transparent to-primary/30" />
-            <p className="text-xl md:text-2xl text-muted-foreground font-serif italic text-pretty max-w-2xl">
+          <motion.div variants={fadeIn} className="flex items-center justify-center gap-6 mb-8 sm:mb-12">
+            <div className="h-[1px] w-8 sm:w-24 bg-gradient-to-r from-transparent to-primary/30" />
+            <p className="text-base sm:text-xl md:text-2xl text-muted-foreground font-serif italic text-pretty max-w-2xl px-4">
               "{settings?.motto}"
             </p>
-            <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-l from-transparent to-primary/30" />
+            <div className="h-[1px] w-8 sm:w-24 bg-gradient-to-l from-transparent to-primary/30" />
           </motion.div>
 
           {/* Buttons */}
-          <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-20">
+          <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 sm:mb-20">
             <Link href="/about">
               <Button size="lg" className="h-14 px-8 text-base shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all">
                 <BookOpen className="h-5 w-5 mr-2" />

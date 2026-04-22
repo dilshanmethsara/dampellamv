@@ -42,15 +42,15 @@ export function Header() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 70, damping: 20, mass: 1 }}
-        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 flex justify-center pt-4 sm:pt-6 pointer-events-none"
+        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 flex justify-center pt-2 sm:pt-6 pointer-events-none"
       >
         <motion.div
           layout
           initial={false}
           animate={{
             width: isScrolled ? "100%" : "1280px",
-            borderRadius: isScrolled ? "24px" : "40px",
-            y: isScrolled ? -10 : 0
+            borderRadius: isScrolled ? (typeof window !== 'undefined' && window.innerWidth < 640 ? "16px" : "24px") : (typeof window !== 'undefined' && window.innerWidth < 640 ? "24px" : "40px"),
+            y: isScrolled ? (typeof window !== 'undefined' && window.innerWidth < 640 ? -4 : -10) : 0
           }}
           transition={{ 
             type: "spring", 
@@ -74,9 +74,9 @@ export function Header() {
               layout
               className="relative rounded-2xl overflow-hidden ring-2 ring-primary/20 shadow-lg bg-white"
               animate={{ 
-                height: isScrolled ? 40 : 48, 
-                width: isScrolled ? 40 : 48,
-                borderRadius: isScrolled ? 12 : 16
+                height: isScrolled ? 32 : 40, 
+                width: isScrolled ? 32 : 40,
+                borderRadius: isScrolled ? 10 : 12
               }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
@@ -91,7 +91,7 @@ export function Header() {
             <div className="flex flex-col">
               <motion.span 
                 layout
-                className="font-serif font-black text-lg sm:text-xl tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent"
+                className="font-serif font-black text-base sm:text-lg md:text-xl tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent"
               >
                 {settings?.name || "MR/ Dampella"}
               </motion.span>

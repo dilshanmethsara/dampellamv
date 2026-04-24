@@ -128,6 +128,15 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased overflow-x-hidden">
         <Providers>
+          <div className="w-full bg-blue-900/30 border-b border-blue-500/20 py-2 px-4 flex items-center justify-center gap-3 relative z-[100] backdrop-blur-sm">
+             <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </div>
+              <p className="text-[10px] md:text-xs text-blue-300 font-medium tracking-wide uppercase">
+                Testing Period: We are currently in a testing phase. Please report any bugs or glitches to help us improve.
+              </p>
+          </div>
           {children}
           <PwaRegister />
         </Providers>

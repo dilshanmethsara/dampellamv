@@ -2568,10 +2568,13 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
       orderBy("created_at", "desc"),
       limit(10)
     );
-    const unsubAssignments = onSnapshot(assignmentsQuery, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setActiveAssignments(data);
-    });
+    const unsubAssignments = onSnapshot(assignmentsQuery, 
+      (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setActiveAssignments(data);
+      },
+      (error) => console.error("Assignments listener error:", error)
+    );
 
     // 3. Fetch Grading Queue (Submissions)
     const submissionsQuery = query(
@@ -2580,12 +2583,18 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
       where("teacher_email", "==", user.email.toLowerCase()),
       limit(50)
     );
-    const unsubSubmissions = onSnapshot(submissionsQuery, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setGradingQueue(data);
-      setStats(prev => ({ ...prev, pendingSubmissions: snapshot.size }));
-      setIsLoading(false);
-    });
+    const unsubSubmissions = onSnapshot(submissionsQuery, 
+      (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setGradingQueue(data);
+        setStats(prev => ({ ...prev, pendingSubmissions: snapshot.size }));
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error("Submissions listener error:", error);
+        setIsLoading(false);
+      }
+    );
 
     // 4. Fetch Quiz Submissions
     const quizSubQuery = query(
@@ -2594,10 +2603,13 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
       orderBy("createdAt", "desc"),
       limit(100)
     );
-    const unsubQuizSubs = onSnapshot(quizSubQuery, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setQuizSubmissions(data);
-    });
+    const unsubQuizSubs = onSnapshot(quizSubQuery, 
+      (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setQuizSubmissions(data);
+      },
+      (error) => console.error("Quiz submissions listener error:", error)
+    );
 
     // 5. Fetch Full Mark History
     const historyQuery = query(
@@ -2605,10 +2617,13 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
       where("teacherId", "==", user.teacherId || user.email),
       orderBy("updatedAt", "desc")
     );
-    const unsubHistory = onSnapshot(historyQuery, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setFullHistory(data);
-    });
+    const unsubHistory = onSnapshot(historyQuery, 
+      (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setFullHistory(data);
+      },
+      (error) => console.error("History listener error:", error)
+    );
 
     // 6. Fetch Notifications
     const notificationsQuery = query(
@@ -2617,10 +2632,13 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
       orderBy("createdAt", "desc"),
       limit(30)
     );
-    const unsubNotifications = onSnapshot(notificationsQuery, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setNotifications(data);
-    });
+    const unsubNotifications = onSnapshot(notificationsQuery, 
+      (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setNotifications(data);
+      },
+      (error) => console.error("Notifications listener error:", error)
+    );
 
     return () => {
       unsubStudents();

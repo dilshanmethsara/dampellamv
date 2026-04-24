@@ -30,10 +30,10 @@
   --muted: #eff4ff;
   --muted-foreground: #474651;
   
-  --border: transparent; /* Strictly No-Line Rule */
+  --border: #e2e8f0; /* Zenith Bold Structure */
   --input: #eff4ff;
   --ring: #5654a8;
-  --radius: 1.5rem;
+  --radius: 1.25rem;
 }
 
 .dark .portal-theme {
@@ -55,7 +55,7 @@
   --surface-container-highest: #3d516b;
   
   --on-surface: #f8f9ff;
-  --border: transparent;
+  --border: #1a2637;
 }
 
 /* Academic Pattern Background */
@@ -80,14 +80,16 @@
 .atelier-card {
   background-color: var(--surface-container-lowest);
   border-radius: var(--radius);
+  border: 1px solid var(--border);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+  box-shadow: var(--shadow-sm);
 }
 
 .atelier-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(26, 20, 107, 0.04);
-  background-color: var(--surface-container-low);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-zenith);
+  border-color: var(--primary);
+  background-color: var(--surface-container-lowest);
 }
 
 /* Atelier Stats Block */

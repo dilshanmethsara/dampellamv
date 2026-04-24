@@ -68,10 +68,48 @@
       }
 
       match /marks/{id} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
-      match /assignment_submissions/{id} { allow read, write: if isSignedIn(); }
-      match /quiz_attempts/{attemptId} { allow read, write: if isSignedIn(); }
-      match /quiz_submissions/{submissionId} { 
-        allow read, write: if isSignedIn(); 
+      
+      match /assignment_submissions/{id} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (isTeacher() && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          request.auth.token.email.lower() == resource.data.student_email.lower()
+        );
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (
+          isAdmin() || 
+          (isTeacher() && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          request.auth.token.email.lower() == resource.data.student_email.lower()
+        );
+        allow delete: if isAdmin();
+      }
+
+      match /quiz_attempts/{id} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (isTeacher() && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          request.auth.token.email.lower() == resource.data.student_email.lower()
+        );
+        allow write: if isSignedIn() && (
+          isAdmin() || 
+          (isTeacher() && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          request.auth.token.email.lower() == resource.data.student_email.lower()
+        );
+      }
+
+      match /quiz_submissions/{id} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (isTeacher() && request.auth.token.email.lower() == (resource.data.teacherEmail != null ? resource.data.teacherEmail.lower() : resource.data.teacher_email.lower())) ||
+          request.auth.token.email.lower() == resource.data.studentEmail.lower()
+        );
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (
+          isAdmin() || 
+          (isTeacher() && request.auth.token.email.lower() == (resource.data.teacherEmail != null ? resource.data.teacherEmail.lower() : resource.data.teacher_email.lower())) ||
+          request.auth.token.email.lower() == resource.data.studentEmail.lower()
+        );
+        allow delete: if isAdmin();
       }
 
       // Communications
@@ -123,6 +161,11 @@
       // Recycle Bin / Deleted Items
       match /deleted_items/{itemId} {
         allow read, write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+
+      // Teacher Approval Notifications
+      match /approval_notifications/{id} {
+        allow read, write: if isAdmin();
       }
     }
   }

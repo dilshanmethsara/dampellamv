@@ -109,7 +109,7 @@ function startCollectionListener(collectionName, callback) {
         changes.forEach(change => {
             try {
                 const data = change.doc.data();
-                const title = data ? (data.title || data.phoneNumber || 'Unknown') : 'No Data';
+                const title = data ? (data.title || data.phoneNumber || data.full_name || 'Unknown') : 'No Data';
                 console.log(`[${collectionName}] Processing ${change.type}: ${title}`);
                 callback(data, change.type);
             } catch (innerErr) {
@@ -342,10 +342,10 @@ You can now log in to the portal and start managing your classes, assignments, a
 --------------------------------
     `.trim();
 
-    console.log(`[Approval] Sending activation alert to ${recipient}...`);
+    console.log(`[Approval] Sending activation alert to ${recipient} (${data.full_name})...`);
     client.sendMessage(recipient, message)
-        .then(() => console.log(`[Approval] Activation alert successfully sent to ${number}`))
-        .catch(err => console.error(`[Approval] Failed to send to ${number}:`, err));
+        .then(() => console.log(`[Approval] Activation alert successfully sent to ${data.full_name} (${number})`))
+        .catch(err => console.error(`[Approval] Failed to send to ${data.full_name} (${number}):`, err.message));
 }
 
 

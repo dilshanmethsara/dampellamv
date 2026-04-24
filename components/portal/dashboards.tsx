@@ -1332,6 +1332,7 @@ function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k: strin
     try {
       await addDoc(collection(db, 'quiz_attempts'), {
         quiz_id: quiz.id,
+        teacher_email: quiz.teacher_email || 'unknown',
         student_email: user.email.toLowerCase(),
         student_name: user.fullName,
         score: currentScore,

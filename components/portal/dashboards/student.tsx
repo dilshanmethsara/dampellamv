@@ -106,6 +106,7 @@ function StudentQuizView({
         quizId: quiz.id || "unknown_id",
         quizTitle: quiz.title || "Untitled Quiz",
         subject: quiz.subject || "General",
+        teacherEmail: quiz.teacher_email || quiz.teacherId || "unknown_teacher",
         grade: user.gradeClass || user.grade || "Grade 10",
         studentId: user.studentId || user.email || "unknown_student",
         studentName: user.fullName || "Anonymous",

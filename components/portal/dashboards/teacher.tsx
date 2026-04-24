@@ -2577,6 +2577,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     const submissionsQuery = query(
       collection(db, "assignment_submissions"),
       where("status", "==", "pending"),
+      where("teacher_email", "==", user.email.toLowerCase()),
       limit(50)
     );
     const unsubSubmissions = onSnapshot(submissionsQuery, (snapshot) => {
@@ -2589,6 +2590,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     // 4. Fetch Quiz Submissions
     const quizSubQuery = query(
       collection(db, "quiz_submissions"),
+      where("teacherEmail", "==", user.email.toLowerCase()),
       orderBy("createdAt", "desc"),
       limit(100)
     );

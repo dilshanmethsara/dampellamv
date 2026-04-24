@@ -165,6 +165,7 @@ export function SubmissionDialog({ assignment, user, t }: { assignment: any; use
     try {
       const payload: any = {
         assignment_id: assignment.id,
+        teacher_email: assignment.teacher_email.toLowerCase(),
         student_email: user.email.toLowerCase(),
         student_name: user.fullName,
         content: content,
@@ -513,6 +514,7 @@ export function QuizTakeDialog({ quiz, user, t }: { quiz: any; user: User; t: (k
     try {
       await addDoc(collection(db, 'quiz_attempts'), {
         quiz_id: quiz.id,
+        teacher_email: quiz.teacher_email || 'unknown',
         student_email: user.email.toLowerCase(),
         student_name: user.fullName,
         score: currentScore,

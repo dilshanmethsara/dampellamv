@@ -72,16 +72,14 @@
       match /assignment_submissions/{id} {
         allow read: if isSignedIn() && (
           isAdmin() || 
-          (resource.data.teacher_email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.student_email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
         );
-        allow create: if isSignedIn() && (
-           request.auth.token.email.lower() == request.resource.data.student_email.lower()
-        );
+        allow create: if isSignedIn();
         allow update: if isSignedIn() && (
           isAdmin() || 
-          (resource.data.teacher_email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.student_email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
         );
         allow delete: if isAdmin();
       }
@@ -89,34 +87,30 @@
       match /quiz_attempts/{id} {
         allow read: if isSignedIn() && (
           isAdmin() || 
-          (resource.data.teacher_email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.student_email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
         );
-        allow create: if isSignedIn() && (
-          request.auth.token.email.lower() == request.resource.data.student_email.lower()
-        );
+        allow create: if isSignedIn();
         allow update, delete: if isSignedIn() && (
           isAdmin() || 
-          (resource.data.teacher_email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.student_email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
         );
       }
 
       match /quiz_submissions/{id} {
         allow read: if isSignedIn() && (
           isAdmin() || 
-          (resource.data.teacherEmail != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
-          (resource.data.teacher_email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.studentEmail != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
+          (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
         );
-        allow create: if isSignedIn() && (
-          request.auth.token.email.lower() == request.resource.data.studentEmail.lower()
-        );
+        allow create: if isSignedIn();
         allow update: if isSignedIn() && (
           isAdmin() || 
-          (resource.data.teacherEmail != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
-          (resource.data.teacher_email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.studentEmail != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
+          (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
         );
         allow delete: if isAdmin();
       }

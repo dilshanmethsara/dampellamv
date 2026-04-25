@@ -37,11 +37,12 @@
         // Users can always read/write their own
         allow read, write: if isSignedIn() && request.auth.uid == userId;
         
-        // Allow searching for student profiles specifically
+        // Allow reading/listing of student profiles by anyone signed in
+        // This is necessary for teachers to list their class and for students to see peers
         allow list, read: if isSignedIn() && (
           isAdmin() || 
           isTeacher() || 
-          resource.data.role == "student"
+          (resource.data.role != null && resource.data.role.lower() == "student")
         );
         
         // Admins can do everything

@@ -2573,7 +2573,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setActiveAssignments(data);
       },
-      (error) => console.error("Assignments listener error:", error)
+      (error) => console.error("TeacherDashboard: Assignments listener error:", error)
     );
 
     // 3. Fetch Grading Queue (Submissions)
@@ -2591,7 +2591,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         setIsLoading(false);
       },
       (error) => {
-        console.error("Submissions listener error:", error);
+        console.error("TeacherDashboard: Submissions listener error:", error);
         setIsLoading(false);
       }
     );
@@ -2608,7 +2608,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setQuizSubmissions(data);
       },
-      (error) => console.error("Quiz submissions listener error:", error)
+      (error) => console.error("TeacherDashboard: Quiz submissions listener error:", error)
     );
 
     // 5. Fetch Full Mark History
@@ -2622,7 +2622,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setFullHistory(data);
       },
-      (error) => console.error("History listener error:", error)
+      (error) => console.error("TeacherDashboard: History listener error:", error)
     );
 
     // 6. Fetch Notifications
@@ -2637,7 +2637,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setNotifications(data);
       },
-      (error) => console.error("Notifications listener error:", error)
+      (error) => console.error("TeacherDashboard: Notifications listener error:", error)
     );
 
     return () => {
@@ -2654,12 +2654,12 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     { name: 'Overview', icon: 'dashboard', id: 'Overview' },
     { name: 'Assignments', icon: 'assignment', id: 'Assignments' },
     { name: 'AI Generator', icon: 'auto_awesome', id: 'AI Generator' },
-    { name: 'Student Grading', icon: 'fact_check', id: 'Grading' },
+    { name: 'Student Grading', icon: 'fact_check', id: 'Grading', badge: gradingQueue.length },
     { name: 'Mark History', icon: 'history_edu', id: 'History' },
-    { name: 'Submissions', icon: 'how_to_reg', id: 'Submissions' },
+    { name: 'Submissions', icon: 'how_to_reg', id: 'Submissions', badge: quizSubmissions.length },
     { name: 'Students', icon: 'group', id: 'Students' },
     { name: 'Resources', icon: 'folder', id: 'Resources' },
-    { name: 'Notifications', icon: 'notifications', id: 'Notifications' },
+    { name: 'Notifications', icon: 'notifications', id: 'Notifications', badge: notifications.filter(n => !n.isRead).length },
     { name: 'Recycle Bin', icon: 'delete', id: 'Bin' },
     { name: 'Settings', icon: 'settings', id: 'Settings' },
   ];
@@ -2753,11 +2753,16 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
             >
               <span className={cn(
                 "material-symbols-outlined text-[20px] transition-colors",
-                activeTab === item.id ? "text-indigo-400" : "text-white/20 group-hover:text-white/40"
+                activeTab === item.id ? "text-indigo-400 font-variation-fill" : "text-white/20 group-hover:text-white/40"
               )}>
                 {item.icon}
               </span>
-              <span className="text-xs font-bold tracking-tight uppercase tracking-widest font-jakarta">{item.name}</span>
+              <span className="text-[10px] font-black tracking-[0.1em] uppercase flex-1 text-left">{item.name}</span>
+              {(item as any).badge > 0 && (
+                <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg min-w-[18px] text-center shadow-lg shadow-orange-950/20">
+                  {(item as any).badge}
+                </span>
+              )}
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="active-nav-indicator"

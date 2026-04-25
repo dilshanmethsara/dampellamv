@@ -1729,14 +1729,18 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
   const greeting = getTimeGreeting();
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
 
+  const availableQuizCount = availableQuizzes.filter(quiz => 
+    !mySubmissions.some((s: any) => s.quizId === quiz.id)
+  ).length;
+
   const navItems = [
     { name: 'Dashboard', icon: 'dashboard', id: 'Dashboard' },
-    { name: 'Assignments', icon: 'assignment', id: 'Assignments' },
+    { name: 'Assignments', icon: 'assignment', id: 'Assignments', badge: activeAssignments.length },
     { name: 'My Marks', icon: 'grade', id: 'Marks' },
-    { name: 'Quiz Lab', icon: 'biotech', id: 'Lab' },
+    { name: 'Quiz Lab', icon: 'biotech', id: 'Lab', badge: availableQuizCount },
     { name: 'AI Tutor', icon: 'smart_toy', id: 'Tutor' },
     { name: 'Past Papers', icon: 'menu_book', id: 'PastPapers' },
-    { name: 'Notifications', icon: 'notifications', id: 'Notifications' },
+    { name: 'Notifications', icon: 'notifications', id: 'Notifications', badge: notifications.filter(n => !n.isRead).length },
     { name: 'Settings', icon: 'settings', id: 'Settings' },
   ];
 
@@ -1950,7 +1954,12 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
               )}>
                 {item.icon}
               </span>
-              <span className="text-[11px] font-black uppercase tracking-widest text-inherit font-jakarta">{item.name}</span>
+              <span className="text-[11px] font-black uppercase tracking-widest text-inherit font-jakarta flex-1 text-left">{item.name}</span>
+              {item.badge > 0 && (
+                <span className="bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg min-w-[18px] text-center shadow-lg shadow-orange-950/20">
+                  {item.badge}
+                </span>
+              )}
               {activeTab === item.id && (
                 <motion.div 
                   layoutId="active-nav-indicator"

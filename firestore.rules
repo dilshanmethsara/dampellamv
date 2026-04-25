@@ -99,7 +99,20 @@
       }
 
       match /quiz_submissions/{id} {
-        allow read, write: if true;
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
+        );
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
+        );
+        allow delete: if isAdmin();
       }
 
       // Communications

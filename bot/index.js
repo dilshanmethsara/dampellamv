@@ -207,7 +207,7 @@ ${data.summary || data.content || 'See portal for details.'}
 async function sendAssignmentToWhatsApp(data, type) {
     if (type === 'removed') return sendDeletionToWhatsApp(data, 'Assignment');
     const groupId = process.env.WHATSAPP_GROUP_ID;
-    const teacherName = await getTeacherName(data.teacher_email);
+    const teacherName = await getTeacherName(data.teacherEmail || data.teacher_email);
     const subjectEmoji = getSubjectEmoji(data.subject);
 
     const message = `
@@ -234,7 +234,7 @@ ${data.description ? data.description.substring(0, 200) + (data.description.leng
 async function sendQuizToWhatsApp(data, type) {
     if (type === 'removed') return sendDeletionToWhatsApp(data, 'Interactive Quiz');
     const groupId = process.env.WHATSAPP_GROUP_ID;
-    const teacherName = await getTeacherName(data.teacher_email);
+    const teacherName = await getTeacherName(data.teacherEmail || data.teacher_email);
     const subjectEmoji = getSubjectEmoji(data.subject);
 
     const message = `

@@ -103,14 +103,16 @@
           isAdmin() || 
           (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
           (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower()) ||
+          (resource.data.studentId != null && (resource.data.studentId == request.auth.uid || (profileExists() && resource.data.studentId == getProfile().studentId)))
         );
         allow create: if isSignedIn();
         allow update: if isSignedIn() && (
           isAdmin() || 
           (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
           (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
-          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower())
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower()) ||
+          (resource.data.studentId != null && (resource.data.studentId == request.auth.uid || (profileExists() && resource.data.studentId == getProfile().studentId)))
         );
         allow delete: if isAdmin();
       }

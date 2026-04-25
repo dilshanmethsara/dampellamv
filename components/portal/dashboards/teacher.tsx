@@ -2558,7 +2558,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         attendance: snapshot.size > 0 ? Math.round(totalAttendance / snapshot.size) : 0
       }));
     }, (err) => {
-      console.error("Main dashboard listener error:", err);
+      console.error("TeacherDashboard: profiles listener error:", err);
     });
 
     // 2. Fetch Active Assignments
@@ -2573,7 +2573,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setActiveAssignments(data);
       },
-      (error) => console.error("TeacherDashboard: Assignments listener error:", error)
+      (error) => console.error("TeacherDashboard: assignments listener error:", error)
     );
 
     // 3. Fetch Grading Queue (Submissions)
@@ -2591,7 +2591,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         setIsLoading(false);
       },
       (error) => {
-        console.error("TeacherDashboard: Submissions listener error:", error);
+        console.error("TeacherDashboard: assignment_submissions listener error:", error);
         setIsLoading(false);
       }
     );
@@ -2608,7 +2608,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setQuizSubmissions(data);
       },
-      (error) => console.error("TeacherDashboard: Quiz submissions listener error:", error)
+      (error) => console.error("TeacherDashboard: quiz_submissions listener error:", error)
     );
 
     // 5. Fetch Full Mark History
@@ -2622,7 +2622,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setFullHistory(data);
       },
-      (error) => console.error("TeacherDashboard: History listener error:", error)
+      (error) => console.error("TeacherDashboard: manual_grades listener error:", error)
     );
 
     // 6. Fetch Notifications
@@ -2637,7 +2637,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setNotifications(data);
       },
-      (error) => console.error("TeacherDashboard: Notifications listener error:", error)
+      (error) => console.error("TeacherDashboard: notifications listener error:", error)
     );
 
     return () => {

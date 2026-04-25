@@ -128,13 +128,13 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased overflow-x-hidden">
         <Providers>
-          <div className="w-full bg-amber-900/30 border-b border-amber-500/20 py-2 px-4 flex items-center justify-center gap-3 relative z-[100] backdrop-blur-sm">
+          <div className="sticky top-0 w-full bg-orange-600 py-2 px-4 flex items-center justify-center gap-3 z-[9999] shadow-lg">
              <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
               </div>
-              <p className="text-[10px] md:text-xs text-amber-300 font-medium tracking-wide uppercase">
-                Testing Period: We are currently in a testing phase. Please report any bugs or glitches to help us improve.
+              <p className="text-[10px] md:text-xs text-white font-bold tracking-wider uppercase">
+                Testing Phase: We are currently in a testing phase. Please report any bugs or glitches to help us improve.
               </p>
           </div>
           {children}

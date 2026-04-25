@@ -1763,7 +1763,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
     // Fetch student's own quiz submissions
     const submissionsQuery = query(
       collection(db, "quiz_submissions"),
-      where("studentId", "==", user.studentId || user.email)
+      where("studentEmail", "==", user.email.toLowerCase())
     );
 
     const unsubSubmissions = onSnapshot(submissionsQuery, (snapshot) => {

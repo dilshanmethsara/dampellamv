@@ -2564,7 +2564,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     // 2. Fetch Active Assignments
     const assignmentsQuery = query(
       collection(db, "assignments"), 
-      where("teacher_email", "==", user.email),
+      where("teacher_email", "==", user.email.toLowerCase()),
       orderBy("created_at", "desc"),
       limit(10)
     );
@@ -2614,7 +2614,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     // 5. Fetch Full Mark History
     const historyQuery = query(
       collection(db, "manual_grades"),
-      where("teacherId", "==", user.teacherId || user.email),
+      where("teacherId", "==", user.teacherId || user.email.toLowerCase()),
       orderBy("updatedAt", "desc")
     );
     const unsubHistory = onSnapshot(historyQuery, 

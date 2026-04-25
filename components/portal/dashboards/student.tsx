@@ -1729,6 +1729,18 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
   const greeting = getTimeGreeting();
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null);
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({ gpa: 0, attendance: 0 });
+  const [activeAssignments, setActiveAssignments] = useState<any[]>([]);
+  const [academicRecords, setAcademicRecords] = useState<any[]>([]);
+  const [isQuizActive, setIsQuizActive] = useState(false);
+  const [availableQuizzes, setAvailableQuizzes] = useState<any[]>([]);
+  const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
+  const [mySubmissions, setMySubmissions] = useState<any[]>([]);
+  const [loadedSubmission, setLoadedSubmission] = useState<any>(null);
+  const [pastPapers, setPastPapers] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
   const availableQuizCount = availableQuizzes.filter(quiz => 
     !mySubmissions.some((s: any) => s.quizId === quiz.id)
   ).length;
@@ -1743,18 +1755,6 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
     { name: 'Notifications', icon: 'notifications', id: 'Notifications', badge: notifications.filter(n => !n.isRead).length },
     { name: 'Settings', icon: 'settings', id: 'Settings' },
   ];
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState({ gpa: 0, attendance: 0 });
-  const [activeAssignments, setActiveAssignments] = useState<any[]>([]);
-  const [academicRecords, setAcademicRecords] = useState<any[]>([]);
-  const [isQuizActive, setIsQuizActive] = useState(false);
-  const [availableQuizzes, setAvailableQuizzes] = useState<any[]>([]);
-  const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
-  const [mySubmissions, setMySubmissions] = useState<any[]>([]);
-  const [loadedSubmission, setLoadedSubmission] = useState<any>(null);
-  const [pastPapers, setPastPapers] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
 
   // Fetch Real Data from Firebase
   useEffect(() => {

@@ -2659,7 +2659,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     { name: 'Submissions', icon: 'how_to_reg', id: 'Submissions', badge: quizSubmissions.length },
     { name: 'Students', icon: 'group', id: 'Students' },
     { name: 'Video Lessons', icon: 'smart_display', id: 'Videos' },
-    { name: '3D Labs', icon: 'microscope', id: 'Labs' },
+    { name: '3D Labs', icon: 'science', id: 'Labs' },
     { name: 'Resources', icon: 'folder', id: 'Resources' },
     { name: 'Notifications', icon: 'notifications', id: 'Notifications', badge: notifications.filter(n => !n.isRead).length },
     { name: 'Recycle Bin', icon: 'delete', id: 'Bin' },

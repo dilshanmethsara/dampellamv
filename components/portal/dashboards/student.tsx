@@ -2654,7 +2654,7 @@ function GlobalSearch({
                 <span className="material-symbols-outlined text-indigo-400">microscope</span>
                 <div className="flex flex-col">
                   <span className="font-bold text-slate-700">{l.title}</span>
-                  <span className="text-[10px] font-black uppercase text-slate-400">{l.subject} • 3D SIMULATION</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{l.subject} - 3D SIMULATION</span>
                 </div>
               </CommandItem>
             ))}
@@ -2726,7 +2726,7 @@ function GlobalSearch({
                 <span className="material-symbols-outlined text-indigo-400">menu_book</span>
                 <div className="flex flex-col">
                   <span className="font-bold text-slate-700">{p.title}</span>
-                  <span className="text-[10px] font-black uppercase text-slate-400">{p.subject} • {p.year}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{p.subject} - {p.year}</span>
                 </div>
               </CommandItem>
             ))}

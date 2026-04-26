@@ -2791,7 +2791,7 @@ function Student3DLabView({ labs }: { labs: any[] }) {
                      "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
                      selectedLab?.id === lab.id ? "bg-white/10" : "bg-slate-50 group-hover:bg-indigo-50"
                    )}>
-                      <span className="material-symbols-outlined">microscope</span>
+                      <span className="material-symbols-outlined">science</span>
                    </div>
                    <div className="flex-1 min-w-0">
                       <p className={cn(

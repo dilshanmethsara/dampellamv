@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit, getDocs, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogClose, DialogTitle } from '@/components/ui/dialog';
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
 
 interface StudentDashboardProps {
   user: User
@@ -1741,6 +1742,8 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
   const [loadedSubmission, setLoadedSubmission] = useState<any>(null);
   const [pastPapers, setPastPapers] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [allVideos, setAllVideos] = useState<any[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const availableQuizCount = availableQuizzes.filter(quiz => 
     !mySubmissions.some((s: any) => s.quizId === quiz.id)
@@ -1847,6 +1850,32 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
       unsubNotifications();
     };
   }, [user]);
+
+  // Fetch all videos for search
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "educational_videos"),
+      where("grade", "==", user.gradeClass || user.grade || "Grade 10"),
+      orderBy("createdAt", "desc")
+    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      setAllVideos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, [user]);
+
+  // Command Palette Keyboard Shortcut
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsSearchOpen((open) => !open);
+      }
+    }
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
+  }, []);
 
   if (isQuizActive && selectedQuiz) {
     return (
@@ -2016,13 +2045,17 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
 
         {/* Header */}
         <header className="px-4 lg:px-10 py-4 lg:py-6 bg-white/50 backdrop-blur-md lg:static top-0 z-40 flex items-center justify-between border-b border-slate-100/50">
-          <div className="flex-1 max-w-xs md:max-w-md relative group">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors text-lg">search</span>
-            <input 
-              type="text" 
-              placeholder="Search courses, files, grades..."
-              className="w-full h-10 lg:h-11 pl-12 pr-4 bg-white rounded-2xl text-[12px] lg:text-[13px] font-semibold text-slate-600 placeholder:text-slate-300 outline-none border border-transparent focus:border-indigo-100 transition-all shadow-sm"
-            />
+          <div 
+            onClick={() => setIsSearchOpen(true)}
+            className="flex-1 max-w-xs md:max-w-md relative group cursor-pointer"
+          >
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-hover:text-indigo-600 transition-colors text-lg">search</span>
+            <div className="w-full h-10 lg:h-11 pl-12 pr-4 bg-white rounded-2xl text-[12px] lg:text-[13px] font-semibold text-slate-300 flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all shadow-sm">
+              <span>Search lessons, quizzes...</span>
+              <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-slate-50 px-1.5 font-mono text-[10px] font-medium text-slate-400 opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 lg:gap-6 ml-4">
@@ -2287,7 +2320,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
           )}
 
           {activeTab === 'Videos' && (
-            <VideoLibrary user={user} />
+            <VideoLibrary user={user} videos={allVideos} />
           )}
 
           {activeTab === 'Quizzes' && (
@@ -2417,6 +2450,23 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
             <StudentSettingsView user={user} />
           )}
 
+          <GlobalSearch 
+            isOpen={isSearchOpen} 
+            setIsOpen={setIsSearchOpen}
+            data={{
+              assignments: activeAssignments,
+              quizzes: availableQuizzes,
+              videos: allVideos,
+              pastPapers: pastPapers
+            }}
+            onNavigate={(tab, itemId) => {
+              setActiveTab(tab);
+              if (tab === 'Assignments') setSelectedAssignmentId(itemId);
+              // For videos, the library will auto-scroll or select if we add that logic
+              setIsSearchOpen(false);
+            }}
+          />
+
           {activeTab !== 'Dashboard' && activeTab !== 'Assignments' && activeTab !== 'Lab' && activeTab !== 'Tutor' && activeTab !== 'PastPapers' && activeTab !== 'Marks' && activeTab !== 'Settings' && (
             <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
               <div className="w-20 h-20 rounded-3xl bg-slate-100 flex items-center justify-center text-slate-200">
@@ -2440,23 +2490,25 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
     </div>
   );
 }
-function VideoLibrary({ user }: { user: User }) {
-  const [videos, setVideos] = useState<any[]>([]);
+function VideoLibrary({ user, videos: passedVideos }: { user: User, videos?: any[] }) {
+  const [internalVideos, setInternalVideos] = useState<any[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const videos = passedVideos || internalVideos;
+
   useEffect(() => {
-    if (!user) return;
+    if (passedVideos || !user) return;
     const q = query(
       collection(db, "educational_videos"),
       where("grade", "==", user.gradeClass || user.grade || "Grade 10"),
       orderBy("createdAt", "desc")
     );
     const unsub = onSnapshot(q, (snapshot) => {
-      setVideos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setInternalVideos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
     return () => unsub();
-  }, [user]);
+  }, [user, passedVideos]);
 
   const filteredVideos = videos.filter(v => 
     v.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -2550,5 +2602,97 @@ function VideoLibrary({ user }: { user: User }) {
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+function GlobalSearch({ 
+  isOpen, 
+  setIsOpen, 
+  data,
+  onNavigate
+}: { 
+  isOpen: boolean, 
+  setIsOpen: (o: boolean) => void,
+  data: { assignments: any[], quizzes: any[], videos: any[], pastPapers: any[] },
+  onNavigate: (tab: string, id?: string) => void
+}) {
+  return (
+    <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
+      <CommandInput placeholder="Type to search lessons, quizzes..." />
+      <CommandList className="max-h-[400px]">
+        <CommandEmpty>No results found for your inquiry.</CommandEmpty>
+        
+        {data.videos.length > 0 && (
+          <CommandGroup heading="Video Lessons">
+            {data.videos.map(v => (
+              <CommandItem 
+                key={v.id} 
+                onSelect={() => onNavigate('Videos', v.id)}
+                className="flex items-center gap-3"
+              >
+                <span className="material-symbols-outlined text-indigo-400">smart_display</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-slate-700">{v.title}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{v.subject}</span>
+                </div>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        {data.assignments.length > 0 && (
+          <CommandGroup heading="Assignments">
+            {data.assignments.map(a => (
+              <CommandItem 
+                key={a.id} 
+                onSelect={() => onNavigate('Assignments', a.id)}
+                className="flex items-center gap-3"
+              >
+                <span className="material-symbols-outlined text-indigo-400">assignment</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-slate-700">{a.title}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{a.subject}</span>
+                </div>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        {data.quizzes.length > 0 && (
+          <CommandGroup heading="Lab Assessments">
+            {data.quizzes.map(q => (
+              <CommandItem 
+                key={q.id} 
+                onSelect={() => onNavigate('Lab', q.id)}
+                className="flex items-center gap-3"
+              >
+                <span className="material-symbols-outlined text-indigo-400">biotech</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-slate-700">{q.title || q.name}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{q.subject}</span>
+                </div>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        {data.pastPapers.length > 0 && (
+          <CommandGroup heading="Past Papers">
+            {data.pastPapers.map(p => (
+              <CommandItem 
+                key={p.id} 
+                onSelect={() => onNavigate('PastPapers', p.id)}
+                className="flex items-center gap-3"
+              >
+                <span className="material-symbols-outlined text-indigo-400">menu_book</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-slate-700">{p.title}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{p.subject} • {p.year}</span>
+                </div>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+      </CommandList>
+    </CommandDialog>
   );
 }

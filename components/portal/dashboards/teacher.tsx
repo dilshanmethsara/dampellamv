@@ -2658,6 +2658,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     { name: 'Mark History', icon: 'history_edu', id: 'History' },
     { name: 'Submissions', icon: 'how_to_reg', id: 'Submissions', badge: quizSubmissions.length },
     { name: 'Students', icon: 'group', id: 'Students' },
+    { name: 'Video Lessons', icon: 'smart_display', id: 'Videos' },
     { name: 'Resources', icon: 'folder', id: 'Resources' },
     { name: 'Notifications', icon: 'notifications', id: 'Notifications', badge: notifications.filter(n => !n.isRead).length },
     { name: 'Recycle Bin', icon: 'delete', id: 'Bin' },
@@ -3126,6 +3127,10 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
             </>
           )}
 
+          {activeTab === 'Videos' && (
+            <VideoLessons user={user} />
+          )}
+
           {activeTab === 'Assignments' && (
             <AssignmentForm user={user} />
           )}
@@ -3266,3 +3271,176 @@ function StudentList({ students }: { students: any[] }) {
   );
 }
 
+function VideoLessons({ user }: { user: User }) {
+  const [videos, setVideos] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    url: '',
+    grade: 'Grade 10',
+    subject: user.subjectsTaught?.[0] || 'General'
+  });
+
+  const extractYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "educational_videos"),
+      where("teacherId", "==", user.teacherId || user.email),
+      orderBy("createdAt", "desc")
+    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      setVideos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, [user]);
+
+  const handleAddVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const youtubeId = extractYoutubeId(formData.url);
+    if (!youtubeId) return alert("Please enter a valid YouTube URL");
+    if (!formData.title) return alert("Please enter a title");
+
+    setIsLoading(true);
+    try {
+      await addDoc(collection(db, "educational_videos"), {
+        title: formData.title,
+        youtubeId,
+        url: formData.url,
+        grade: formData.grade,
+        subject: formData.subject,
+        teacherId: user.teacherId || user.email,
+        teacherName: user.fullName,
+        createdAt: serverTimestamp()
+      });
+      setFormData({ ...formData, title: '', url: '' });
+      alert("Video lesson added successfully!");
+    } catch (err) {
+      console.error("Add video error:", err);
+      alert("Failed to add video");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this video lesson?")) {
+      await deleteDoc(doc(db, "educational_videos", id));
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-black text-slate-900 font-jakarta tracking-tight">Video Lessons</h2>
+          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wide">Publish interactive video content for your students.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div className="xl:col-span-5 space-y-6">
+          <form onSubmit={handleAddVideo} className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white space-y-6">
+            <h3 className="text-lg font-black text-slate-900 font-jakarta">Add New Video</h3>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lesson Title</label>
+              <input 
+                type="text" 
+                value={formData.title}
+                onChange={e => setFormData({...formData, title: e.target.value})}
+                placeholder="e.g. Introduction to Organic Chemistry"
+                className="w-full h-12 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-[13px] font-semibold outline-none focus:border-primary/30 focus:bg-white transition-all"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">YouTube URL</label>
+              <input 
+                type="text" 
+                value={formData.url}
+                onChange={e => setFormData({...formData, url: e.target.value})}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full h-12 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-[13px] font-semibold outline-none focus:border-primary/30 focus:bg-white transition-all"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grade</label>
+                <select 
+                  value={formData.grade}
+                  onChange={e => setFormData({...formData, grade: e.target.value})}
+                  className="w-full h-12 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-[13px] font-semibold outline-none focus:border-primary/30"
+                >
+                  {['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11'].map(g => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject</label>
+                <select 
+                  value={formData.subject}
+                  onChange={e => setFormData({...formData, subject: e.target.value})}
+                  className="w-full h-12 px-6 bg-slate-50/50 border border-slate-100 rounded-2xl text-[13px] font-semibold outline-none focus:border-primary/30"
+                >
+                  {user.subjectsTaught?.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  )) || <option value="General">General</option>}
+                </select>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-14 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {isLoading ? 'Processing...' : 'Publish Lesson'}
+            </button>
+          </form>
+        </div>
+
+        <div className="xl:col-span-7 space-y-6">
+          <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-white">
+            <h3 className="text-lg font-black text-slate-900 font-jakarta mb-6">Active Lessons</h3>
+            <div className="grid gap-4">
+              {videos.length === 0 ? (
+                <div className="py-20 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">No video lessons published yet.</div>
+              ) : videos.map(video => (
+                <div key={video.id} className="p-4 rounded-3xl bg-slate-50 border border-slate-100 flex gap-4 group">
+                  <div className="w-32 h-20 rounded-2xl overflow-hidden bg-slate-200 shrink-0 relative">
+                    <img src={`https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <span className="material-symbols-outlined text-white text-2xl">play_circle</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm truncate">{video.title}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="px-2 py-0.5 bg-indigo-100 text-indigo-600 text-[9px] font-black rounded-md uppercase">{video.grade}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{video.subject}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => handleDelete(video.id)} className="p-2 text-slate-300 hover:text-error transition-colors">
+                        <span className="material-symbols-outlined text-lg">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}

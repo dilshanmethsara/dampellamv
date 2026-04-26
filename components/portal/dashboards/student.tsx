@@ -1748,7 +1748,8 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
   const navItems = [
     { name: 'Dashboard', icon: 'dashboard', id: 'Dashboard' },
     { name: 'Assignments', icon: 'assignment', id: 'Assignments', badge: activeAssignments.length },
-    { name: 'My Marks', icon: 'grade', id: 'Marks' },
+    { name: 'Video Library', icon: 'smart_display', id: 'Videos' },
+    { name: 'Quizzes', icon: 'quiz', id: 'Quizzes' },
     { name: 'Quiz Lab', icon: 'biotech', id: 'Lab', badge: availableQuizCount },
     { name: 'AI Tutor', icon: 'smart_toy', id: 'Tutor' },
     { name: 'Past Papers', icon: 'menu_book', id: 'PastPapers' },
@@ -2284,6 +2285,14 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
             />
           )}
 
+          {activeTab === 'Videos' && (
+            <VideoLibrary user={user} />
+          )}
+
+          {activeTab === 'Quizzes' && (
+            <AITutorView user={user} />
+          )}
+
           {activeTab === 'Lab' && (
             <div className="space-y-8 lg:space-y-10">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -2428,5 +2437,117 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
 
 
     </div>
+  );
+}
+function VideoLibrary({ user }: { user: User }) {
+  const [videos, setVideos] = useState<any[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "educational_videos"),
+      where("grade", "==", user.gradeClass || user.grade || "Grade 10"),
+      orderBy("createdAt", "desc")
+    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      setVideos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, [user]);
+
+  const filteredVideos = videos.filter(v => 
+    v.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    v.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 font-jakarta tracking-tight">Video Library</h2>
+          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wide">Explore curated lessons for {user.gradeClass || user.grade}.</p>
+        </div>
+        <div className="relative group w-full md:w-80">
+          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+          <input 
+            type="text" 
+            placeholder="Search lessons..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full h-12 pl-12 pr-4 bg-white rounded-2xl border border-slate-100 outline-none focus:border-primary/30 shadow-sm"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredVideos.length === 0 ? (
+          <div className="col-span-full py-20 text-center text-slate-400 text-xs font-bold uppercase tracking-widest bg-white rounded-[2.5rem] border border-white">
+            No lessons found in the library yet.
+          </div>
+        ) : filteredVideos.map(video => (
+          <motion.div 
+            key={video.id} 
+            whileHover={{ y: -5 }}
+            className="bg-white rounded-[2rem] overflow-hidden border border-white shadow-sm hover:shadow-xl transition-all cursor-pointer group"
+            onClick={() => setSelectedVideo(video)}
+          >
+            <div className="aspect-video relative overflow-hidden">
+              <img src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                 <div className="size-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-3xl">play_arrow</span>
+                 </div>
+              </div>
+              <div className="absolute top-4 left-4">
+                 <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-primary text-[9px] font-black rounded-lg uppercase shadow-sm">
+                   {video.subject}
+                 </span>
+              </div>
+            </div>
+            <div className="p-6 space-y-3">
+              <h3 className="font-bold text-slate-900 text-[14px] leading-tight line-clamp-2">{video.title}</h3>
+              <div className="flex items-center gap-3">
+                 <div className="size-6 rounded-full bg-indigo-50 flex items-center justify-center text-primary">
+                    <span className="material-symbols-outlined text-[14px]">person</span>
+                 </div>
+                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate">Inst. {video.teacherName}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {selectedVideo && (
+          <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
+            <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-[2.5rem] border-none">
+              <div className="aspect-video w-full bg-black">
+                <iframe 
+                  src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?autoplay=1`}
+                  className="w-full h-full border-none"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="p-8 bg-white">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{selectedVideo.subject}</span>
+                    <h2 className="text-2xl font-black text-slate-900 mt-2 font-jakarta leading-tight">{selectedVideo.title}</h2>
+                  </div>
+                  <DialogClose asChild>
+                    <button className="size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
+                      <span className="material-symbols-outlined">close</span>
+                    </button>
+                  </DialogClose>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

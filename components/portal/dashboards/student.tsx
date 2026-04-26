@@ -7,7 +7,7 @@ import { User, useAuth } from '@/lib/portal/auth-context';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit, getDocs, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogClose, DialogTitle } from '@/components/ui/dialog';
 
 interface StudentDashboardProps {
   user: User
@@ -2536,7 +2536,7 @@ function VideoLibrary({ user }: { user: User }) {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{selectedVideo.subject}</span>
-                    <h2 className="text-2xl font-black text-slate-900 mt-2 font-jakarta leading-tight">{selectedVideo.title}</h2>
+                    <DialogTitle className="text-2xl font-black text-slate-900 mt-2 font-jakarta leading-tight">{selectedVideo.title}</DialogTitle>
                   </div>
                   <DialogClose asChild>
                     <button className="size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">

@@ -1755,7 +1755,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
     { name: 'Dashboard', icon: 'dashboard', id: 'Dashboard' },
     { name: 'Assignments', icon: 'assignment', id: 'Assignments', badge: activeAssignments.length },
     { name: 'Video Library', icon: 'smart_display', id: 'Videos' },
-    { name: '3D Science Lab', icon: 'microscope', id: 'Labs' },
+    { name: '3D Science Lab', icon: 'science', id: 'Labs' },
     { name: 'Quizzes', icon: 'quiz', id: 'Quizzes' },
     { name: 'Quiz Lab', icon: 'biotech', id: 'Lab', badge: availableQuizCount },
     { name: 'AI Tutor', icon: 'smart_toy', id: 'Tutor' },

@@ -2526,7 +2526,7 @@ function VideoLibrary({ user }: { user: User }) {
             <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-[2.5rem] border-none">
               <div className="aspect-video w-full bg-black">
                 <iframe 
-                  src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?autoplay=1`}
+                  src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
                   className="w-full h-full border-none"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

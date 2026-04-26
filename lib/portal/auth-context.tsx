@@ -227,11 +227,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const studentData = querySnapshot.docs[0].data()
-        const officialGrade = studentData.grade?.toString()
+        const officialGrade = studentData.grade?.toString() || ""
         
-        if (officialGrade && userData.gradeClass !== officialGrade) {
-          toast.error(`ID ${studentId} is registered for Grade ${officialGrade}. Your selection must match this.`)
-          return false
+        // Normalization helper: extracts digits and pads (e.g. "Grade 7" -> "07")
+        const normalize = (g: string) => g.replace(/[^0-9]/g, "").padStart(2, "0")
+        
+        if (officialGrade) {
+          const normalizedOfficial = normalize(officialGrade)
+          const normalizedSelected = normalize(userData.gradeClass || "")
+          
+          if (normalizedOfficial !== normalizedSelected) {
+            toast.error(`ID ${studentId} is registered for ${officialGrade.includes('Grade') ? officialGrade : 'Grade ' + officialGrade}. Your selection must match this.`)
+            setIsLoading(false)
+            return false
+          }
         }
       }
 

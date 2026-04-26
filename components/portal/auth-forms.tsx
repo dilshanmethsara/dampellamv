@@ -554,7 +554,11 @@ function StudentSignupForm({
             grade: docData.grade
           } as ValidStudentRecord)
           setIdStatus("found")
-          if (docData.grade) setGradeClass(docData.grade)
+          if (docData.grade) {
+            // Normalize: "Grade 7" -> "07", "7" -> "07"
+            const normalized = docData.grade.toString().replace(/[^0-9]/g, "").padStart(2, "0");
+            setGradeClass(normalized)
+          }
         }
       } catch (err) {
         console.error("Error verifying ID:", err)
@@ -975,11 +979,20 @@ function StudentSignupForm({
                           type="button"
                           onClick={() => {
                             setGradeClass(grade)
-                            if (idRecord && idRecord.grade && idRecord.grade !== grade) {
-                              toast.error(`Your Student ID is verified for Grade ${idRecord.grade}. Please select the correct grade level to continue.`, {
-                                icon: '🛡️',
-                                duration: 4000
-                              })
+                            
+                            // Normalization helper: extracts digits and pads (e.g. "Grade 7" -> "07")
+                            const normalize = (g: string) => g.replace(/[^0-9]/g, "").padStart(2, "0");
+                            
+                            if (idRecord && idRecord.grade) {
+                              const normalizedOfficial = normalize(idRecord.grade);
+                              const normalizedSelected = normalize(grade);
+                              
+                              if (normalizedOfficial !== normalizedSelected) {
+                                toast.error(`Your Student ID is verified for ${idRecord.grade.includes('Grade') ? idRecord.grade : 'Grade ' + idRecord.grade}. Please select the correct grade level to continue.`, {
+                                  icon: '🛡️',
+                                  duration: 4000
+                                })
+                              }
                             }
                           }}
                           className={cn(

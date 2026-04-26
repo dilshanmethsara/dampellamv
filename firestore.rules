@@ -169,9 +169,10 @@
         allow read, write: if isSignedIn() && (isTeacher() || isAdmin());
       }
 
-      // Teacher Approval Notifications
-      match /approval_notifications/{id} {
-        allow read, write: if isAdmin();
+      // Educational Videos / Lessons
+      match /educational_videos/{videoId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
       }
     }
   }

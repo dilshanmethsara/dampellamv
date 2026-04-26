@@ -242,6 +242,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return false
           }
         }
+
+        // Soft Name Verification: Check if at least one part of the name matches (fuzzy)
+        const officialName = (studentData.full_name || "").toLowerCase()
+        const enteredName = (userData.fullName || "").toLowerCase()
+        
+        const nameParts = enteredName.split(/\s+/).filter(part => part.length >= 3)
+        const hasSomeMatch = nameParts.some(part => officialName.includes(part)) || officialName.includes(enteredName)
+        
+        if (nameParts.length > 0 && !hasSomeMatch) {
+          toast.error("The name provided does not match our records for this Student ID. Please ensure you enter your official name.")
+          setIsLoading(false)
+          return false
+        }
       }
 
       const userCredential = await createUserWithEmailAndPassword(

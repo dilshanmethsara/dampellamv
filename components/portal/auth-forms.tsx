@@ -954,10 +954,25 @@ function StudentSignupForm({
                     name="fullName"
                     placeholder="Provide full legal name"
                     required
-                    className="sleek-input h-12 w-full font-bold text-sm"
+                    className={cn(
+                      "sleek-input h-12 w-full font-bold text-sm",
+                      nameMatches === false && "border-amber-500/50"
+                    )}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
+                  {nameMatches === false && (
+                    <p className="text-[10px] text-amber-600 font-bold px-1 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">warning</span>
+                      Name doesn't match ID records. Please use your official name.
+                    </p>
+                  )}
+                  {nameMatches === true && (
+                    <p className="text-[10px] text-emerald-600 font-bold px-1 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">verified</span>
+                      Name verified with institutional records.
+                    </p>
+                  )}
                 </div>
 
                 {/* Grade selector */}

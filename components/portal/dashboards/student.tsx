@@ -7,6 +7,7 @@ import { User, useAuth } from '@/lib/portal/auth-context';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit, getDocs, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 
 interface StudentDashboardProps {
   user: User

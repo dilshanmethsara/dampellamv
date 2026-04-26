@@ -207,9 +207,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false
       }
 
-      // Guard: password must not be null/empty
-      if (!userData.password || typeof userData.password !== 'string' || userData.password.length < 6) {
-        toast.error("Password must be at least 6 characters.")
+      // Guard: password must meet complexity requirements
+      const hasNumber = /\d/.test(userData.password)
+      const hasSpecial = /[^a-zA-Z0-9]/.test(userData.password)
+      if (!userData.password || typeof userData.password !== 'string' || userData.password.length < 8 || !hasNumber || !hasSpecial) {
+        toast.error("Password must be at least 8 characters and include both a number and a special symbol.")
         setIsLoading(false)
         return false
       }

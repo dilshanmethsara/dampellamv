@@ -1097,7 +1097,15 @@ function StudentSignupForm({
                 <div className="space-y-3 pt-1">
                   <button
                     type="submit"
-                    disabled={isLoading || password !== confirmPassword || password.length < 6 || !gradeClass || !isIdVerified}
+                    disabled={
+                      isLoading || 
+                      password !== confirmPassword || 
+                      password.length < 8 || 
+                      !/\d/.test(password) || 
+                      !/[^a-zA-Z0-9]/.test(password) ||
+                      !gradeClass || 
+                      !isIdVerified
+                    }
                     className="w-full h-13 py-3.5 bg-primary text-white rounded-xl font-headline font-bold text-sm shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (

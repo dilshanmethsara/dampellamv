@@ -35,15 +35,7 @@ export function RoleSelector({ onSelectRole }: RoleSelectorProps) {
           </p>
         </div>
 
-        {/* Decorative Background Image Overlay */}
-        <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
-          <img 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyZhJq--J0-Ghp-OUzxmb5cE1BiFqhng3FNEeNUyuSzIN3nzcrukLJNN15oS6Zfx0wNgT6Bt0kSo2czOeUBKrc_bVvgb9d9CaXsGjpKa8wVPtiCh7UmOvJCwADSomx6mAocqP09YOUN_0OzLNMUm2j-DxZvyuKOgR4DHWsnNXF3l8157suL397RA1wRUPC_6IcrSP4e3bfDe4IdXmQQCcDp0baLPaIzzehFW2SIoW3HOehmuyRiWcqwLWryunRWxzFsITpwFgTfCI" 
-            alt="Decoration" 
-            className="w-full h-full object-cover" 
-            referrerPolicy="no-referrer"
-          />
-        </div>
+        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
       </header>
 
       {/* Main Content Canvas */}

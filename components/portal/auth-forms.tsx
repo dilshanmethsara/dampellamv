@@ -119,7 +119,9 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
                 <div className="glass-panel p-6 rounded-2xl border border-white/10 max-w-xs shadow-xl backdrop-blur-md bg-white/10">
                   <p className="text-primary-fixed font-medium text-sm mb-4 italic">"Education is not the filling of a pail, but the lighting of a fire."</p>
                   <div className="flex items-center gap-3">
-                    <img alt="Academic Dean Profile" className="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-y0TUC_2cRZobvC7kSlqMR4E-aWohswlMC0_CmDq00S2pgF_jmHzle6UxnRGVhYLn3xUsFeR6xwqq_QhPWd0sjeu51s_KTcvQY2KYQKkEOzNE5CrdyAIQOFvol5RYy2AAg_71bEeV4Hmjya-p8r97Mfa7pvVjFJBH_Mca8PvVmBsH3WMuPZDMU7tYjbWfku-Rukaz6sflQnoW_Dyh8tzrZ7PXkLSTyyadLkFj2OZHJimB3WOZy_-C2727ZwBnJJUlhRoE_wyaRHE"/>
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-white text-[20px]">person</span>
+                    </div>
                     <div>
                       <p className="text-xs font-bold text-white">Dr. Alistair Vance</p>
                       <p className="text-[10px] text-white/60 uppercase tracking-widest">Dean of Curricula</p>
@@ -129,7 +131,7 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
               </div>
               {/* Absolute Decorative Background Image */}
               <div className="absolute inset-0 z-0">
-                <img alt="Architectural Geometry" className="w-full h-full object-cover opacity-20 mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHIeS85yNWSWPQ0UxsFxZmCN5G3h6mzFTGt_MvYCjnHY2rjG9Bk_xklwkScct8eY_l9pLR053f0Sca55pp7JhAV5xfLlfwopAtbcU7r6k_9bVn4pa-O3RJcdJXoLqsVN780Fzb5xqeee99Dv2KopWw4pd8lWjkAr2qnMGklHUtE5idmTux43M1tyneHJZByr-A-NpxYwwz0mfPqoX63_gwgR7-XoqwLlZFlyL83zOT-bIorYDZZUmkpbMi8LY-PXiGac7Zx0MyrMg"/>
+                <div className="w-full h-full bg-primary/20" />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-transparent"></div>
               </div>
             </div>
@@ -932,13 +934,9 @@ function StudentSignupForm({
 
                 {/* Testimonial */}
                 <div className="flex items-center gap-3 pt-8">
-                  <div className="w-9 h-9 rounded-full bg-surface-container-high overflow-hidden shrink-0">
-                    <img
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSdHiWe6zCXqjPOiCL0IKmSFUlXkDN0RarhTXcyqjHFaAmXFX3ZsU3ghm7ycFvr9OnYOalU3VcRhPrqpmz2cO9cYbedQgkv1ustERTehuevrMq6ErAQFU3XdWNSmf4_t_a54uE1wwfNB4hK61tYjHb5PmFrzEOD-vGFdoxrRkEz27InX54iP0wTvpJX9TDsFMTcvw-8qi89LeMYthfqlmAXJR9-1utva9UO7atWSFCxdjur5nO4slSodxM8XLtX82uCJikxZLh1ss"
-                      alt="Student testimonial"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[18px]">person</span>
+                    </div>
                   <p className="text-[11px] text-on-surface-variant italic leading-relaxed">
                     "The LMS transformed my approach to study." — <span className="font-bold not-italic">Julian V.</span>
                   </p>
@@ -1427,8 +1425,8 @@ function TeacherSignupForm({
               {/* Helper Footer */}
               <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col items-center gap-6 justify-between opacity-80 sm:flex-row">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-dim shrink-0">
-                    <img alt="Avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSdHiWe6zCXqjPOiCL0IKmSFUlXkDN0RarhTXcyqjHFaAmXFX3ZsU3ghm7ycFvr9OnYOalU3VcRhPrqpmz2cO9cYbedQgkv1ustERTehuevrMq6ErAQFU3XdWNSmf4_t_a54uE1wwfNB4hK61tYjHb5PmFrzEOD-vGFdoxrRkEz27InX54iP0wTvpJX9TDsFMTcvw-8qi89LeMYthfqlmAXJR9-1utva9UO7atWSFCxdjur5nO4slSodxM8XLtX82uCJikxZLh1ss"/>
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-primary text-[20px]">support_agent</span>
                   </div>
                   <p className="text-xs text-on-surface-variant max-w-[180px] leading-relaxed">Need help? Ask our educator support team.</p>
                 </div>

@@ -174,5 +174,11 @@
         allow read: if isSignedIn();
         allow write: if isSignedIn() && (isTeacher() || isAdmin());
       }
+
+      // Virtual Labs / 3D Models
+      match /virtual_labs/{labId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
     }
   }

@@ -2659,6 +2659,7 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
     { name: 'Submissions', icon: 'how_to_reg', id: 'Submissions', badge: quizSubmissions.length },
     { name: 'Students', icon: 'group', id: 'Students' },
     { name: 'Video Lessons', icon: 'smart_display', id: 'Videos' },
+    { name: '3D Labs', icon: 'microscope', id: 'Labs' },
     { name: 'Resources', icon: 'folder', id: 'Resources' },
     { name: 'Notifications', icon: 'notifications', id: 'Notifications', badge: notifications.filter(n => !n.isRead).length },
     { name: 'Recycle Bin', icon: 'delete', id: 'Bin' },
@@ -3131,6 +3132,10 @@ export function TeacherDashboard({ user, onLogout, onBackToWebsite }: TeacherDas
             <VideoLessons user={user} />
           )}
 
+          {activeTab === 'Labs' && (
+            <VirtualLabsManager user={user} />
+          )}
+
           {activeTab === 'Assignments' && (
             <AssignmentForm user={user} />
           )}
@@ -3438,6 +3443,170 @@ function VideoLessons({ user }: { user: User }) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+function VirtualLabsManager({ user }: { user: User }) {
+  const [labs, setLabs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [newLab, setNewLab] = useState({
+    title: '',
+    description: '',
+    modelId: '',
+    grade: 'Grade 10',
+    subject: 'Biology'
+  });
+
+  useEffect(() => {
+    const q = query(collection(db, "virtual_labs"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, (snapshot) => {
+      setLabs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, []);
+
+  const handleAddLab = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLab.title || !newLab.modelId) return;
+
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "virtual_labs"), {
+        ...newLab,
+        teacherId: user.uid,
+        teacherName: user.fullName,
+        createdAt: serverTimestamp()
+      });
+      setNewLab({ title: '', description: '', modelId: '', grade: 'Grade 10', subject: 'Biology' });
+      alert("3D Lab Module published successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error publishing lab.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteLab = async (id: string) => {
+    if (!confirm("Remove this 3D lab?")) return;
+    try {
+      await updateDoc(doc(db, "virtual_labs", id), { deleted: true }); // Or actual delete
+    } catch (err) { console.error(err); }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-20">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-black text-slate-900 font-jakarta tracking-tight">3D Virtual Labs</h2>
+          <p className="text-sm font-semibold text-slate-500">Manage interactive 3D science modules and simulations.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Form */}
+        <div className="lg:col-span-1">
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm sticky top-8">
+            <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-tight">Publish New Module</h3>
+            <form onSubmit={handleAddLab} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lab Title</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Human Heart Structure"
+                  className="w-full h-12 px-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-primary/20 font-bold text-slate-600"
+                  value={newLab.title}
+                  onChange={e => setNewLab({...newLab, title: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sketchfab Model ID</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="The alphanumeric ID from the URL"
+                  className="w-full h-12 px-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-primary/20 font-bold text-slate-600"
+                  value={newLab.modelId}
+                  onChange={e => setNewLab({...newLab, modelId: e.target.value})}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Grade</label>
+                  <select 
+                    className="w-full h-12 px-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-primary/20 font-bold text-slate-600"
+                    value={newLab.grade}
+                    onChange={e => setNewLab({...newLab, grade: e.target.value})}
+                  >
+                    {[1,2,3,4,5,6,7,8,9,10,11,12,13].map(g => (
+                      <option key={g} value={`Grade ${g}`}>Grade {g}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subject</label>
+                  <input 
+                    type="text" 
+                    placeholder="Biology"
+                    className="w-full h-12 px-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-primary/20 font-bold text-slate-600"
+                    value={newLab.subject}
+                    onChange={e => setNewLab({...newLab, subject: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Context / Instructions</label>
+                <textarea 
+                  placeholder="Describe the learning objectives..."
+                  className="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 ring-primary/20 font-bold text-slate-600 resize-none"
+                  value={newLab.description}
+                  onChange={e => setNewLab({...newLab, description: e.target.value})}
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full h-14 bg-indigo-900 text-white rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-indigo-100 disabled:opacity-50"
+              >
+                {loading ? 'Processing...' : 'Deploy to LMS'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {labs.map(lab => (
+              <div key={lab.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm group hover:shadow-xl transition-all">
+                <div className="aspect-video mb-6 rounded-[2rem] bg-slate-100 overflow-hidden relative">
+                   <img src={`https://thumbnails.sketchfab.com/model/${lab.modelId}/200.jpg`} className="w-full h-full object-cover" />
+                   <div className="absolute top-4 left-4">
+                      <Badge className="bg-white/90 backdrop-blur-md text-primary font-black uppercase tracking-widest text-[8px] border-none">{lab.grade}</Badge>
+                   </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{lab.subject}</span>
+                    <h4 className="text-lg font-black text-slate-900 leading-tight">{lab.title}</h4>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">By {lab.teacherName}</p>
+                    <button onClick={() => deleteLab(lab.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                      <span className="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

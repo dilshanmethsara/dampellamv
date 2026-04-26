@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, getInitials, getNameColor } from '@/lib/utils';
 import { User, useAuth } from '@/lib/portal/auth-context';
+import { VirtualLabViewer } from '@/components/portal/virtual-lab-viewer';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit, getDocs, doc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
@@ -1743,6 +1744,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
   const [pastPapers, setPastPapers] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [allVideos, setAllVideos] = useState<any[]>([]);
+  const [allLabs, setAllLabs] = useState<any[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const availableQuizCount = availableQuizzes.filter(quiz => 
@@ -1753,6 +1755,7 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
     { name: 'Dashboard', icon: 'dashboard', id: 'Dashboard' },
     { name: 'Assignments', icon: 'assignment', id: 'Assignments', badge: activeAssignments.length },
     { name: 'Video Library', icon: 'smart_display', id: 'Videos' },
+    { name: '3D Science Lab', icon: 'microscope', id: 'Labs' },
     { name: 'Quizzes', icon: 'quiz', id: 'Quizzes' },
     { name: 'Quiz Lab', icon: 'biotech', id: 'Lab', badge: availableQuizCount },
     { name: 'AI Tutor', icon: 'smart_toy', id: 'Tutor' },
@@ -1861,6 +1864,20 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
     );
     const unsub = onSnapshot(q, (snapshot) => {
       setAllVideos(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, [user]);
+
+  // Fetch all labs for search & view
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "virtual_labs"),
+      where("grade", "==", user.gradeClass || user.grade || "Grade 10"),
+      orderBy("createdAt", "desc")
+    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      setAllLabs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
     return () => unsub();
   }, [user]);
@@ -2323,6 +2340,10 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
             <VideoLibrary user={user} videos={allVideos} />
           )}
 
+          {activeTab === 'Labs' && (
+            <Student3DLabView labs={allLabs} />
+          )}
+
           {activeTab === 'Quizzes' && (
             <AITutorView user={user} />
           )}
@@ -2457,7 +2478,8 @@ export function StudentDashboard({ user, onLogout, onBackToWebsite }: StudentDas
               assignments: activeAssignments,
               quizzes: availableQuizzes,
               videos: allVideos,
-              pastPapers: pastPapers
+              pastPapers: pastPapers,
+              labs: allLabs
             }}
             onNavigate={(tab, itemId) => {
               setActiveTab(tab);
@@ -2612,7 +2634,7 @@ function GlobalSearch({
 }: { 
   isOpen: boolean, 
   setIsOpen: (o: boolean) => void,
-  data: { assignments: any[], quizzes: any[], videos: any[], pastPapers: any[] },
+  data: { assignments: any[], quizzes: any[], videos: any[], pastPapers: any[], labs: any[] },
   onNavigate: (tab: string, id?: string) => void
 }) {
   return (
@@ -2620,6 +2642,24 @@ function GlobalSearch({
       <CommandInput placeholder="Type to search lessons, quizzes..." />
       <CommandList className="max-h-[400px]">
         <CommandEmpty>No results found for your inquiry.</CommandEmpty>
+        
+        {data.labs.length > 0 && (
+          <CommandGroup heading="3D Virtual Labs">
+            {data.labs.map(l => (
+              <CommandItem 
+                key={l.id} 
+                onSelect={() => onNavigate('Labs', l.id)}
+                className="flex items-center gap-3"
+              >
+                <span className="material-symbols-outlined text-indigo-400">microscope</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-slate-700">{l.title}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">{l.subject} • 3D SIMULATION</span>
+                </div>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
         
         {data.videos.length > 0 && (
           <CommandGroup heading="Video Lessons">
@@ -2638,6 +2678,77 @@ function GlobalSearch({
             ))}
           </CommandGroup>
         )}
+function Student3DLabView({ labs }: { labs: any[] }) {
+  const [selectedLab, setSelectedLab] = useState<any>(null);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 pb-20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h2 className="text-2xl lg:text-3xl font-black text-slate-900 font-jakarta tracking-tight">3D Discovery Lab</h2>
+          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wide">Interactive 3D simulations and virtual science experiments.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2">
+          {selectedLab ? (
+            <div className="space-y-6">
+               <VirtualLabViewer 
+                 modelId={selectedLab.modelId} 
+                 title={selectedLab.title} 
+                 description={selectedLab.description} 
+                 subject={selectedLab.subject} 
+               />
+               <div className="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm">
+                  <h3 className="text-xl font-black text-slate-900 mb-2">{selectedLab.title}</h3>
+                  <p className="text-slate-500 font-semibold leading-relaxed">{selectedLab.description}</p>
+               </div>
+            </div>
+          ) : (
+            <div className="aspect-video bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center p-12">
+               <div className="w-20 h-20 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-900 mb-6">
+                  <span className="material-symbols-outlined text-4xl">view_in_ar</span>
+               </div>
+               <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Initialize Simulation</h3>
+               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Select a module from the repository to start exploration</p>
+            </div>
+          )}
+        </div>
+
+        <div className="lg:col-span-1 space-y-6">
+           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest ml-1">Available Modules</p>
+           <div className="space-y-4">
+              {labs.map(lab => (
+                <button 
+                  key={lab.id}
+                  onClick={() => setSelectedLab(lab)}
+                  className={cn(
+                    "w-full p-4 rounded-[2rem] border transition-all flex items-center gap-4 group text-left",
+                    selectedLab?.id === lab.id ? "bg-indigo-900 border-indigo-900 text-white shadow-xl shadow-indigo-100" : "bg-white border-slate-100 text-slate-600 hover:border-indigo-200"
+                  )}
+                >
+                   <div className={cn(
+                     "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
+                     selectedLab?.id === lab.id ? "bg-white/10" : "bg-slate-50 group-hover:bg-indigo-50"
+                   )}>
+                      <span className="material-symbols-outlined">microscope</span>
+                   </div>
+                   <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "text-[9px] font-black uppercase tracking-widest",
+                        selectedLab?.id === lab.id ? "text-indigo-200" : "text-indigo-400"
+                      )}>{lab.subject}</p>
+                      <h4 className="font-bold truncate text-[14px]">{lab.title}</h4>
+                   </div>
+                </button>
+              ))}
+           </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
         {data.assignments.length > 0 && (
           <CommandGroup heading="Assignments">

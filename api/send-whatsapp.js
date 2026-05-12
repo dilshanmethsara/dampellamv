@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-// WireWeb API configuration (hardcoded to avoid env var issues)
-const WIREWEB_BASE_URL = 'https://app.wireweb.co.in/api/v1/messages';
-const WIREWEB_API_KEY = 'wire_b7PQuXK9vdm0P6R9o1uKdr4hL0s9kE2w';
+// WireWeb API configuration
+const WIREWEB_BASE_URL = process.env.WIREWEB_BASE_URL || 'https://app.wireweb.co.in/api/v1/messages';
+const WIREWEB_API_KEY = process.env.WIREWEB_API_KEY;
 
 // Send WhatsApp message via WireWeb
 async function sendWhatsAppMessage(to, text, sessionId = null) {

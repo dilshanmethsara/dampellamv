@@ -19,5 +19,9 @@
       "src": "/api/verify-otp",
       "dest": "/api/verify-otp.js"
     }
-  ]
+  ],
+  "env": {
+    "WIREWEB_API_KEY": "@wireweb-api-key",
+    "WIREWEB_BASE_URL": "@wireweb-base-url"
+  }
 }

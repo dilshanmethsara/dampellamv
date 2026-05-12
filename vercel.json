@@ -4,12 +4,20 @@
     {
       "src": "api/send-whatsapp.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/verify-otp.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/send-whatsapp",
       "dest": "/api/send-whatsapp.js"
+    },
+    {
+      "src": "/api/verify-otp",
+      "dest": "/api/verify-otp.js"
     }
   ],
   "env": {

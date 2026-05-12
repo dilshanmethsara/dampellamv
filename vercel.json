@@ -1,35 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "crons": [
     {
-      "src": "api/send-whatsapp.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/verify-otp.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/test.js",
-      "use": "@vercel/node"
+      "path": "/api/admin/promote-grades",
+      "schedule": "0 0 1 1 *"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/send-whatsapp",
-      "dest": "/api/send-whatsapp.js"
-    },
-    {
-      "src": "/api/verify-otp",
-      "dest": "/api/verify-otp.js"
-    },
-    {
-      "src": "/api/test",
-      "dest": "/api/test.js"
-    }
-  ],
-  "env": {
-    "WIREWEB_API_KEY": "@wireweb_api_key",
-    "WIREWEB_BASE_URL": "@wireweb_base_url"
-  }
+  ]
 }

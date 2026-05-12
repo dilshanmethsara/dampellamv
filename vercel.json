@@ -21,7 +21,7 @@
     }
   ],
   "env": {
-    "WIREWEB_API_KEY": "@wireweb-api-key",
-    "WIREWEB_BASE_URL": "@wireweb-base-url"
+    "WIREWEB_API_KEY": "@wireweb_api_key",
+    "WIREWEB_BASE_URL": "@wireweb_base_url"
   }
 }

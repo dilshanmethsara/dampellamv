@@ -1,8 +1,19 @@
 {
-  "crons": [
+  "version": 2,
+  "builds": [
     {
-      "path": "/api/admin/promote-grades",
-      "schedule": "0 0 1 1 *"
+      "src": "api/send-whatsapp.js",
+      "use": "@vercel/node"
     }
-  ]
+  ],
+  "routes": [
+    {
+      "src": "/api/send-whatsapp",
+      "dest": "/api/send-whatsapp.js"
+    }
+  ],
+  "env": {
+    "WIREWEB_API_KEY": "@wireweb-api-key",
+    "WIREWEB_BASE_URL": "@wireweb-base-url"
+  }
 }

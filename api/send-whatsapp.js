@@ -99,6 +99,14 @@ const messageTemplates = {
 
 // Vercel serverless function handler
 module.exports = async (req, res) => {
+    // Debug logging
+    console.log('🔍 DEBUG: send-whatsapp API called');
+    console.log('🔍 DEBUG: Method:', req.method);
+    console.log('🔍 DEBUG: Headers:', req.headers);
+    console.log('🔍 DEBUG: Body:', req.body);
+    console.log('🔍 DEBUG: WIREWEB_API_KEY exists:', !!process.env.WIREWEB_API_KEY);
+    console.log('🔍 DEBUG: WIREWEB_BASE_URL:', process.env.WIREWEB_BASE_URL);
+
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');

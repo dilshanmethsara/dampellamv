@@ -3,6 +3,12 @@ const otpStore = new Map();
 
 // Vercel serverless function for OTP verification
 module.exports = async (req, res) => {
+    // Debug logging
+    console.log('🔍 DEBUG: verify-otp API called');
+    console.log('🔍 DEBUG: Method:', req.method);
+    console.log('🔍 DEBUG: Body:', req.body);
+    console.log('🔍 DEBUG: OTP Store size:', otpStore.size);
+
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');

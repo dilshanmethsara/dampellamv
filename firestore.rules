@@ -1,0 +1,184 @@
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      // Basic helpers
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      
+      function profileExists() {
+        return isSignedIn() && exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
+      }
+      
+      function getProfile() {
+        return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data;
+      }
+
+      function isAdmin() {
+        return profileExists() && (
+          getProfile().role.lower() == "admin" || 
+          getProfile().role_class.lower() == "admin"
+        );
+      }
+      
+      function isTeacher() {
+        return profileExists() && (
+          getProfile().role.lower() == "teacher" || 
+          getProfile().role.lower() == "faculty" ||
+          getProfile().role.lower() == "staff" ||
+          getProfile().role_class.lower() == "teacher" ||
+          getProfile().role_class.lower() == "faculty" ||
+          getProfile().role_class.lower() == "staff"
+        );
+      }
+
+      // Profiles - UNIVERSAL SEARCH ENABLED
+      match /profiles/{userId} {
+        // Users can always read/write their own
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+        
+        // Allow reading/listing of student profiles by anyone signed in
+        // This is necessary for teachers to list their class and for students to see peers
+        allow list, read: if isSignedIn() && (
+          isAdmin() || 
+          isTeacher() || 
+          (resource.data.role != null && resource.data.role.lower() == "student")
+        );
+        
+        // Admins can do everything
+        allow write: if isAdmin();
+      }
+
+      // Global Content
+      match /school_settings/{id} { allow read: if true; allow write: if isAdmin(); }
+      match /announcements/{id} { allow read: if true; allow write: if isAdmin() || isTeacher(); }
+      match /events/{id} { allow read: if true; allow write: if isAdmin(); }
+      match /valid_students/{id} { allow read: if true; allow write: if isAdmin(); }
+      
+      // Educational Data
+      match /past_papers/{id} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+      match /assignments/{id} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+      match /quizzes/{quizId} {
+        allow read: if isSignedIn();
+        allow write: if isAdmin() || isTeacher();
+        
+        match /questions/{questionId} {
+          allow read: if isSignedIn();
+          allow write: if isAdmin() || isTeacher();
+        }
+      }
+
+      match /marks/{id} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+      
+      match /assignment_submissions/{id} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+        );
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+        );
+        allow delete: if isAdmin();
+      }
+
+      match /quiz_attempts/{id} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+        );
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.student_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.student_email.lower())
+        );
+      }
+
+      match /quiz_submissions/{id} {
+        allow read: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower()) ||
+          (resource.data.studentId != null && (resource.data.studentId == request.auth.uid || (profileExists() && resource.data.studentId == getProfile().studentId)))
+        );
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && (
+          isAdmin() || 
+          (resource.data.teacherEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacherEmail.lower()) ||
+          (resource.data.teacher_email != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.teacher_email.lower()) ||
+          (resource.data.studentEmail != null && request.auth.token.email != null && request.auth.token.email.lower() == resource.data.studentEmail.lower()) ||
+          (resource.data.studentId != null && (resource.data.studentId == request.auth.uid || (profileExists() && resource.data.studentId == getProfile().studentId)))
+        );
+        allow delete: if isAdmin();
+      }
+
+      // Communications
+      match /internal_messages/{id} { allow read, write: if isSignedIn(); }
+      match /notifications/{id} {
+        allow read: if isSignedIn() && (
+          request.auth.uid == resource.data.userId || 
+          request.auth.token.email.lower() == resource.data.user_email ||
+          isAdmin()
+        );
+        allow write: if isSignedIn();
+      }
+
+      // Verification Data
+      match /phone_verifications/{uid} {
+        allow read, write: if isSignedIn() && request.auth.uid == uid;
+        allow read: if isAdmin();
+      }
+      
+      match /signup_verifications/{phoneNumber} {
+        allow read, write: if true;
+      }
+      
+      // AI Chat History
+      match /chat_history/{sessionId} {
+        allow read, write: if isSignedIn() && (
+          request.auth.uid == resource.data.uid || 
+          isAdmin()
+        );
+        allow create: if isSignedIn();
+      }
+
+      // Manual Grading Portal
+      match /manual_grades/{gradeId} {
+        allow read: if isSignedIn() && (
+          isTeacher() || 
+          isAdmin() || 
+          request.auth.uid == resource.data.studentId
+        );
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+
+      // Past Papers Library
+      match /past_papers/{paperId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+
+      // Recycle Bin / Deleted Items
+      match /deleted_items/{itemId} {
+        allow read, write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+
+      // Educational Videos / Lessons
+      match /educational_videos/{videoId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+
+      // Virtual Labs / 3D Models
+      match /virtual_labs/{labId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && (isTeacher() || isAdmin());
+      }
+    }
+  }

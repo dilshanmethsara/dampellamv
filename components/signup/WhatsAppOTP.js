@@ -6,16 +6,61 @@ import axios from 'axios';
 // Working WhatsApp API server
 const WHATSAPP_API_URL = 'https://dmvwhaserver.vercel.app/send-message';
 
-export async function sendStudentSignupOTP(payload) {
-    return axios.post(WHATSAPP_API_URL, payload);
+export async function sendStudentSignupOTP(phoneNumber, fullName) {
+  try {
+    const response = await axios.post(WHATSAPP_API_URL, { 
+      phoneNumber, 
+      fullName 
+    });
+    return {
+      success: true,
+      otpData: response.data,
+      data: response.data
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to send OTP'
+    };
+  }
 }
 
-export async function verifyStudentSignupOTP(payload) {
-    return axios.post(`${WHATSAPP_API_URL}/verify`, payload);
+export async function verifyStudentSignupOTP(phoneNumber, otp, storedOTPData) {
+  try {
+    const response = await axios.post(`${WHATSAPP_API_URL}/verify`, { 
+      phoneNumber, 
+      otp, 
+      storedOTPData 
+    });
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'OTP verification failed'
+    };
+  }
 }
 
-export async function resendStudentSignupOTP(payload) {
-    return axios.post(`${WHATSAPP_API_URL}/resend`, payload);
+export async function resendStudentSignupOTP(phoneNumber, fullName) {
+  try {
+    const response = await axios.post(`${WHATSAPP_API_URL}/resend`, { 
+      phoneNumber, 
+      fullName 
+    });
+    return {
+      success: true,
+      otpData: response.data,
+      data: response.data
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to resend OTP'
+    };
+  }
 }
 
 // Generate random OTP

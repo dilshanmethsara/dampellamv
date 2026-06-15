@@ -1,10 +1,22 @@
 // WhatsApp OTP Integration for Dampella LMS Student Signup
 // Using working server: https://dmvwhaserver.vercel.app/
 
-const axios = require('axios');
+import axios from 'axios';
 
 // Working WhatsApp API server
 const WHATSAPP_API_URL = 'https://dmvwhaserver.vercel.app/send-message';
+
+export async function sendStudentSignupOTP(payload) {
+    return axios.post(WHATSAPP_API_URL, payload);
+}
+
+export async function verifyStudentSignupOTP(payload) {
+    return axios.post(`${WHATSAPP_API_URL}/verify`, payload);
+}
+
+export async function resendStudentSignupOTP(payload) {
+    return axios.post(`${WHATSAPP_API_URL}/resend`, payload);
+}
 
 // Generate random OTP
 function generateOTP(length = 6) {

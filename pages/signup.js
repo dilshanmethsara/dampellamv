@@ -56,6 +56,7 @@ export default function StudentSignup() {
             if (result.success) {
                 setStoredOTPData(result.otpData);
                 setSuccess('OTP sent to your WhatsApp! Please check your messages.');
+                setStep(2);
                 
                 // In development, show the OTP
                 if (process.env.NODE_ENV === 'development') {
@@ -107,6 +108,7 @@ export default function StudentSignup() {
             if (result.success) {
                 setStoredOTPData(result.otpData);
                 setSuccess('New OTP sent to your WhatsApp!');
+                setStep(2);
                 
                 if (process.env.NODE_ENV === 'development') {
                     console.log('Development OTP:', result.data.otp);

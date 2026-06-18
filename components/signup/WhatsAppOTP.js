@@ -1,10 +1,8 @@
 // WhatsApp OTP Integration for Dampella LMS Student Signup
 // Using working server: https://dmvwhaserver.vercel.app/
 
-import axios from 'axios';
-
-// Working WhatsApp API server
-const WHATSAPP_API_URL = 'https://dmvwhaserver.vercel.app/send-message';
+// This module provides client-side wrappers that call the server API
+// The actual WireWeb API calls are performed in `pages/api/send-otp.js`.
 
 // Generate random OTP
 function generateOTP(length = 6) {
@@ -16,62 +14,37 @@ function generateOTP(length = 6) {
     return OTP;
 }
 
-// Send OTP via WhatsApp for student signup
+// Send OTP via WireWeb WhatsApp for student signup
 export async function sendStudentSignupOTP(phoneNumber, studentName = null) {
     try {
-        // Format phone number for Sri Lanka
-        let formattedNumber = phoneNumber.replace(/\D/g, '');
-        if (formattedNumber.startsWith('0')) {
-            formattedNumber = '94' + formattedNumber.substring(1);
-        }
-        if (!formattedNumber.startsWith('94')) {
-            formattedNumber = '94' + formattedNumber;
-        }
-
-        // Generate OTP
-        const otpCode = generateOTP(6);
-
-        // Create personalized OTP message
-        let otpMessage;
-        if (studentName) {
-            otpMessage = `*🔐 Dampella LMS - Student Registration*\n--------------------------------\nDear ${studentName},\n\nYour verification code is: *${otpCode}*\n\nThis code will expire in 5 minutes.\n\nDo not share this code with anyone.\n\n🔗 Complete your registration: https://dampellamv.vercel.app/portal\n--------------------------------`;
-        } else {
-            otpMessage = `*🔐 Dampella LMS - Student Registration*\n--------------------------------\nYour verification code is: *${otpCode}*\n\nThis code will expire in 5 minutes.\n\nDo not share this code with anyone.\n\n🔗 Complete your registration: https://dampellamv.vercel.app/portal\n--------------------------------`;
-        }
-
-        // Send via working server
-        const response = await axios.post(WHATSAPP_API_URL, {
-            to: formattedNumber,
-            text: otpMessage
+        const resp = await fetch('/api/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber, studentName })
         });
 
-        // Store OTP for verification
+        const data = await resp.json();
+        if (!resp.ok) return { success: false, message: data?.message || data?.error || 'Failed' };
+
+        // Construct otpData for client usage
         const otpData = {
-            phoneNumber: formattedNumber,
-            code: otpCode,
-            timestamp: Date.now(),
-            expiresAt: Date.now() + (5 * 60 * 1000),
-            messageId: response.data.data?.messageId
+            phoneNumber: phoneNumber.replace(/\D/g, ''),
+            code: data.otp,
+            expiresAt: Date.now() + 5 * 60 * 1000,
+            messageId: data.messageId || null
         };
+
+        console.log('[WhatsAppOTP] sendStudentSignupOTP response', data);
 
         return {
             success: true,
-            data: {
-                otp: otpCode,
-                expiresAt: otpData.expiresAt,
-                messageId: otpData.messageId
-            },
-            message: 'OTP sent successfully via WhatsApp',
-            otpData: otpData
+            data: { otp: data.otp },
+            otpData,
+            message: 'OTP send requested'
         };
-
-    } catch (error) {
-        console.error('Student signup OTP error:', error.response?.data || error.message);
-        return {
-            success: false,
-            error: error.response?.data || error.message,
-            message: 'Failed to send OTP for student registration'
-        };
+    } catch (err) {
+        console.error('[WhatsAppOTP] sendStudentSignupOTP error', err);
+        return { success: false, message: err.message || 'Failed to send OTP' };
     }
 }
 
@@ -98,13 +71,18 @@ export async function verifyStudentSignupOTP(phoneNumber, enteredOTP, storedOTPD
 
         // Verify OTP
         if (formattedNumber === storedOTPData.phoneNumber && enteredOTP === storedOTPData.code) {
-            // Send confirmation message
-            const confirmationMessage = `✅ *Registration Verified*\n--------------------------------\nYour phone number has been successfully verified.\n\nYou can now complete your student registration at Dampella LMS.\n\n🔗 Continue registration: https://dampellamv.vercel.app/portal\n--------------------------------`;
+            // Send confirmation message via server API so API key is not exposed client-side
+            const confirmationMessage = `✅ *Registration Verified*\n\nYour phone number has been successfully verified.\n\nYou can now complete your student registration at Dampella LMS.\n\n🔗 Continue registration: https://dampellamv.vercel.app/portal`;
 
-            await axios.post(WHATSAPP_API_URL, {
-                to: formattedNumber,
-                text: confirmationMessage
-            });
+            try {
+                await fetch('/api/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: formattedNumber, text: confirmationMessage })
+                });
+            } catch (e) {
+                console.warn('[WhatsAppOTP] confirmation send failed', e);
+            }
 
             return {
                 success: true,

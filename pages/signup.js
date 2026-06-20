@@ -1,10 +1,5 @@
 // Student Signup Page with WhatsApp OTP Integration
 import { useState } from 'react';
-import {
-  sendStudentSignupOTPClient as sendStudentSignupOTP,
-  verifyStudentSignupOTPClient as verifyStudentSignupOTP,
-  resendStudentSignupOTPClient as resendStudentSignupOTP,
-} from '../components/signup/WhatsAppOTP.js';
 
 export default function StudentSignup() {
     const [step, setStep] = useState(1);
@@ -51,21 +46,24 @@ export default function StudentSignup() {
         setSuccess('');
 
         try {
-            const result = await sendStudentSignupOTP(formData.phoneNumber, formData.fullName);
-            
+            const res = await fetch('/api/student-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'send_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
+            });
+            const result = await res.json();
+
             if (result.success) {
-                setStoredOTPData(result.otpData);
+                setStoredOTPData(result);
                 setSuccess('OTP sent to your WhatsApp! Please check your messages.');
-                
-                // In development, show the OTP
-                if (process.env.NODE_ENV === 'development') {
-                    console.log('Development OTP:', result.data.otp);
+                if (process.env.NODE_ENV === 'development' && result.otp) {
+                    console.log('Development OTP:', result.otp);
                 }
             } else {
-                setError(result.message);
+                setError(result.message || 'Failed to send OTP');
                 setIsOTPSent(false);
             }
-        } catch (error) {
+        } catch (err) {
             setError('Failed to send OTP. Please try again.');
             setIsOTPSent(false);
         }
@@ -82,15 +80,20 @@ export default function StudentSignup() {
         setSuccess('');
 
         try {
-            const result = await verifyStudentSignupOTP(formData.phoneNumber, otp, storedOTPData);
-            
+            const res = await fetch('/api/student-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'verify_otp', phoneNumber: formData.phoneNumber, otp })
+            });
+            const result = await res.json();
+
             if (result.success) {
                 setSuccess('Phone number verified successfully! Proceeding with registration...');
                 setStep(3);
             } else {
-                setError(result.message);
+                setError(result.message || 'Invalid or expired OTP');
             }
-        } catch (error) {
+        } catch (err) {
             setError('Verification failed. Please try again.');
         } finally {
             setIsVerifying(false);
@@ -102,19 +105,24 @@ export default function StudentSignup() {
         setSuccess('');
 
         try {
-            const result = await resendStudentSignupOTP(formData.phoneNumber, formData.fullName);
-            
+            const res = await fetch('/api/student-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'resend_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
+            });
+            const result = await res.json();
+
             if (result.success) {
-                setStoredOTPData(result.otpData);
+                setStoredOTPData(result);
                 setSuccess('New OTP sent to your WhatsApp!');
-                
-                if (process.env.NODE_ENV === 'development') {
-                    console.log('Development OTP:', result.data.otp);
+
+                if (process.env.NODE_ENV === 'development' && result.otp) {
+                    console.log('Development OTP:', result.otp);
                 }
             } else {
-                setError(result.message);
+                setError(result.message || 'Failed to resend OTP');
             }
-        } catch (error) {
+        } catch (err) {
             setError('Failed to resend OTP. Please try again.');
         }
     };

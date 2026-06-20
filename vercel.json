@@ -4,5 +4,8 @@
       "path": "/api/admin/promote-grades",
       "schedule": "0 0 1 1 *"
     }
+  ],
+  "rewrites": [
+    { "source": "/otpapi", "destination": "/api/student-signup" }
   ]
 }

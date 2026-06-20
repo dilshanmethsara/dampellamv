@@ -48,7 +48,7 @@ export default function StudentSignup() {
         setSendResult(null);
 
         try {
-            const res = await fetch('/api/student-signup', {
+            const res = await fetch('/otpapi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'send_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
@@ -87,7 +87,7 @@ export default function StudentSignup() {
         setSendResult(null);
 
         try {
-            const res = await fetch('/api/student-signup', {
+            const res = await fetch('/otpapi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'verify_otp', phoneNumber: formData.phoneNumber, otp })
@@ -116,7 +116,7 @@ export default function StudentSignup() {
         setSendResult(null);
 
         try {
-            const res = await fetch('/api/student-signup', {
+            const res = await fetch('/otpapi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'resend_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })

@@ -53,7 +53,10 @@ export default function StudentSignup() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'send_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
             });
-            const result = await res.json();
+            // Parse JSON safely; if the server returns HTML (e.g., Vercel auth page), capture raw text
+            const text = await res.text();
+            let result;
+            try { result = JSON.parse(text); } catch (e) { result = { status: res.status, text }; }
             setSendResult(result);
 
             if (result.success) {
@@ -89,7 +92,9 @@ export default function StudentSignup() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'verify_otp', phoneNumber: formData.phoneNumber, otp })
             });
-            const result = await res.json();
+            const text = await res.text();
+            let result;
+            try { result = JSON.parse(text); } catch (e) { result = { status: res.status, text }; }
             setSendResult(result);
 
             if (result.success) {
@@ -116,7 +121,9 @@ export default function StudentSignup() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'resend_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
             });
-            const result = await res.json();
+            const text = await res.text();
+            let result;
+            try { result = JSON.parse(text); } catch (e) { result = { status: res.status, text }; }
             setSendResult(result);
 
             if (result.success) {

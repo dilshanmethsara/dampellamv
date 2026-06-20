@@ -3,8 +3,10 @@
 
 import axios from 'axios';
 
-// Working WhatsApp API server
-const WHATSAPP_API_URL = 'https://dmvwhaserver.vercel.app/send-message';
+// WireWeb API configuration
+const WIREWEB_API_URL = 'https://app.wireweb.co.in/api/v1/messages';
+const WIREWEB_API_KEY = process.env.NEXT_PUBLIC_WIREWEB_API_KEY;
+const WIREWEB_SESSION_ID = process.env.NEXT_PUBLIC_WIREWEB_SESSION_ID;
 
 // Generate random OTP
 function generateOTP(length = 6) {
@@ -16,8 +18,8 @@ function generateOTP(length = 6) {
     return OTP;
 }
 
-// Send OTP via WhatsApp for student signup
-export async function sendStudentSignupOTP(phoneNumber, studentName = null) {
+// Send OTP via WireWeb WhatsApp for student signup
+export async function sendStudentSignupOTPClient(phoneNumber, studentName = null) {
     try {
         // Format phone number for Sri Lanka
         let formattedNumber = phoneNumber.replace(/\D/g, '');
@@ -28,21 +30,30 @@ export async function sendStudentSignupOTP(phoneNumber, studentName = null) {
             formattedNumber = '94' + formattedNumber;
         }
 
+        // Add @s.whatsapp.net for WhatsApp JID format
+        const whatsappJID = formattedNumber + '@s.whatsapp.net';
+
         // Generate OTP
         const otpCode = generateOTP(6);
 
         // Create personalized OTP message
         let otpMessage;
         if (studentName) {
-            otpMessage = `*🔐 Dampella LMS - Student Registration*\n--------------------------------\nDear ${studentName},\n\nYour verification code is: *${otpCode}*\n\nThis code will expire in 5 minutes.\n\nDo not share this code with anyone.\n\n🔗 Complete your registration: https://dampellamv.vercel.app/portal\n--------------------------------`;
+            otpMessage = `🔐 *Dampella LMS - Student Registration*\n\nDear ${studentName},\n\nYour verification code is: *${otpCode}*\n\nThis code will expire in 5 minutes.\n\nDo not share this code with anyone.\n\n🔗 Complete your registration: https://dampellamv.vercel.app/portal`;
         } else {
-            otpMessage = `*🔐 Dampella LMS - Student Registration*\n--------------------------------\nYour verification code is: *${otpCode}*\n\nThis code will expire in 5 minutes.\n\nDo not share this code with anyone.\n\n🔗 Complete your registration: https://dampellamv.vercel.app/portal\n--------------------------------`;
+            otpMessage = `🔐 *Dampella LMS - Student Registration*\n\nYour verification code is: *${otpCode}*\n\nThis code will expire in 5 minutes.\n\nDo not share this code with anyone.\n\n🔗 Complete your registration: https://dampellamv.vercel.app/portal`;
         }
 
-        // Send via working server
-        const response = await axios.post(WHATSAPP_API_URL, {
-            to: formattedNumber,
+        // Send via WireWeb API
+        const response = await axios.post(WIREWEB_API_URL, {
+            sessionId: WIREWEB_SESSION_ID,
+            to: whatsappJID,
             text: otpMessage
+        }, {
+            headers: {
+                'Authorization': `Bearer ${WIREWEB_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         // Store OTP for verification
@@ -51,7 +62,7 @@ export async function sendStudentSignupOTP(phoneNumber, studentName = null) {
             code: otpCode,
             timestamp: Date.now(),
             expiresAt: Date.now() + (5 * 60 * 1000),
-            messageId: response.data.data?.messageId
+            messageId: response.data.messageId
         };
 
         return {
@@ -76,7 +87,7 @@ export async function sendStudentSignupOTP(phoneNumber, studentName = null) {
 }
 
 // Verify OTP for student signup
-export async function verifyStudentSignupOTP(phoneNumber, enteredOTP, storedOTPData) {
+export async function verifyStudentSignupOTPClient(phoneNumber, enteredOTP, storedOTPData) {
     try {
         // Format phone number
         let formattedNumber = phoneNumber.replace(/\D/g, '');
@@ -98,12 +109,20 @@ export async function verifyStudentSignupOTP(phoneNumber, enteredOTP, storedOTPD
 
         // Verify OTP
         if (formattedNumber === storedOTPData.phoneNumber && enteredOTP === storedOTPData.code) {
-            // Send confirmation message
-            const confirmationMessage = `✅ *Registration Verified*\n--------------------------------\nYour phone number has been successfully verified.\n\nYou can now complete your student registration at Dampella LMS.\n\n🔗 Continue registration: https://dampellamv.vercel.app/portal\n--------------------------------`;
+            // Send confirmation message via WireWeb
+            const confirmationMessage = `✅ *Registration Verified*\n\nYour phone number has been successfully verified.\n\nYou can now complete your student registration at Dampella LMS.\n\n🔗 Continue registration: https://dampellamv.vercel.app/portal`;
 
-            await axios.post(WHATSAPP_API_URL, {
-                to: formattedNumber,
+            const whatsappJID = formattedNumber + '@s.whatsapp.net';
+
+            await axios.post(WIREWEB_API_URL, {
+                sessionId: WIREWEB_SESSION_ID,
+                to: whatsappJID,
                 text: confirmationMessage
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${WIREWEB_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
             return {
@@ -130,9 +149,9 @@ export async function verifyStudentSignupOTP(phoneNumber, enteredOTP, storedOTPD
 }
 
 // Resend OTP for student signup
-export async function resendStudentSignupOTP(phoneNumber, studentName = null) {
+export async function resendStudentSignupOTPClient(phoneNumber, studentName = null) {
     try {
-        const result = await sendStudentSignupOTP(phoneNumber, studentName);
+        const result = await sendStudentSignupOTPClient(phoneNumber, studentName);
         
         if (result.success) {
             return {

@@ -1,9 +1,9 @@
 // Student Signup Page with WhatsApp OTP Integration
 import { useState } from 'react';
 import {
-  sendStudentSignupOTP,
-  verifyStudentSignupOTP,
-  resendStudentSignupOTP,
+  sendStudentSignupOTPClient as sendStudentSignupOTP,
+  verifyStudentSignupOTPClient as verifyStudentSignupOTP,
+  resendStudentSignupOTPClient as resendStudentSignupOTP,
 } from '../components/signup/WhatsAppOTP.js';
 
 export default function StudentSignup() {

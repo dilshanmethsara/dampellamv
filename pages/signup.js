@@ -15,8 +15,9 @@ export default function StudentSignup() {
     const [isOTPSent, setIsOTPSent] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
     const [storedOTPData, setStoredOTPData] = useState(null);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+        const [sendResult, setSendResult] = useState(null);
+        const [error, setError] = useState('');
+        const [success, setSuccess] = useState('');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -44,6 +45,7 @@ export default function StudentSignup() {
         setIsOTPSent(true);
         setError('');
         setSuccess('');
+        setSendResult(null);
 
         try {
             const res = await fetch('/api/student-signup', {
@@ -52,6 +54,7 @@ export default function StudentSignup() {
                 body: JSON.stringify({ action: 'send_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
             });
             const result = await res.json();
+            setSendResult(result);
 
             if (result.success) {
                 setStoredOTPData(result);
@@ -78,6 +81,7 @@ export default function StudentSignup() {
         setIsVerifying(true);
         setError('');
         setSuccess('');
+        setSendResult(null);
 
         try {
             const res = await fetch('/api/student-signup', {
@@ -86,6 +90,7 @@ export default function StudentSignup() {
                 body: JSON.stringify({ action: 'verify_otp', phoneNumber: formData.phoneNumber, otp })
             });
             const result = await res.json();
+            setSendResult(result);
 
             if (result.success) {
                 setSuccess('Phone number verified successfully! Proceeding with registration...');
@@ -103,6 +108,7 @@ export default function StudentSignup() {
     const handleResendOTP = async () => {
         setError('');
         setSuccess('');
+        setSendResult(null);
 
         try {
             const res = await fetch('/api/student-signup', {
@@ -111,6 +117,7 @@ export default function StudentSignup() {
                 body: JSON.stringify({ action: 'resend_otp', phoneNumber: formData.phoneNumber, studentName: formData.fullName })
             });
             const result = await res.json();
+            setSendResult(result);
 
             if (result.success) {
                 setStoredOTPData(result);
@@ -373,6 +380,20 @@ export default function StudentSignup() {
                     {success && (
                         <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                             {success}
+                        </div>
+                    )}
+
+                    {/* Debug: show last send/verify result */}
+                    {sendResult && (
+                        <div className="mt-4 p-3 bg-gray-50 border border-gray-300 text-gray-800 rounded">
+                            <h4 className="font-medium mb-2">Last OTP API result</h4>
+                            <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>{JSON.stringify(sendResult, null, 2)}</pre>
+                            <div className="mt-2 text-sm text-gray-600">
+                                <p><strong>Success:</strong> {String(sendResult.success)}</p>
+                                {sendResult.data?.messageId && <p><strong>Message ID:</strong> {sendResult.data.messageId}</p>}
+                                {sendResult.message && <p><strong>Message:</strong> {sendResult.message}</p>}
+                                {sendResult.otp && <p><strong>OTP (dev):</strong> {sendResult.otp}</p>}
+                            </div>
                         </div>
                     )}
                 </div>

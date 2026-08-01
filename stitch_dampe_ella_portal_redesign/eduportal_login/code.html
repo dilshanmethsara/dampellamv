@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#001354",
+                    "surface-container-high": "#2a2a2d",
+                    "surface-container-lowest": "#0e0e11",
+                    "on-tertiary": "#1a2b6a",
+                    "on-primary-fixed": "#0f0069",
+                    "secondary": "#bdc2ff",
+                    "on-surface-variant": "#c7c4d8",
+                    "surface-bright": "#39393c",
+                    "background": "#131316",
+                    "inverse-primary": "#4d44e3",
+                    "outline": "#918fa1",
+                    "surface-variant": "#353438",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-surface": "#e4e1e6",
+                    "surface-container-highest": "#353438",
+                    "on-background": "#e4e1e6",
+                    "on-error": "#690005",
+                    "on-primary-container": "#dad7ff",
+                    "on-tertiary-fixed-variant": "#334282",
+                    "tertiary": "#b8c4ff",
+                    "surface-dim": "#131316",
+                    "inverse-surface": "#e4e1e6",
+                    "secondary-fixed-dim": "#bdc2ff",
+                    "primary": "#c3c0ff",
+                    "surface": "#131316",
+                    "inverse-on-surface": "#303033",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#b8c4ff",
+                    "secondary-fixed": "#e0e0ff",
+                    "primary-container": "#4f46e5",
+                    "secondary-container": "#2f3aa3",
+                    "tertiary-fixed": "#dde1ff",
+                    "error-container": "#93000a",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "error": "#ffb4ab",
+                    "surface-tint": "#c3c0ff",
+                    "on-secondary-container": "#a8afff",
+                    "on-secondary-fixed-variant": "#2f3aa3",
+                    "on-primary": "#1d00a5",
+                    "surface-container": "#1f1f22",
+                    "surface-container-low": "#1b1b1e",
+                    "on-tertiary-container": "#d4d9ff",
+                    "on-secondary-fixed": "#000767",
+                    "tertiary-container": "#4d5c9e",
+                    "on-secondary": "#131e8c",
+                    "outline-variant": "#464555",
+                    "primary-fixed": "#e2dfff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .grid-pattern {
+            background-image: radial-gradient(circle, rgba(70, 69, 85, 0.15) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .monolith-gradient {
+            background: linear-gradient(135deg, #c3c0ff 0%, #4f46e5 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-[#131316] dark:bg-[#131316] fixed top-0 left-0 w-full z-50">
+<nav class="flex justify-between items-center w-full px-12 py-8 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-white uppercase font-['Inter']">
+                EduPortal
+            </div>
+<div class="hidden md:flex items-center space-x-12">
+<a class="font-['Inter'] text-xs tracking-widest uppercase text-[#c7c4d8] hover:text-white transition-colors duration-300" href="#">Resources</a>
+<a class="font-['Inter'] text-xs tracking-widest uppercase text-[#c7c4d8] hover:text-white transition-colors duration-300" href="#">Support</a>
+<a class="font-['Inter'] text-xs tracking-widest uppercase text-[#c7c4d8] hover:text-white transition-colors duration-300 border-2 border-outline-variant/20 px-6 py-2 rounded-md" href="#">Login</a>
+</div>
+</nav>
+</header>
+<main class="min-h-screen flex flex-col md:flex-row">
+<!-- Left Side: Atmospheric Architectural Monolith -->
+<section class="relative w-full md:w-5/12 bg-surface-container-lowest grid-pattern flex items-center justify-center p-12 overflow-hidden pt-32 md:pt-12">
+<div class="relative z-10 max-w-md">
+<div class="mb-12 inline-flex items-center justify-center w-20 h-20 bg-surface-container-high rounded-xl">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<h1 class="text-6xl md:text-7xl font-black text-white tracking-tighter leading-none mb-8">
+                    Welcome to the Pro-Portal.
+                </h1>
+<p class="text-lg text-on-surface-variant font-light leading-relaxed max-w-sm">
+                    Enter the monolithic digital architecture of modern learning. A precision-engineered gateway for the next generation of academic rigor.
+                </p>
+<div class="mt-12 w-24 h-1 monolith-gradient rounded-full"></div>
+</div>
+<!-- Decorative Glow -->
+<div class="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-[100px]"></div>
+</section>
+<!-- Right Side: Interaction Hub -->
+<section class="w-full md:w-7/12 bg-surface flex flex-col justify-center items-center p-8 md:p-24 relative">
+<div class="w-full max-w-2xl">
+<header class="mb-16 text-center md:text-left">
+<h2 class="text-xs font-bold tracking-[0.3em] text-primary uppercase mb-4">WELCOME TO EDUPORTAL</h2>
+<h3 class="text-4xl md:text-5xl font-black text-on-surface tracking-tight">SELECT YOUR ROLE TO CONTINUE</h3>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+<!-- Student Card -->
+<div class="group relative flex flex-col bg-surface-container-low p-10 rounded-lg transition-all duration-300 hover:bg-surface-container-high">
+<div class="mb-8">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary transition-colors">person</span>
+</div>
+<h4 class="text-2xl font-bold text-white tracking-tight mb-4 uppercase">STUDENT</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-10 flex-grow">
+                            Access your personalized curriculum, track academic milestones, and engage with interactive learning modules.
+                        </p>
+<button class="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded-md tracking-widest text-xs uppercase transition-transform active:scale-95 duration-200">
+                            SIGN IN
+                        </button>
+</div>
+<!-- Teacher Card -->
+<div class="group relative flex flex-col bg-surface-container-low p-10 rounded-lg transition-all duration-300 hover:bg-surface-container-high">
+<div class="mb-8">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary transition-colors">co_present</span>
+</div>
+<h4 class="text-2xl font-bold text-white tracking-tight mb-4 uppercase">TEACHER</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-10 flex-grow">
+                            Manage classroom dynamics, orchestrate advanced lesson plans, and evaluate student performance with high-fidelity analytics.
+                        </p>
+<button class="w-full py-4 bg-transparent border border-outline-variant/30 text-primary font-bold rounded-md tracking-widest text-xs uppercase transition-all hover:border-primary/50 active:scale-95 duration-200">
+                            SIGN IN
+                        </button>
+</div>
+</div>
+<footer class="mt-16 text-center md:text-left">
+<p class="text-on-surface-variant text-xs tracking-wide">
+                        Need assistance? <a class="text-primary hover:underline underline-offset-4 decoration-primary/30" href="#">Contact Administrator</a>
+</p>
+</footer>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0e0e11] dark:bg-[#0e0e11] border-t border-[#464555]/15 relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-12 py-10 max-w-screen-2xl mx-auto">
+<div class="text-sm font-bold text-[#c7c4d8] mb-6 md:mb-0">
+                © 2024 EduPortal Architectural Monolith. All rights reserved.
+            </div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Inter'] text-xs tracking-widest uppercase text-[#c7c4d8] hover:text-[#c3c0ff] underline decoration-[#4f46e5] underline-offset-4 opacity-80 hover:opacity-100 transition-opacity" href="#">Privacy Policy</a>
+<a class="font-['Inter'] text-xs tracking-widest uppercase text-[#c7c4d8] hover:text-[#c3c0ff] underline decoration-[#4f46e5] underline-offset-4 opacity-80 hover:opacity-100 transition-opacity" href="#">Terms of Service</a>
+<a class="font-['Inter'] text-xs tracking-widest uppercase text-[#c7c4d8] hover:text-[#c3c0ff] underline decoration-[#4f46e5] underline-offset-4 opacity-80 hover:opacity-100 transition-opacity" href="#">Help Center</a>
+</div>
+</div>
+</footer>
+</body></html>

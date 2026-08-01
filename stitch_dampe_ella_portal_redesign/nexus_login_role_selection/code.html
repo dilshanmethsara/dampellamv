@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus Learning | The Academic Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#4a3fe2",
+                        "on-primary-container": "#14007e",
+                        "primary-dim": "#3d2fd6",
+                        "on-primary": "#f4f1ff",
+                        "secondary-dim": "#563ca5",
+                        "surface-container": "#ede4ff",
+                        "background": "#faf4ff",
+                        "on-surface-variant": "#5f557f",
+                        "on-secondary-fixed": "#3a1b88",
+                        "surface": "#faf4ff",
+                        "tertiary": "#983772",
+                        "on-primary-fixed": "#000000",
+                        "tertiary-dim": "#892a65",
+                        "tertiary-container": "#fd8bca",
+                        "inverse-primary": "#8582ff",
+                        "on-error-container": "#510017",
+                        "on-tertiary-fixed": "#360024",
+                        "surface-variant": "#e2d7ff",
+                        "inverse-surface": "#10062d",
+                        "outline": "#7b719c",
+                        "outline-variant": "#b2a6d5",
+                        "secondary-container": "#d8caff",
+                        "surface-container-highest": "#e2d7ff",
+                        "surface-tint": "#4a3fe2",
+                        "on-tertiary-fixed-variant": "#6d104e",
+                        "error-container": "#f74b6d",
+                        "primary-container": "#9795ff",
+                        "on-tertiary-container": "#610244",
+                        "error": "#b41340",
+                        "on-background": "#32294f",
+                        "surface-dim": "#dacdff",
+                        "on-primary-fixed-variant": "#1a0099",
+                        "on-surface": "#32294f",
+                        "on-error": "#ffefef",
+                        "on-tertiary": "#ffeff4",
+                        "surface-container-low": "#f5eeff",
+                        "tertiary-fixed": "#fd8bca",
+                        "primary-fixed-dim": "#8885ff",
+                        "primary-fixed": "#9795ff",
+                        "on-secondary-container": "#4e339c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#faf4ff",
+                        "secondary-fixed": "#d8caff",
+                        "secondary-fixed-dim": "#cbbaff",
+                        "tertiary-fixed-dim": "#ee7ebc",
+                        "error-dim": "#a70138",
+                        "inverse-on-surface": "#a296c4",
+                        "secondary": "#6249b2",
+                        "surface-container-high": "#e8deff",
+                        "on-secondary-fixed-variant": "#573da6",
+                        "on-secondary": "#f7f0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0px 20px 40px rgba(50, 41, 79, 0.06);
+        }
+        .bg-pattern {
+            background-image: radial-gradient(circle at 2px 2px, #b2a6d5 1px, transparent 0);
+            background-size: 40px 40px;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- Abstract Background Elements -->
+<div class="fixed inset-0 z-0 pointer-events-none">
+<div class="absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-surface-container-high blur-[120px] opacity-40"></div>
+<div class="absolute bottom-[-5%] left-[-10%] w-[35vw] h-[35vw] rounded-full bg-secondary-container blur-[100px] opacity-30"></div>
+<div class="bg-pattern absolute inset-0"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex-grow flex flex-col items-center justify-center px-6 py-12 md:py-24">
+<!-- Brand Identity Section -->
+<header class="mb-16 text-center">
+<div class="inline-flex items-center gap-3 mb-6 bg-surface-container-low px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="auto_stories">auto_stories</span>
+<span class="font-label text-xs uppercase tracking-widest font-semibold text-on-surface-variant">The Academic Atelier</span>
+</div>
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold text-primary tracking-tight mb-4">
+                Nexus Learning
+            </h1>
+<p class="font-body text-lg text-on-surface-variant max-w-lg mx-auto leading-relaxed">
+                Step into a curated environment where intellectual curiosity meets professional excellence. Select your destination.
+            </p>
+</header>
+<!-- Role Selection Bento Grid -->
+<div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+<!-- Student Portal Card -->
+<button class="group relative flex flex-col text-left transition-all duration-300 hover:translate-y-[-4px] active:scale-95">
+<div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-[0.02] rounded-xl transition-opacity"></div>
+<div class="bg-surface-container-lowest editorial-shadow rounded-xl p-8 h-full flex flex-col">
+<div class="flex justify-between items-start mb-12">
+<div class="w-16 h-16 rounded-xl bg-surface-container-high flex items-center justify-center text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<span class="font-label text-[10px] uppercase tracking-[0.2em] font-bold text-on-surface-variant/40">Portal 01</span>
+</div>
+<h2 class="font-headline text-3xl font-bold mb-4 text-on-surface">Student Portal</h2>
+<p class="font-body text-on-surface-variant leading-relaxed flex-grow">
+                        Embark on your personal learning journey with curated resources, interactive learning paths, and real-time skill analytics.
+                    </p>
+<div class="mt-8 flex items-center gap-2 text-primary font-semibold group-hover:gap-4 transition-all">
+<span>Enter as Scholar</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</button>
+<!-- Teacher Portal Card -->
+<button class="group relative flex flex-col text-left transition-all duration-300 hover:translate-y-[-4px] active:scale-95">
+<div class="absolute inset-0 bg-tertiary opacity-0 group-hover:opacity-[0.02] rounded-xl transition-opacity"></div>
+<div class="bg-surface-container-low editorial-shadow rounded-xl p-8 h-full flex flex-col">
+<div class="flex justify-between items-start mb-12">
+<div class="w-16 h-16 rounded-xl bg-surface-variant flex items-center justify-center text-tertiary transition-colors group-hover:bg-tertiary group-hover:text-on-tertiary">
+<span class="material-symbols-outlined text-3xl" data-icon="architecture" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<span class="font-label text-[10px] uppercase tracking-[0.2em] font-bold text-on-surface-variant/40">Portal 02</span>
+</div>
+<h2 class="font-headline text-3xl font-bold mb-4 text-on-surface">Teacher Portal</h2>
+<p class="font-body text-on-surface-variant leading-relaxed flex-grow">
+                        Curate world-class educational experiences, manage deep curriculum structures, and mentor scholars with precision.
+                    </p>
+<div class="mt-8 flex items-center gap-2 text-tertiary font-semibold group-hover:gap-4 transition-all">
+<span>Enter as Curator</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</button>
+</div>
+<!-- Secondary Actions -->
+<div class="flex flex-col items-center gap-6">
+<div class="h-px w-24 bg-outline-variant/30"></div>
+<div class="flex items-center gap-8">
+<a class="font-label text-sm font-medium text-on-surface-variant hover:text-primary transition-colors" href="#">Find Your Institution</a>
+<a class="font-label text-sm font-medium text-on-surface-variant hover:text-primary transition-colors" href="#">Technical Support</a>
+</div>
+</div>
+</main>
+<!-- Footer - Mapping from Shared Components JSON -->
+<footer class="relative z-10 w-full py-12 px-8 bg-[#faf4ff] dark:bg-slate-950 border-t border-[#b2a6d5]/15 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
+<div class="font-label text-xs uppercase tracking-widest text-[#32294f]/60 dark:text-slate-500">
+            © 2024 Nexus Learning. Built for the Digital Curator.
+        </div>
+<div class="flex gap-6">
+<a class="font-label text-xs uppercase tracking-widest text-[#32294f]/60 dark:text-slate-500 hover:text-[#4a3fe2] dark:hover:text-[#9795ff] transition-opacity opacity-80 hover:opacity-100" href="#">Support</a>
+<a class="font-label text-xs uppercase tracking-widest text-[#32294f]/60 dark:text-slate-500 hover:text-[#4a3fe2] dark:hover:text-[#9795ff] transition-opacity opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label text-xs uppercase tracking-widest text-[#32294f]/60 dark:text-slate-500 hover:text-[#4a3fe2] dark:hover:text-[#9795ff] transition-opacity opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label text-xs uppercase tracking-widest text-[#32294f]/60 dark:text-slate-500 hover:text-[#4a3fe2] dark:hover:text-[#9795ff] transition-opacity opacity-80 hover:opacity-100" href="#">Community</a>
+</div>
+</footer>
+<!-- Decorative Image for Visual Interest -->
+<div class="fixed right-0 top-1/2 -translate-y-1/2 w-1/4 h-3/4 pointer-events-none opacity-40 hidden xl:block">
+<img class="w-full h-full object-cover rounded-l-[100px] grayscale brightness-110 contrast-75" data-alt="abstract architectural geometry of a modern museum interior with clean lines and soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7B7WdHzuwlkeoJmFTA2KHC7HB54zDjj7HNg5z_giH9w8w47jhrE7PNe-pSs1QlyejM7esKlMuYH1WC0MtPYregh4DktnZu7JawqL35Qd4EUE7Q0PvKGLgGT2SCjuivERTYuPYPR7PsPnTg0l3Fmw_UarJA4Qz1nx3GT2iaI5U1q6CUG2HpUkt_Y7q_5_NKh906B-Q21VzTM2iYgHh6tpSc_GYh2Eo5x6AUKtcppH7xrViV6EhUM15E3UnYJoBTGtY78nXw-X7JNpz"/>
+</div>
+</body></html>

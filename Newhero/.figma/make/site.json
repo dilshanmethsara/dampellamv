@@ -1,0 +1,10 @@
+{
+  "description": "Transform uploaded images into fully editable Figma designs, preserving every detail for designers seeking precise pixel-perfect recreations.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

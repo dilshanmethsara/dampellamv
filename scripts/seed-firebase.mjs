@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc, collection, addDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import dotenv from "dotenv";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -46,10 +47,50 @@ const validStudents = [
   { student_id: "0001", full_name: "Admin Tester", grade: "Admin" }
 ];
 
+// Admin account for /admin login (Firebase Auth + admin profile)
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@dampellamv.lk";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "dampella2024";
+const ADMIN_NAME = "Site Administrator";
+
+async function ensureAdmin() {
+  const auth = getAuth(app);
+  try {
+    // Create the auth user (fails if already exists)
+    const cred = await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+    const uid = cred.user.uid;
+    await setDoc(doc(db, "profiles", uid), {
+      fullName: ADMIN_NAME,
+      email: ADMIN_EMAIL,
+      role: "admin",
+      approvalStatus: "approved",
+      createdAt: new Date().toISOString()
+    });
+    console.log(`👑 Admin created: ${ADMIN_EMAIL}`);
+  } catch (e) {
+    if (e.code === "auth/email-already-in-use") {
+      // Account exists — verify/repair the profile role
+      const cred = await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+      await setDoc(doc(db, "profiles", cred.user.uid), {
+        fullName: ADMIN_NAME,
+        email: ADMIN_EMAIL,
+        role: "admin",
+        approvalStatus: "approved",
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+      console.log(`👑 Admin profile ensured: ${ADMIN_EMAIL}`);
+    } else {
+      throw e;
+    }
+  }
+}
+
 async function seed() {
   console.log("🌱 Starting Firebase Seed...");
 
   try {
+    // 0. Provision admin auth user + profile (required for /admin Firestore access)
+    await ensureAdmin();
+
     // 1. Seed School Settings
     console.log("📝 Seeding school_settings...");
     await setDoc(doc(db, "school_settings", "1"), schoolInfo);

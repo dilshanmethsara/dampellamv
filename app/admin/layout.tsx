@@ -5,6 +5,8 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 import { 
   GraduationCap, 
   LayoutDashboard, 
@@ -66,8 +68,13 @@ export default function AdminLayout({
     setIsSidebarOpen(false)
   }, [pathname])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     sessionStorage.removeItem("admin_auth")
+    try {
+      await signOut(auth)
+    } catch (e) {
+      console.error("Sign out error:", e)
+    }
     router.replace("/admin/login")
   }
 

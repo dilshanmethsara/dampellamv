@@ -80,6 +80,10 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
   }
 
   const handleSignup = async (userData: Record<string, unknown>) => {
+    if (role === "admin") {
+      toast.error("Admin accounts cannot be created via signup. Contact the system administrator.")
+      return
+    }
     const success = await signup({ ...userData, role } as Parameters<typeof signup>[0])
     if (success) {
       sessionStorage.removeItem("student_signup_form")
@@ -141,8 +145,8 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
                 <h2 className="font-headline text-3xl font-bold text-primary tracking-tight mb-2">Portal Entry</h2>
                 <p className="text-on-surface-variant text-sm">Select your role and provide credentials.</p>
               </div>
-              {/* Role Selector: Multi-role Gateway */}
-              <div className="grid grid-cols-3 gap-2 mb-8">
+              {/* Role Selector: Multi-role Gateway (admin handled at /admin/login) */}
+              <div className="grid grid-cols-2 gap-2 mb-8">
                 <button onClick={() => setRole("student")} className={cn("flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-200 shadow-sm", role === "student" ? "bg-surface-container-low text-secondary ring-2 ring-secondary/20 scale-[1.02]" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high")}>
                   <span className="material-symbols-outlined mb-2" style={{ fontVariationSettings: role === "student" ? "'FILL' 1" : "'FILL' 0" }}>person</span>
                   <span className="text-[10px] font-bold uppercase tracking-wider">Student</span>
@@ -150,10 +154,6 @@ export function AuthForms({ initialTab = "login", onSuccess }: AuthFormsProps) {
                 <button onClick={() => setRole("teacher")} className={cn("flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-200 shadow-sm", role === "teacher" ? "bg-surface-container-low text-secondary ring-2 ring-secondary/20 scale-[1.02]" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high")}>
                   <span className="material-symbols-outlined mb-2" style={{ fontVariationSettings: role === "teacher" ? "'FILL' 1" : "'FILL' 0" }}>history_edu</span>
                   <span className="text-[10px] font-bold uppercase tracking-wider">Teacher</span>
-                </button>
-                <button onClick={() => toast.info("Admin Portal Access is currently being audited.")} className={cn("flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-200 shadow-sm", role === "admin" ? "bg-surface-container-low text-secondary ring-2 ring-secondary/20 scale-[1.02]" : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high")}>
-                  <span className="material-symbols-outlined mb-2" style={{ fontVariationSettings: role === "admin" ? "'FILL' 1" : "'FILL' 0" }}>shield_person</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Admin</span>
                 </button>
               </div>
 

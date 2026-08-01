@@ -180,5 +180,21 @@
         allow read: if isSignedIn();
         allow write: if isSignedIn() && (isTeacher() || isAdmin());
       }
+
+      // Gallery Images (admin-managed)
+      match /gallery_images/{imageId} {
+        allow read, write: if isAdmin();
+      }
+
+      // Contact Messages (public submit, admin manage)
+      match /contact_messages/{messageId} {
+        allow create: if true;
+        allow read, delete, update: if isAdmin();
+      }
+
+      // Approval Notifications (admin-managed)
+      match /approval_notifications/{notificationId} {
+        allow read, write: if isAdmin();
+      }
     }
   }

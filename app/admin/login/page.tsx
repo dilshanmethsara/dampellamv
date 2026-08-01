@@ -9,12 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-// ─── Admin credentials (change these to your own) ────────────────────────────
-const ADMIN_USERNAME = "admin"
-const ADMIN_PASSWORD = "dampella2024"
+import { signInWithEmailAndPassword, signOut } from "firebase/auth"
+import { doc, getDoc } from "firebase/firestore"
+import { auth, db } from "@/lib/firebase"
+
+// Admin account email (matches /admin/settings display). Plain "admin" username maps to this.
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@dampellamv.lk"
 
 export default function AdminLoginPage() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPass, setShowPass] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -23,15 +26,35 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    // Simulate short delay for UX
-    await new Promise(r => setTimeout(r, 600))
+    try {
+      const loginEmail = email.trim().includes("@")
+        ? email.trim().toLowerCase()
+        : ADMIN_EMAIL
 
-    if (username.trim() === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const userCredential = await signInWithEmailAndPassword(auth, loginEmail, password)
+
+      // Verify the account has the admin role in Firestore (mirrors rules isAdmin())
+      const docSnap = await getDoc(doc(db, "profiles", userCredential.user.uid))
+      const profile = docSnap.exists() ? docSnap.data() : null
+      const role = (profile?.role || profile?.role_class || "").toLowerCase()
+
+      if (role !== "admin") {
+        await signOut(auth)
+        toast.error("Access Denied: This account is not an admin in this database.")
+        setIsLoading(false)
+        return
+      }
+
       sessionStorage.setItem("admin_auth", "true")
       toast.success("Welcome to Admin Panel!")
       router.replace("/admin")
-    } else {
-      toast.error("Invalid username or password")
+    } catch (err: any) {
+      console.error("Admin login error:", err)
+      if (err.code === "auth/invalid-credential") {
+        toast.error("Invalid username or password")
+      } else {
+        toast.error(err.message || "Login failed. Please try again.")
+      }
       setIsLoading(false)
     }
   }
@@ -63,14 +86,14 @@ export default function AdminLoginPage() {
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Username / Email</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="username"
-                  placeholder="Enter username"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  id="email"
+                  placeholder="Enter email or admin"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   className="h-11 pl-10 rounded-xl"
                   autoComplete="username"
                   required

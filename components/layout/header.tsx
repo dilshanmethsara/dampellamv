@@ -38,8 +38,8 @@ export function Header() {
           <div className="flex items-center gap-3 shrink-0 group cursor-pointer">
             <div className="relative">
               {/* Glowing ring behind logo */}
-              <div className="absolute -inset-[3px] rounded-lg opacity-60 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, #5B35D5, #9333EA)', filter: 'blur(4px)' }} />
-              <div className="relative rounded-lg overflow-hidden bg-white ring-2 ring-[#5B35D5]/20 transition-all duration-300 group-hover:ring-[#5B35D5]/50">
+              <div className="absolute -inset-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, #5B35D5, #9333EA)', filter: 'blur(4px)' }} />
+              <div className="relative overflow-hidden bg-white ring-2 ring-[#5B35D5]/20 transition-all duration-300 group-hover:ring-[#5B35D5]/50">
                 <Image
                   src="/dmvlogo.jpg"
                   alt="School Logo"

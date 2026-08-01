@@ -7,6 +7,7 @@ import { GallerySection } from "@/components/home/gallery-section"
 import { ClubsSection } from "@/components/home/clubs-section"
 import { PrefectBoardSection } from "@/components/home/prefect-board-section"
 import { ContactSection } from "@/components/home/contact-section"
+import { Footer } from "@/components/layout/footer"
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
         <PrefectBoardSection />
         <ContactSection />
       </main>
+      <Footer />
     </>
   )
 }

@@ -145,7 +145,7 @@ export default function AdminGalleryPage() {
             <DialogHeader>
               <DialogTitle>Add Gallery Image</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-1">
               <div className="space-y-2">
                 <Label htmlFor="img-src">Image URL *</Label>
                 <Input

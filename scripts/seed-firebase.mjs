@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, collection, addDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, collection, addDoc, Timestamp } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import dotenv from "dotenv";
 import { readFileSync } from "fs";
@@ -132,7 +132,7 @@ async function seed() {
     for (const img of demoImages) {
       await setDoc(doc(db, "gallery_images", img.id), {
         ...img,
-        created_at: new Date().toISOString()
+        created_at: Timestamp.now()
       });
     }
 

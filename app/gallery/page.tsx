@@ -8,10 +8,11 @@ import { FadeIn } from "@/components/ui/fade-in"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { X, ChevronLeft, ChevronRight, Grid, LayoutGrid } from "lucide-react"
-import { galleryImages } from "@/lib/data"
+import { useGalleryImages } from "@/lib/use-gallery-images"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 export default function GalleryPage() {
+  const { images: galleryImages } = useGalleryImages()
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [viewMode, setViewMode] = useState<"grid" | "masonry">("grid")
@@ -20,7 +21,7 @@ export default function GalleryPage() {
   const categories = useMemo(() => {
     const cats = new Set(galleryImages.map(img => img.category))
     return ["all", ...Array.from(cats)]
-  }, [])
+  }, [galleryImages])
 
   // Filter images
   const filteredImages = useMemo(() => {

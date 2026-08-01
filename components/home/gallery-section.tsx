@@ -7,10 +7,11 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { SectionHeader } from "@/components/ui/section-header"
 import { Expand, ArrowRight } from "lucide-react"
-import { galleryImages } from "@/lib/data"
+import { useGalleryImages } from "@/lib/use-gallery-images"
 
 export function GallerySection() {
-  const displayImages = galleryImages.slice(0, 6)
+  const { images } = useGalleryImages()
+  const displayImages = images.slice(0, 6)
 
   return (
     <section className="py-24 bg-muted/20 relative overflow-hidden">

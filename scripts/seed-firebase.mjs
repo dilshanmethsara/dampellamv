@@ -113,6 +113,29 @@ async function seed() {
       featured: true
     });
 
+    // 4. Seed demo gallery images (deterministic IDs → idempotent)
+    console.log("🖼️ Seeding gallery_images...");
+    const demoImages = [
+      { id: "demo-1", src: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&h=600&fit=crop", alt: "Students in classroom", category: "Classroom" },
+      { id: "demo-2", src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&h=600&fit=crop", alt: "Science lab experiment", category: "Science" },
+      { id: "demo-3", src: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&h=600&fit=crop", alt: "Sports day event", category: "Sports" },
+      { id: "demo-4", src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&h=600&fit=crop", alt: "Cultural performance", category: "Cultural" },
+      { id: "demo-5", src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&fit=crop", alt: "Library reading", category: "Library" },
+      { id: "demo-6", src: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&h=600&fit=crop", alt: "Art class", category: "Art" },
+      { id: "demo-7", src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop", alt: "Computer lab", category: "ICT" },
+      { id: "demo-8", src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop", alt: "Prize giving ceremony", category: "Events" },
+      { id: "demo-9", src: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=800&h=600&fit=crop", alt: "Students studying", category: "Academics" },
+      { id: "demo-10", src: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&h=600&fit=crop", alt: "School building", category: "Campus" },
+      { id: "demo-11", src: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=800&h=600&fit=crop", alt: "Music class", category: "Music" },
+      { id: "demo-12", src: "https://images.unsplash.com/photo-1562774053-701939374585?w=800&h=600&fit=crop", alt: "School playground", category: "Campus" }
+    ];
+    for (const img of demoImages) {
+      await setDoc(doc(db, "gallery_images", img.id), {
+        ...img,
+        created_at: new Date().toISOString()
+      });
+    }
+
     console.log("✅ Seed completed successfully!");
     process.exit(0);
   } catch (error) {

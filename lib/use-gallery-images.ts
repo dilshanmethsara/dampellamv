@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react"
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore"
 import { db } from "@/lib/firebase"
-import { galleryImages as fallbackImages, type GalleryImage } from "@/lib/data"
+import type { GalleryImage } from "@/lib/data"
 
 export function useGalleryImages() {
-  const [images, setImages] = useState<GalleryImage[]>(fallbackImages)
+  const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -14,11 +14,13 @@ export function useGalleryImages() {
     const unsub = onSnapshot(
       q,
       snap => {
-        if (snap.empty) return // keep fallback
         setImages(snap.docs.map(d => ({ id: d.id, ...d.data() })) as GalleryImage[])
         setLoading(false)
       },
-      err => console.error("Error fetching gallery images:", err)
+      err => {
+        console.error("Error fetching gallery images:", err)
+        setLoading(false)
+      }
     )
     return () => unsub()
   }, [])

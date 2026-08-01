@@ -181,9 +181,10 @@
         allow write: if isSignedIn() && (isTeacher() || isAdmin());
       }
 
-      // Gallery Images (admin-managed)
+      // Gallery Images (public read, admin-managed)
       match /gallery_images/{imageId} {
-        allow read, write: if isAdmin();
+        allow read: if true;
+        allow write: if isAdmin();
       }
 
       // Contact Messages (public submit, admin manage)

@@ -222,12 +222,12 @@ export function HeroSection() {
             </div>
           </div>
           {/* Contact info */}
-          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <span className="flex items-center gap-1.5 text-white/85 hover:text-white transition-colors cursor-pointer">
               <span className="w-6 h-6 rounded-md bg-white/10 ring-1 ring-white/20 flex items-center justify-center">
                 <Mail className="h-3 w-3" />
               </span>
-              <span className="hidden lg:inline">info@dampellamv.lk</span>
+              <span className="hidden sm:inline">info@dampellamv.lk</span>
             </span>
             <span className="w-px h-4 bg-white/25" />
             <span className="flex items-center gap-1.5 text-white/85 hover:text-white transition-colors cursor-pointer">

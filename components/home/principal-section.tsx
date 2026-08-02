@@ -16,7 +16,7 @@ export function PrincipalSection() {
   const { settings } = useSettings()
   
   // Get first paragraph for preview
-  const previewMessage = settings?.principal_message?.split('\n\n')[0] || "Welcome to our school. We focus on character building, critical thinking, and preparing our students for the challenges of the modern world while staying rooted in our cultural values."
+  const previewMessage = settings?.principalMessage?.split('\n\n')[0] || "Welcome to our school. We focus on character building, critical thinking, and preparing our students for the challenges of the modern world while staying rooted in our cultural values."
 
   return (
     <section className="py-16 bg-background relative overflow-hidden">
@@ -67,7 +67,7 @@ export function PrincipalSection() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-6 border-t border-border/50">
                   <div>
                     <h4 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                      {settings?.principal_name || "Mr. K. Perera"}
+                      {settings?.principalName || "Mr. K. Perera"}
                     </h4>
                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mt-1">
                       Principal, {settings?.name || "MR/ Dampella M.V"}

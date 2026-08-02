@@ -154,7 +154,10 @@ export default function EventsPage() {
         const eventsRef = collection(db, 'events')
         const q = query(eventsRef, orderBy('date', 'desc'))
         const querySnapshot = await getDocs(q)
-        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        const data = querySnapshot.docs.map(doc => {
+          const eventData = doc.data()
+          return { id: doc.id, ...eventData, is_past: new Date(eventData.date) < new Date() }
+        })
         setEvents(data)
       } catch (error) {
         console.error("Error fetching events:", error)

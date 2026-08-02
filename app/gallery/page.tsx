@@ -27,7 +27,7 @@ export default function GalleryPage() {
   const filteredImages = useMemo(() => {
     if (selectedCategory === "all") return galleryImages
     return galleryImages.filter(img => img.category === selectedCategory)
-  }, [selectedCategory])
+  }, [selectedCategory, galleryImages])
 
   const openLightbox = (index: number) => setSelectedIndex(index)
   const closeLightbox = () => setSelectedIndex(null)

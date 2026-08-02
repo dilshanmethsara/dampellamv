@@ -24,6 +24,12 @@ export function FadeIn({
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Elements mounted already in viewport (e.g. async data arriving) must show immediately
+    if (ref.current && ref.current.getBoundingClientRect().top < window.innerHeight) {
+      setIsVisible(true)
+      if (once) return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

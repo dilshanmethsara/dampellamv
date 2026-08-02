@@ -12,7 +12,7 @@ import { useGalleryImages } from "@/lib/use-gallery-images"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 export default function GalleryPage() {
-  const { images: galleryImages } = useGalleryImages()
+  const { images: galleryImages, loading } = useGalleryImages()
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [viewMode, setViewMode] = useState<"grid" | "masonry">("grid")
@@ -168,7 +168,7 @@ export default function GalleryPage() {
               </div>
             )}
 
-            {filteredImages.length === 0 && (
+            {!loading && filteredImages.length === 0 && (
               <FadeIn direction="up">
                 <div className="text-center py-12">
                   <p className="text-muted-foreground text-lg">

@@ -23,7 +23,7 @@ export default async function AboutPage() {
     ...schoolInfo,
     ...settings,
     name: settings?.name || schoolInfo.name,
-    fullName: settings?.fullName || settings?.full_name || schoolInfo.fullName,
+    fullName: settings?.full_name || settings?.fullName || schoolInfo.fullName,
     motto: settings?.motto || schoolInfo.motto,
     history: settings?.history || schoolInfo.history,
     vision: settings?.vision || schoolInfo.vision,
@@ -32,8 +32,8 @@ export default async function AboutPage() {
     teachers: settings?.teachers || schoolInfo.teachers,
     achievements: settings?.achievements || schoolInfo.achievements,
     yearsOfExcellence: settings?.yearsOfExcellence || settings?.years_of_excellence || schoolInfo.yearsOfExcellence,
-    principalName: settings?.principalName || settings?.principal_name || schoolInfo.principalName,
-    principalMessage: settings?.principalMessage || settings?.principal_message || schoolInfo.principalMessage,
+    principalName: settings?.principal_name || settings?.principalName || schoolInfo.principalName,
+    principalMessage: settings?.principal_message || settings?.principalMessage || schoolInfo.principalMessage,
     values: settings?.values || schoolInfo.values,
   }
 
